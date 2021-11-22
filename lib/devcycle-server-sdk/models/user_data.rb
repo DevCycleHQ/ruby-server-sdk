@@ -155,6 +155,8 @@ module DevCycle
         h[k.to_sym] = v
       }
 
+      self.set_default_platform_info()
+
       if attributes.key?(:'user_id')
         self.user_id = attributes[:'user_id']
       end
@@ -218,6 +220,13 @@ module DevCycle
       if attributes.key?(:'sdk_version')
         self.sdk_version = attributes[:'sdk_version']
       end
+    end
+
+    def set_default_platform_info
+      self.sdk_type = 'server'
+      self.sdk_version = VERSION
+      self.platform = 'ruby'
+      self.platform_version = RUBY_VERSION
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?

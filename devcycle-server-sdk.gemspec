@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.version     = DevCycle::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["DevCycleHQ"]
-  s.email       = [""]
+  s.email       = ["support@devcycle.com"]
   s.homepage    = "https://openapi-generator.tech"
   s.summary     = "DevCycle Bucketing API Ruby Gem"
   s.description = "Documents the DevCycle Bucketing API which provides and API interface to User Bucketing and for generated SDKs."
