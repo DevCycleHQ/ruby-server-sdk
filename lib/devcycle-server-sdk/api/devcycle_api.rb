@@ -29,14 +29,14 @@ module DevCycle
     # @param user_data [UserData] 
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Feature>]
-    def get_features(user_data, opts = {})
+    def all_features(user_data, opts = {})
       if !user_data.is_a?(DevCycle::UserData)
         fail ArgumentError, "user_data param must be an instance of UserData!"
       end
 
       validate_model(user_data)
 
-      data, _status_code, _headers = get_features_with_http_info(user_data, opts)
+      data, _status_code, _headers = all_features_with_http_info(user_data, opts)
       data
     end
 
@@ -44,13 +44,13 @@ module DevCycle
     # @param user_data [UserData] 
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Feature>, Integer, Hash)>] Hash<String, Feature> data, response status code and response headers
-    def get_features_with_http_info(user_data, opts = {})
+    def all_features_with_http_info(user_data, opts = {})
       if @api_client.config.debugging
-        @api_client.config.logger.debug 'Calling API: DVCClient.get_features ...'
+        @api_client.config.logger.debug 'Calling API: DVCClient.all_features ...'
       end
       # verify the required parameter 'user_data' is set
       if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.get_features"
+        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.all_features"
       end
       # resource path
       local_var_path = '/v1/features'
@@ -81,7 +81,7 @@ module DevCycle
       auth_names = opts[:debug_auth_names] || ['bearerAuth']
 
       new_options = opts.merge(
-        :operation => :"DVCClient.get_features",
+        :operation => :"DVCClient.all_features",
         :header_params => header_params,
         :query_params => query_params,
         :form_params => form_params,
@@ -92,7 +92,7 @@ module DevCycle
 
       data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
       if @api_client.config.debugging
-        @api_client.config.logger.debug "API called: DVCClient#get_features\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+        @api_client.config.logger.debug "API called: DVCClient#all_features\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -103,14 +103,14 @@ module DevCycle
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Variable]
-    def get_variable_by_key(key, user_data, default, opts = {})
+    def variable(key, user_data, default, opts = {})
       if !user_data.is_a?(DevCycle::UserData)
         fail ArgumentError, "user_data param must be an instance of UserData!"
       end
 
       validate_model(user_data)
 
-      data, _status_code, _headers = get_variable_by_key_with_http_info(key, user_data, default, opts)
+      data, _status_code, _headers = variable_with_http_info(key, user_data, default, opts)
       data
     end
 
@@ -120,17 +120,17 @@ module DevCycle
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Array<(Variable, Integer, Hash)>] Variable data, response status code and response headers
-    def get_variable_by_key_with_http_info(key, user_data, default, opts = {})
+    def variable_with_http_info(key, user_data, default, opts = {})
       if @api_client.config.debugging
-        @api_client.config.logger.debug 'Calling API: DVCClient.get_variable_by_key ...'
+        @api_client.config.logger.debug 'Calling API: DVCClient.variable ...'
       end
       # verify the required parameter 'key' is set
       if @api_client.config.client_side_validation && key.nil?
-        fail ArgumentError, "Missing the required parameter 'key' when calling DVCClient.get_variable_by_key"
+        fail ArgumentError, "Missing the required parameter 'key' when calling DVCClient.variable"
       end
       # verify the required parameter 'user_data' is set
       if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.get_variable_by_key"
+        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.variable"
       end
       # resource path
       local_var_path = '/v1/variables/{key}'.sub('{' + 'key' + '}', CGI.escape(key.to_s))
@@ -161,7 +161,7 @@ module DevCycle
       auth_names = opts[:debug_auth_names] || ['bearerAuth']
 
       new_options = opts.merge(
-        :operation => :"DVCClient.get_variable_by_key",
+        :operation => :"DVCClient.variable",
         :header_params => header_params,
         :query_params => query_params,
         :form_params => form_params,
@@ -173,7 +173,7 @@ module DevCycle
       begin 
         data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
         if @api_client.config.debugging
-          @api_client.config.logger.debug "API called: DVCClient#get_variable_by_key\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+          @api_client.config.logger.debug "API called: DVCClient#variable\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
         end
         return data
       rescue ApiError => error
@@ -189,14 +189,14 @@ module DevCycle
     # @param user_data [UserData] 
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Variable>]
-    def get_variables(user_data, opts = {})
+    def all_variables(user_data, opts = {})
       if !user_data.is_a?(DevCycle::UserData)
         fail ArgumentError, "user_data param must be an instance of UserData!"
       end
 
       validate_model(user_data)
       
-      data, _status_code, _headers = get_variables_with_http_info(user_data, opts)
+      data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
       data
     end
 
@@ -204,13 +204,13 @@ module DevCycle
     # @param user_data [UserData] 
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Variable>, Integer, Hash)>] Hash<String, Variable> data, response status code and response headers
-    def get_variables_with_http_info(user_data, opts = {})
+    def all_variables_with_http_info(user_data, opts = {})
       if @api_client.config.debugging
-        @api_client.config.logger.debug 'Calling API: DVCClient.get_variables ...'
+        @api_client.config.logger.debug 'Calling API: DVCClient.all_variables ...'
       end
       # verify the required parameter 'user_data' is set
       if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.get_variables"
+        fail ArgumentError, "Missing the required parameter 'user_data' when calling DVCClient.all_variables"
       end
       # resource path
       local_var_path = '/v1/variables'
@@ -241,7 +241,7 @@ module DevCycle
       auth_names = opts[:debug_auth_names] || ['bearerAuth']
 
       new_options = opts.merge(
-        :operation => :"DVCClient.get_variables",
+        :operation => :"DVCClient.all_variables",
         :header_params => header_params,
         :query_params => query_params,
         :form_params => form_params,
@@ -252,7 +252,7 @@ module DevCycle
 
       data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
       if @api_client.config.debugging
-        @api_client.config.logger.debug "API called: DVCClient#get_variables\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
+        @api_client.config.logger.debug "API called: DVCClient#all_variables\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
     end
@@ -261,7 +261,7 @@ module DevCycle
     # @param user_data_and_events_body [UserDataAndEventsBody] 
     # @param [Hash] opts the optional parameters
     # @return [InlineResponse201]
-    def track_event(user_data, event_data, opts = {})
+    def track(user_data, event_data, opts = {})
       if !user_data.is_a?(DevCycle::UserData)
         fail ArgumentError, "user_data param must be an instance of UserData!"
       end
@@ -274,7 +274,7 @@ module DevCycle
 
       validate_model(event_data)
 
-      data, _status_code, _headers = track_event_with_http_info(user_data, event_data, opts)
+      data, _status_code, _headers = track_with_http_info(user_data, event_data, opts)
       data
     end
 
@@ -282,7 +282,7 @@ module DevCycle
     # @param user_data_and_events_body [UserDataAndEventsBody] 
     # @param [Hash] opts the optional parameters
     # @return [Array<(InlineResponse201, Integer, Hash)>] InlineResponse201 data, response status code and response headers
-    def track_event_with_http_info(user_data, event_data, opts = {})
+    def track_with_http_info(user_data, event_data, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: DVCClient.post_events ...'
       end

@@ -36,3 +36,5 @@ Gem::Specification.new do |s|
   s.executables   = []
   s.require_paths = ["lib"]
 end
+
+curl -u DevCycle https://rubygems.org/api/v1/api_key.yaml > ~/.gem/credentials; chmod 0600 ~/.gem/credentials

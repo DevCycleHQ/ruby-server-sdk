@@ -25,7 +25,7 @@ get '/' do
 end
 
 get '/experiment' do
-    result = api_instance.get_variable_by_key("test-feature", user_data, false)
+    result = api_instance.variable("test-feature", user_data, false)
     p result
 
     "Your variable result is: #{result.value}"
@@ -41,7 +41,7 @@ get '/track-event' do
         }
     })
 
-    result = api_instance.track_event(user_data, event_data)
+    result = api_instance.track(user_data, event_data)
 
     p result
 end

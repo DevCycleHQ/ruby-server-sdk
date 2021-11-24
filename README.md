@@ -36,10 +36,10 @@ user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData |
 
 begin
   #Get all features for user data
-  result = api_instance.get_features(user_data)
+  result = api_instance.all_features(user_data)
   p result
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->get_features: #{e}"
+  puts "Exception when calling DVCClient->all_features: #{e}"
 end
 
 ```
@@ -65,10 +65,10 @@ user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData |
 ```ruby
 begin
   #Get all features for user data
-  result = api_instance.get_features(user_data)
+  result = api_instance.all_features(user_data)
   p result
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->get_features: #{e}"
+  puts "Exception when calling DVCClient->all_features: #{e}"
 end
 ```
 
@@ -76,10 +76,10 @@ end
 ```ruby
 begin
   # Get value of given variable by key, using default value if segmentation is not passed or variable does not exit
-  result = api_instance.get_variable_by_key("variable-key", user_data, true)
+  result = api_instance.variable("variable-key", user_data, true)
   p "Received value for #{result.key}: #{result.value}"
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->get_variable_by_key: #{e}"
+  puts "Exception when calling DVCClient->variable: #{e}"
 end
 ```
 
@@ -87,10 +87,10 @@ end
 ```ruby
 begin
   #Get all variables for user data
-  result = api_instance.get_variables(user_data)
+  result = api_instance.all_variables(user_data)
   p result
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->get_variables: #{e}"
+  puts "Exception when calling DVCClient->all_variables: #{e}"
 end
 ```
 
@@ -108,10 +108,10 @@ event_data = DevCycle::Event.new({
 
 begin
   # Post events for given user data
-  result = api_instance.track_event(user_data, event_data)
+  result = api_instance.track(user_data, event_data)
   p result
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->track_event: #{e}"
+  puts "Exception when calling DVCClient->track: #{e}"
 end
 ```
 
