@@ -33,7 +33,7 @@ end
 
 get '/track-event' do
     event_data = DevCycle::Event.new({        
-        # type: "my-event",
+        type: "my-event",
         target: "some_event_target",
         value: 12,
         meta_data: {
