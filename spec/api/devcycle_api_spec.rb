@@ -23,7 +23,7 @@ describe 'DVCClient' do
 
     DevCycle.configure do |config|
       # Configure API key authorization: bearerAuth
-      config.api_key['bearerAuth'] = 'server-8f1b102b-4cb0-461b-ab10-a5091b464012'
+      config.api_key['bearerAuth'] = 'replaceWithValidSDKKey'
     end
     
     @user_data = DevCycle::UserData.new({
