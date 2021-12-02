@@ -280,7 +280,8 @@ module DevCycle
     end
 
     # Post events to DevCycle for user
-    # @param user_data_and_events_body [UserDataAndEventsBody]
+    # @param user_data [UserData]
+    # @param event_data [Event]
     # @param [Hash] opts the optional parameters
     # @return [Array<(InlineResponse201, Integer, Hash)>] InlineResponse201 data, response status code and response headers
     def track_with_http_info(user_data, event_data, opts = {})
