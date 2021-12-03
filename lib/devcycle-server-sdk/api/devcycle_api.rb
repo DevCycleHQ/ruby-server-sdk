@@ -181,7 +181,7 @@ module DevCycle
           @api_client.config.logger.error("Failed to retrieve variable value: #{error.message}")
         end
 
-        return Variable.new(key: key, value: default)
+        return Variable.new(key: key, value: default, isDefaulted: true)
       end
     end
 
