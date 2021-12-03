@@ -27,6 +27,9 @@ module DevCycle
     # Variable value can be a string, number, boolean, or JSON
     attr_accessor :value
 
+    # Set to true if the Variable could not be fetched
+    attr_accessor :isDefaulted
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -55,7 +58,8 @@ module DevCycle
         :'_id' => :'_id',
         :'key' => :'key',
         :'type' => :'type',
-        :'value' => :'value'
+        :'value' => :'value',
+        :'isDefaulted' => :'isDefaulted'
       }
     end
 
@@ -70,7 +74,8 @@ module DevCycle
         :'_id' => :'String',
         :'key' => :'String',
         :'type' => :'String',
-        :'value' => :'Object'
+        :'value' => :'Object',
+        :'isDefaulted' => :'Boolean'
       }
     end
 
@@ -109,6 +114,12 @@ module DevCycle
 
       if attributes.key?(:'value')
         self.value = attributes[:'value']
+      end
+
+      if attributes.key?(:'isDefaulted')
+        self.isDefaulted = attributes[:'isDefaulted']
+      else
+        self.isDefaulted = false
       end
     end
 
@@ -165,7 +176,8 @@ module DevCycle
           _id == o._id &&
           key == o.key &&
           type == o.type &&
-          value == o.value
+          value == o.value &&
+          isDefaulted == o.isDefaulted
     end
 
     # @see the `==` method
@@ -177,7 +189,7 @@ module DevCycle
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [_id, key, type, value].hash
+      [_id, key, type, value, isDefaulted].hash
     end
 
     # Builds the object from hash
