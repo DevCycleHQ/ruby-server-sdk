@@ -9,10 +9,10 @@ OpenAPI Generator version: 5.3.0
 =end
 
 $:.push File.expand_path("../lib", __FILE__)
-require "devcycle-server-sdk/version"
+require "devcycle-ruby-server-sdk/version"
 
 Gem::Specification.new do |s|
-  s.name        = "devcycle-server-sdk"
+  s.name        = "devcycle-ruby-server-sdk"
   s.version     = DevCycle::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["DevCycleHQ"]

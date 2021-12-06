@@ -11,22 +11,22 @@ OpenAPI Generator version: 5.3.0
 =end
 
 # Common files
-require 'devcycle-server-sdk/api_client'
-require 'devcycle-server-sdk/api_error'
-require 'devcycle-server-sdk/version'
-require 'devcycle-server-sdk/configuration'
+require 'devcycle-ruby-server-sdk/api_client'
+require 'devcycle-ruby-server-sdk/api_error'
+require 'devcycle-ruby-server-sdk/version'
+require 'devcycle-ruby-server-sdk/configuration'
 
 # Models
-require 'devcycle-server-sdk/models/error_response'
-require 'devcycle-server-sdk/models/event'
-require 'devcycle-server-sdk/models/feature'
-require 'devcycle-server-sdk/models/inline_response201'
-require 'devcycle-server-sdk/models/user_data'
-require 'devcycle-server-sdk/models/user_data_and_events_body'
-require 'devcycle-server-sdk/models/variable'
+require 'devcycle-ruby-server-sdk/models/error_response'
+require 'devcycle-ruby-server-sdk/models/event'
+require 'devcycle-ruby-server-sdk/models/feature'
+require 'devcycle-ruby-server-sdk/models/inline_response201'
+require 'devcycle-ruby-server-sdk/models/user_data'
+require 'devcycle-ruby-server-sdk/models/user_data_and_events_body'
+require 'devcycle-ruby-server-sdk/models/variable'
 
 # APIs
-require 'devcycle-server-sdk/api/devcycle_api'
+require 'devcycle-ruby-server-sdk/api/devcycle_api'
 
 module DevCycle
   class << self

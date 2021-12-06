@@ -1,10 +1,10 @@
 require 'sinatra'
 require "sinatra/reloader" if development?
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 
 token = ARGV[0]
 
-if !token 
+if !token
     fail Exception, 'Must provide server SDK token'
 end
 
@@ -32,7 +32,7 @@ get '/experiment' do
 end
 
 get '/track-event' do
-    event_data = DevCycle::Event.new({        
+    event_data = DevCycle::Event.new({
         type: "my-event",
         target: "some_event_target",
         value: 12,

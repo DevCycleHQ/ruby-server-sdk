@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     daemons (1.4.1)
-    devcycle-server-sdk (1.0.1)
+    devcycle-ruby-server-sdk (1.0.0)
       typhoeus (~> 1.0, >= 1.0.1)
     ethon (0.15.0)
       ffi (>= 1.15.0)
@@ -35,10 +35,11 @@ GEM
       ethon (>= 0.9.0)
 
 PLATFORMS
+  universal-darwin-20
   x86_64-darwin-19
 
 DEPENDENCIES
-  devcycle-server-sdk
+  devcycle-ruby-server-sdk
   sinatra
   sinatra-contrib
   thin
