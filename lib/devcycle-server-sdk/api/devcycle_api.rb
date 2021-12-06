@@ -26,7 +26,7 @@ module DevCycle
     end
 
     # Get all features by key for user data
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Feature>]
     def all_features(user_data, opts = {})
@@ -41,7 +41,7 @@ module DevCycle
     end
 
     # Get all features by key for user data
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Feature>, Integer, Hash)>] Hash<String, Feature> data, response status code and response headers
     def all_features_with_http_info(user_data, opts = {})
@@ -99,7 +99,7 @@ module DevCycle
 
     # Get variable by key for user data
     # @param key [String] Variable key
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Variable]
@@ -116,7 +116,7 @@ module DevCycle
 
     # Get variable by key for user data
     # @param key [String] Variable key
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Array<(Variable, Integer, Hash)>] Variable data, response status code and response headers
@@ -170,7 +170,7 @@ module DevCycle
         :return_type => return_type
       )
 
-      begin 
+      begin
         data, status_code, headers = @api_client.call_api(:POST, local_var_path, new_options)
         if @api_client.config.debugging
           @api_client.config.logger.debug "API called: DVCClient#variable\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
@@ -186,7 +186,7 @@ module DevCycle
     end
 
     # Get all variables by key for user data
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Variable>]
     def all_variables(user_data, opts = {})
@@ -195,13 +195,13 @@ module DevCycle
       end
 
       validate_model(user_data)
-      
+
       data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
       data
     end
 
     # Get all variables by key for user data
-    # @param user_data [UserData] 
+    # @param user_data [UserData]
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Variable>, Integer, Hash)>] Hash<String, Variable> data, response status code and response headers
     def all_variables_with_http_info(user_data, opts = {})
@@ -258,7 +258,8 @@ module DevCycle
     end
 
     # Post events to DevCycle for user
-    # @param user_data_and_events_body [UserDataAndEventsBody] 
+    # @param user_data [UserData]
+    # @param event_data [Event]
     # @param [Hash] opts the optional parameters
     # @return [InlineResponse201]
     def track(user_data, event_data, opts = {})
@@ -279,7 +280,8 @@ module DevCycle
     end
 
     # Post events to DevCycle for user
-    # @param user_data_and_events_body [UserDataAndEventsBody] 
+    # @param user_data [UserData]
+    # @param event_data [Event]
     # @param [Hash] opts the optional parameters
     # @return [Array<(InlineResponse201, Integer, Hash)>] InlineResponse201 data, response status code and response headers
     def track_with_http_info(user_data, event_data, opts = {})
