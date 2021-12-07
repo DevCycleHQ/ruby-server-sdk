@@ -1,4 +1,4 @@
-# devcycle-ruby-server-sdk
+# DevCycle Ruby Server SDK
 
 DevCycle - the Ruby gem for the DevCycle Bucketing API
 
