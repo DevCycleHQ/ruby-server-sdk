@@ -98,12 +98,12 @@ module DevCycle
     end
 
     # Get variable by key for user data
-    # @param key [String] Variable key
     # @param user_data [UserData]
+    # @param key [String] Variable key
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Variable]
-    def variable(key, user_data, default, opts = {})
+    def variable(user_data, key, default, opts = {})
       if !user_data.is_a?(DevCycle::UserData)
         fail ArgumentError, "user_data param must be an instance of UserData!"
       end
