@@ -25,7 +25,7 @@ get '/' do
 end
 
 get '/experiment' do
-    result = api_instance.variable("test-feature", user_data, false)
+    result = api_instance.variable(user_data, "test-feature", false)
     p result
 
     "Your variable result is: #{result.value}"

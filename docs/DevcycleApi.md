@@ -81,7 +81,7 @@ end
 
 ## variable
 
-> <Variable> variable(key, user_data)
+> <Variable> variable(user_data, key)
 
 Get variable by key for user data
 
@@ -104,7 +104,7 @@ user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData |
 
 begin
   # Get variable by key for user data
-  result = api_instance.variable(key, user_data)
+  result = api_instance.variable(user_data, key)
   p result
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->variable: #{e}"

@@ -68,7 +68,7 @@ end
 ```ruby
 begin
   # Get value of given variable by key, using default value if segmentation is not passed or variable does not exit
-  result = api_instance.variable("variable-key", user_data, true)
+  result = api_instance.variable(user_data, "variable-key", true)
   p "Received value for #{result.key}: #{result.value}"
 rescue DevCycle::ApiError => e
   puts "Exception when calling DVCClient->variable: #{e}"
