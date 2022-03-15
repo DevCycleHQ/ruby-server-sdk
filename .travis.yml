@@ -10,5 +10,5 @@ rvm:
 script:
   - bundle install --path vendor/bundle
   - bundle exec rspec
-  - gem build ruby-server-sdk.gemspec
+  - gem build devcycle-ruby-server-sdk.gemspec
   - gem install ./devcycle-ruby-server-sdk-1.0.1.gem

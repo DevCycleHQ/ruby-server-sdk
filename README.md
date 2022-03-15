@@ -15,7 +15,7 @@ Please follow the [installation](#installation) procedure and then run the follo
 
 ```ruby
 # Load the gem
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 
 # Setup authorization
 DevCycle.configure do |config|
@@ -41,7 +41,7 @@ end
 ### Configure SDK
 ```ruby
 # Load the gem
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 
 # Setup authorization
 DevCycle.configure do |config|
@@ -160,7 +160,7 @@ or publish the gem to a gem hosting service, e.g. [RubyGems](https://rubygems.or
 
 Finally add this to the Gemfile:
 
-    gem 'ruby-server-sdk', '~> 1.0.0'
+    gem 'devcycle-ruby-server-sdk', '~> 1.0.0'
 
 
 #### About this Package

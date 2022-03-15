@@ -24,7 +24,7 @@
 ## Example
 
 ```ruby
-require 'ruby-server-sdk'
+require 'devcycle-ruby-server-sdk'
 
 instance = DevCycle::UserData.new(
   user_id: null,
