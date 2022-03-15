@@ -20,7 +20,7 @@ Get all features by key for user data
 
 ```ruby
 require 'time'
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 # setup authorization
 DevCycle.configure do |config|
   # Configure API key authorization: bearerAuth
@@ -89,7 +89,7 @@ Get variable by key for user data
 
 ```ruby
 require 'time'
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 # setup authorization
 DevCycle.configure do |config|
   # Configure API key authorization: bearerAuth
@@ -160,7 +160,7 @@ Get all variables by key for user data
 
 ```ruby
 require 'time'
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 # setup authorization
 DevCycle.configure do |config|
   # Configure API key authorization: bearerAuth
@@ -229,7 +229,7 @@ Post events to DevCycle for user
 
 ```ruby
 require 'time'
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 # setup authorization
 DevCycle.configure do |config|
   # Configure API key authorization: bearerAuth

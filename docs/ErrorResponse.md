@@ -10,7 +10,7 @@
 ## Example
 
 ```ruby
-require 'devcycle-server-sdk'
+require 'devcycle-ruby-server-sdk'
 
 instance = DevCycle::ErrorResponse.new(
   message: null,
