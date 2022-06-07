@@ -27,6 +27,12 @@ module DevCycle
     # Bucketed feature variation
     attr_accessor :_variation
 
+    # Bucketed feature variation key
+    attr_accessor :variationKey
+
+    # Bucketed feature variation name
+    attr_accessor :variationName
+
     # Evaluation reasoning
     attr_accessor :eval_reason
 
@@ -59,6 +65,8 @@ module DevCycle
         :'key' => :'key',
         :'type' => :'type',
         :'_variation' => :'_variation',
+        :'variationKey' => :'variationKey',
+        :'variationName' => :'variationName',
         :'eval_reason' => :'evalReason'
       }
     end
@@ -75,6 +83,8 @@ module DevCycle
         :'key' => :'String',
         :'type' => :'String',
         :'_variation' => :'String',
+        :'variationKey' => :'String',
+        :'variationName' => :'String',
         :'eval_reason' => :'String'
       }
     end
@@ -116,6 +126,14 @@ module DevCycle
         self._variation = attributes[:'_variation']
       end
 
+      if attributes.key?(:'variationKey')
+        self.variationKey = attributes[:'variationKey']
+      end
+
+      if attributes.key?(:'variationName')
+        self.variationName = attributes[:'variationName']
+      end
+
       if attributes.key?(:'eval_reason')
         self.eval_reason = attributes[:'eval_reason']
       end
@@ -141,6 +159,14 @@ module DevCycle
         invalid_properties.push('invalid value for "_variation", _variation cannot be nil.')
       end
 
+      if @variationKey.nil?
+        invalid_properties.push('invalid value for "variationKey", variationKey cannot be nil.')
+      end
+
+      if @variationName.nil?
+        invalid_properties.push('invalid value for "variationName", variationName cannot be nil.')
+      end
+
       invalid_properties
     end
 
@@ -153,6 +179,8 @@ module DevCycle
       type_validator = EnumAttributeValidator.new('String', ["release", "experiment", "permission", "ops"])
       return false unless type_validator.valid?(@type)
       return false if @_variation.nil?
+      return false if @variationKey.nil?
+      return false if @variationName.nil?
       true
     end
 
@@ -175,6 +203,8 @@ module DevCycle
           key == o.key &&
           type == o.type &&
           _variation == o._variation &&
+          variationKey == o.variationKey &&
+          variationName == o.variationName &&
           eval_reason == o.eval_reason
     end
 
@@ -187,7 +217,7 @@ module DevCycle
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [_id, key, type, _variation, eval_reason].hash
+      [_id, key, type, _variation, variationKey, variationName, eval_reason].hash
     end
 
     # Builds the object from hash
