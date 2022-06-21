@@ -12,6 +12,7 @@ DevCycle.configure do |config|
     # Configure API key authorization: bearerAuth
     config.api_key['bearerAuth'] = token
     # config.debugging = true
+    config.enable_edge_db = false
 end
 
 api_instance = DevCycle::DVCClient.new
