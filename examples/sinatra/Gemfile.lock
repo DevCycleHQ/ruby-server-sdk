@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    devcycle-ruby-server-sdk (1.0.0)
+    devcycle-ruby-server-sdk (1.2.0)
       typhoeus (~> 1.0, >= 1.0.1)
 
 GEM

@@ -94,6 +94,10 @@ module DevCycle
       query_params = opts[:query_params] || {}
       form_params = opts[:form_params] || {}
 
+      if @config.enable_edge_db
+        query_params.store("enableEdgeDB", true)
+      end
+
       update_params_for_auth! header_params, query_params, opts[:auth_names]
 
       # set ssl_verifyhosts option based on @config.verify_ssl_host (true/false)

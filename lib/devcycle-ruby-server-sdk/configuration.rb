@@ -137,6 +137,10 @@ module DevCycle
 
     attr_accessor :force_ending_format
 
+   # Define if EdgeDB is Enabled (Boolean)
+   # Default to false
+   attr_accessor :enable_edge_db
+
     def initialize
       @scheme = 'https'
       @host = 'bucketing-api.devcycle.com'
@@ -158,6 +162,7 @@ module DevCycle
       @inject_format = false
       @force_ending_format = false
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+      @enable_edge_db = false
 
       yield(self) if block_given?
     end
@@ -272,6 +277,12 @@ module DevCycle
       end
 
       url
+    end
+
+    def enable_edge_db=(enable_edge_db = false)
+      if(enable_edge_db)
+        @enable_edge_db = true
+      end
     end
 
   end

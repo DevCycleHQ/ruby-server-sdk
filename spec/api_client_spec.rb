@@ -49,6 +49,23 @@ describe DevCycle::ApiClient do
         end
       end
     end
+
+    context 'Enabled Edge DB' do
+      it 'defaults the enable_edge_db value to false when no value is provided' do
+        DevCycle.configure { }
+        expect(DevCycle::Configuration.default.enable_edge_db).to eq(false)
+      end
+      
+      it 'sets the enable_edge_db value to false when false is provided' do
+        DevCycle.configure { |c| c.enable_edge_db = false }
+        expect(DevCycle::Configuration.default.enable_edge_db).to eq(false)
+      end
+      
+      it 'sets the enable_edge_db value to true when true is provided' do
+        DevCycle.configure { |c| c.enable_edge_db = true }
+        expect(DevCycle::Configuration.default.enable_edge_db).to eq(true)
+      end
+    end
   end
 
   describe 'params_encoding in #build_request' do
