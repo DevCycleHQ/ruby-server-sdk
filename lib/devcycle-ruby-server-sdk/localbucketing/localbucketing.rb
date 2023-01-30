@@ -5,7 +5,7 @@ module DevCycle
     @engine = Wasmtime::Engine.new
     @wasmmodule = Wasmtime::Module.from_file(engine, "sourceWasm")
     @store = Wasmtime::Store.new(engine)
-    @instance = Wasmtime::Instance.new(store, wasmmodule)
+    @instance = Wasmtime::Instance.new(store, @wasmmodule)
     @memory = instance.export("memory").to_memory
 
     def initialize
@@ -30,6 +30,8 @@ module DevCycle
       start_addr
     end
 
+    # @param [Integer] address start address of string.
+    # @return [String] resulting string
     def self.read_wasm_string(address)
       length = @memory.read(address - 4, 4).unpack("N").first
       result = ""
@@ -38,21 +40,7 @@ module DevCycle
         result += @memory.read(address + i)
         i += 2
       end
+      result
     end
   end
 end
-#     private String readWasmString(int startAddress) {
-#         ByteBuffer buf = memRef.get().buffer(store);
-#
-#         // objects in wasm memory have a 20 byte header before the start pointer
-#         // the 4 bytes right before the object pointer store the length of the object as an unsigned int
-#         // see assemblyscript.org/runtime.html#memory-layout
-#         byte[] headerBytes = {buf.get(startAddress - 1), buf.get(startAddress - 2), buf.get(startAddress - 3), buf.get(startAddress - 4)};
-#         long stringLength = getUnsignedInt(headerBytes);
-#         String result = "";
-#         for (int i = 0; i < stringLength; i += 2) { // +=2 because the data is formatted as WTF-16, not UTF-8
-#             result += (char) buf.get(startAddress + i); // read each byte of string starting at address
-#         }
-#
-#         return result;
-#     }
