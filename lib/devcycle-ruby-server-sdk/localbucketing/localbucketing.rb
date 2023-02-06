@@ -6,13 +6,18 @@ require "date"
 class LocalBucketing
   @@rand = Random.new(seed = Random.new_seed)
   @@engine = Wasmtime::Engine.new
-  @@wasmmodule = Wasmtime::Module.from_file(engine, "bucketing-lib.release.wasm")
-  @@store = Wasmtime::Store.new(engine)
+  @@wasmmodule = Wasmtime::Module.from_file(@@engine, "/Users/jamiesinn/git/ruby-server-sdk/lib/devcycle-ruby-server-sdk/localbucketing/bucketing-lib.release.wasm")
+  @@wasi_ctx = Wasmtime::WasiCtxBuilder.new
+                                     .inherit_stdout
+                                     .inherit_stderr
+                                     .set_argv(ARGV)
+                                     .set_env(ENV)
+  @@store = Wasmtime::Store.new(@@engine, wasi_ctx: @@wasi_ctx)
   @@linker = Wasmtime::Linker.new(@@engine, wasi: true)
 
-  @@linker.func_new("env", "Date.now", [], [:i64]) do |_caller|
+  @@linker.func_new("env", "Date.now", [], [:f64]) do |_caller|
     # Return an array with 2 elements for 2 results
-    Time.now.to_f.to_i
+    Time.now.to_f
   end
 
   @@linker.func_new("env", "abort", [:i32, :i32, :i32, :i32], []) do |_caller, messagePtr, filenamePtr, lineNum, colNum|
@@ -27,8 +32,8 @@ class LocalBucketing
     STDOUT.puts(message)
   end
 
-  @@linker.func_new("env", "seed", [], [:i64]) do |_caller|
-    (@@rand.rand(1.0) * Time.now.to_f.to_i).to_i
+  @@linker.func_new("env", "seed", [], [:f64]) do |_caller|
+    @@rand.rand(1.0) * Time.now.to_f
   end
 
   @@instance = @@linker.instantiate(@@store, @@wasmmodule)
@@ -108,4 +113,4 @@ end
 
 # end
 
-localbucketing = new.LocalBucketing("sdkkey", {})
+localbucketing = LocalBucketing("sdkkey", {}).new
