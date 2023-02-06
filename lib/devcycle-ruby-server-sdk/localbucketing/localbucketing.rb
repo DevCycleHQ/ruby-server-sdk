@@ -113,4 +113,4 @@ end
 
 # end
 
-localbucketing = LocalBucketing("sdkkey", {}).new
+localbucketing = LocalBucketing.new("sdkkey", {})
