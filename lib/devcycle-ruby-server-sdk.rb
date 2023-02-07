@@ -28,6 +28,11 @@ require 'devcycle-ruby-server-sdk/models/variable'
 # APIs
 require 'devcycle-ruby-server-sdk/api/devcycle_api'
 
+require 'devcycle-ruby-server-sdk/localbucketing/dvc_options'
+require 'devcycle-ruby-server-sdk/localbucketing/local_bucketing'
+require 'devcycle-ruby-server-sdk/localbucketing/platform_data'
+require 'devcycle-ruby-server-sdk/localbucketing/bucketed_user_config'
+
 module DevCycle
   class << self
     # Customize default settings for the SDK using block.

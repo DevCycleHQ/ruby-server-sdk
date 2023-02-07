@@ -12,6 +12,7 @@ OpenAPI Generator version: 5.3.0
 
 require 'date'
 require 'time'
+require 'json'
 
 module DevCycle
   class UserData

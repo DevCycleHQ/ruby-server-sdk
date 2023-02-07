@@ -1,18 +1,32 @@
-# frozen_string_literal: true
+require 'oj'
 
-class DVCOptions
+module DevCycle
+  class DVCOptions
+    attr_accessor :enable_edge_db
+    attr_accessor :enable_cloud_bucketing
+    attr_accessor :event_flush_interval_ms
+    attr_accessor :config_polling_interval_ms
+    attr_accessor :request_timeout
+    attr_accessor :disable_automatic_event_logging
+    attr_accessor :disable_custom_event_logging
+    attr_accessor :max_event_queue_size
+    attr_accessor :flush_event_queue_size
+    attr_accessor :config_cdn_uri
+    attr_accessor :events_api_uri
+    attr_accessor :bucketing_api_uri
 
-  EnableEdgeDB                 bool          `json:"enableEdgeDb,omitempty"`
-  EnableCloudBucketing         bool          `json:"enableCloudBucketing,omitempty"`
-  EventFlushIntervalMS         time.Duration `json:"eventFlushIntervalMS,omitempty"`
-  ConfigPollingIntervalMS      time.Duration `json:"configPollingIntervalMS,omitempty"`
-  RequestTimeout               time.Duration `json:"requestTimeout,omitempty"`
-  DisableAutomaticEventLogging bool          `json:"disableAutomaticEventLogging,omitempty"`
-  DisableCustomEventLogging    bool          `json:"disableCustomEventLogging,omitempty"`
-  MaxEventQueueSize            int           `json:"maxEventsPerFlush,omitempty"`
-  FlushEventQueueSize          int           `json:"minEventsPerFlush,omitempty"`
-  ConfigCDNURI                 string
-  EventsAPIURI                 string
-  BucketingAPIURI              string
 
+    def default
+      @event_flush_interval_ms = 1000
+      @disable_custom_event_logging = false
+      @disable_custom_event_logging = false
+      @config_cdn_uri = "https://config-cdn.devcycle.com/"
+      @events_api_uri = "https://events.devcycle.com/"
+      @bucketing_api_uri = "https://bucketing-api.devcyle.com"
+    end
+
+    def event_queue_options
+      { flushEventsMS: @event_flush_interval_ms, disableAutomaticEventLogging: @disable_automatic_event_logging, disableCustomEventLogging: @disable_custom_event_logging }
+    end
+  end
 end

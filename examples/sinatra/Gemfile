@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rubocop', group: 'development'
 gem 'sinatra'
+gem 'oj'
 gem 'sinatra-contrib'
 gem 'thin'
 # gem 'devcycle-server-sdk'
