@@ -14,7 +14,8 @@ module DevCycle
 
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new
-    @@wasmmodule = Wasmtime::Module.from_file(@@engine, "/Users/jamiesinn/git/ruby-server-sdk/lib/devcycle-ruby-server-sdk/localbucketing/bucketing-lib.release.wasm")
+
+    @@wasmmodule = Wasmtime::Module.from_file(@@engine, "#{__dir__}/bucketing-lib.release.wasm")
     @@wasi_ctx = Wasmtime::WasiCtxBuilder.new
                                          .inherit_stdout
                                          .inherit_stderr
