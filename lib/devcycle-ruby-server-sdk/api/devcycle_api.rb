@@ -72,7 +72,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || @api_client.object_to_http_body(user_data)
+      post_body = opts[:debug_body] || user_data.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Hash<String, Feature>'
@@ -152,7 +152,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || @api_client.object_to_http_body(user_data)
+      post_body = opts[:debug_body] || user_data.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Variable'
@@ -232,7 +232,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || @api_client.object_to_http_body(user_data)
+      post_body = opts[:debug_body] || user_data.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Hash<String, Variable>'

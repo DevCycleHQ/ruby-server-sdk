@@ -26,7 +26,19 @@ module DevCycle
     end
 
     def event_queue_options
-      { flushEventsMS: @event_flush_interval_ms, disableAutomaticEventLogging: @disable_automatic_event_logging, disableCustomEventLogging: @disable_custom_event_logging }
+      EventQueueOptions.new(@event_flush_interval_ms, @disable_automatic_event_logging, @disable_custom_event_logging)
+    end
+  end
+
+  class EventQueueOptions
+    attr_accessor :flushEventsMS
+    attr_accessor :disableAutomaticEventLogging
+    attr_accessor :disableCustomEventLogging
+
+    def initialize (flushEventsMS, disableAutomaticEventLogging, disableCustomEventLogging)
+      @flushEventsMS = flushEventsMS
+      @disableAutomaticEventLogging = disableAutomaticEventLogging
+      @disableCustomEventLogging = disableCustomEventLogging
     end
   end
 end

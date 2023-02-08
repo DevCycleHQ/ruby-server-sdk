@@ -14,9 +14,14 @@ module DevCycle
       @platform = platform
       @hostname = hostname
     end
-
     def default
-      self.new('server', '1.0.0', RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
+      @sdkType='server'
+      @sdkVersion = '1.0.0'
+      @platformVersion = RUBY_VERSION
+      @deviceModel = nil
+      @platform = 'Ruby'
+      @hostname = Socket.gethostname
+      self
     end
   end
 end

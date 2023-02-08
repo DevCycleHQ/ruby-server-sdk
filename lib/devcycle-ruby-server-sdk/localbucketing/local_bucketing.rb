@@ -59,7 +59,7 @@ module DevCycle
     end
 
     @@linker.func_new("env", "console.log", [:i32], []) do |_caller, messagePtr|
-      message = read_wasm_string(messagePtr)
+      message = read_asc_string(messagePtr)
 
       [messagePtr].each { |m|
         raw_bytes = @@memory.read(m - 4, 4).bytes.reverse
@@ -91,29 +91,27 @@ module DevCycle
       @sdkkey = sdkkey
       @options = options
 
-      # Set Platform Data
-      # Initialize the Event Queue
-      # Initialize Config Polling
-      platform_data = Oj.dump(DevCycle::PlatformData.new('server', '1.0.0', RUBY_VERSION, nil, 'Ruby', Socket.gethostname))
+      # TODO: Initialize Config Polling
+      platform_data = PlatformData.new('server', '1.0.0', RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
 
-      init_event_queue(Oj.dump(options.event_queue_options))
+      init_event_queue(options.event_queue_options)
     end
 
-    sig { params(user: String).returns(String) }
+    sig { params(user: UserData).returns(String) }
     def generate_bucketed_config(user)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      user_addr = malloc_wasm_string(user)
-      config_addr = @@instance.invoke("generateBucketedConfigForUser", sdkkey_addr, user_addr)
-      bucketed_config_json = read_wasm_string(config_addr)
 
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      user_addr = malloc_asc_string(user.to_json)
+      config_addr = @@instance.invoke("generateBucketedConfigForUser", sdkkey_addr, user_addr)
+      bucketed_config_json = read_asc_string(config_addr)
     end
 
     sig { returns(EventsPayload) }
     def flush_event_queue
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
       payload_addr = @@instance.invoke("flushEventQueue", sdkkey_addr)
-      raw_json = read_wasm_string(payload_addr)
+      raw_json = read_asc_string(payload_addr)
       raw_payload = Oj.load(raw_json)[0]
 
       puts(raw_json)
@@ -125,66 +123,69 @@ module DevCycle
 
     sig { returns(Integer) }
     def check_event_queue_size
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
       @@instance.invoke("eventQueueSize", sdkkey_addr)
     end
 
-    sig { params(payload_id: String) }
+    sig { params(payload_id: String).returns(NilClass) }
     def on_payload_success(payload_id)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      payload_addr = malloc_wasm_string(payload_id)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      payload_addr = malloc_asc_string(payload_id)
       @@instance.invoke("onPayloadSuccess", sdkkey_addr, payload_addr)
     end
 
     sig { params(user: String, event: String).returns(NilClass) }
     def queue_event(user, event)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      user_addr = malloc_wasm_string(user)
-      event_addr = malloc_wasm_string(event)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      user_addr = malloc_asc_string(user)
+      event_addr = malloc_asc_string(event)
       @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
     end
 
+    sig { params(payload_id: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      user_addr = malloc_wasm_string(bucketeduser)
-      varmap_addr = malloc_wasm_string(bucketeduser.variation_map)
-      event_addr = malloc_wasm_string(event)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      user_addr = malloc_asc_string(bucketeduser)
+      varmap_addr = malloc_asc_string(bucketeduser.variation_map)
+      event_addr = malloc_asc_string(event)
       @@instance.invoke("queueAggregateEvent", sdkkey_addr, user_addr, event_addr, varmap_addr)
     end
 
-    sig { params(payload_id: String, retryable: TrueClass | FalseClass).returns(NilClass) }
+    sig { params(payload_id: String, retryable: Object).returns(NilClass) }
     def on_payload_failure(payload_id, retryable)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      payload_addr = malloc_wasm_string(payload_id)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      payload_addr = malloc_asc_string(payload_id)
       @@instance.invoke("onPayloadFailure", sdkkey_addr, payload_addr, retryable ? 1 : 0)
     end
 
     sig { params(sdkkey: String, config: String).returns(NilClass) }
     def store_config(sdkkey, config)
-      sdkkey_addr = malloc_wasm_string(sdkkey)
-      config_addr = malloc_wasm_string(config)
+      sdkkey_addr = malloc_asc_string(sdkkey)
+      config_addr = malloc_asc_string(config)
       @@instance.invoke("setConfigData", sdkkey_addr, config_addr)
     end
 
     private
 
-    sig { params(platformdata: String).returns(NilClass) }
+    sig { params(platformdata: PlatformData).returns(NilClass) }
     def set_platform_data(platformdata)
-      platformdata_addr = malloc_wasm_string(platformdata)
+      platformdata_json = Oj.dump(platformdata)
+      platformdata_addr = malloc_asc_string(platformdata_json)
       @@instance.invoke("setPlatformData", platformdata_addr)
     end
 
-    sig { params(options: String).returns(NilClass) }
+    sig { params(options: EventQueueOptions).returns(NilClass) }
     def init_event_queue(options)
-      sdkkey_addr = malloc_wasm_string(@sdkkey)
-      options_addr = malloc_wasm_string(options.to_s)
+      options_json = Oj.dump(options)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      options_addr = malloc_asc_string(options_json)
       @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
     end
 
     # @param [String] string utf8 string to allocate
     # @return [Integer] address to WASM String
     sig { params(string: String).returns(Integer) }
-    def malloc_wasm_string(string)
+    def malloc_asc_string(string)
       wasm_object_id = 1
       wasm_new = @@instance.export("__new").to_func
       utf8_bytes = string.encode("iso-8859-1").force_encoding("utf-8").bytes
@@ -202,7 +203,7 @@ module DevCycle
     # @param [Integer] address start address of string.
     # @return [String] resulting string
     sig { params(address: Integer).returns(String) }
-    def read_wasm_string(address)
+    def read_asc_string(address)
       raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
       len = 0
       raw_bytes.each { |j|
