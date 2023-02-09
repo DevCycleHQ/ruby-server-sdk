@@ -28,6 +28,8 @@ module DevCycle
       DateTime.now.strftime("%Q").to_i
     end
 
+    @@stack_tracer = lambda { }
+
     @@linker.func_new("env", "abort", [:i32, :i32, :i32, :i32], []) do |_caller, messagePtr, filenamePtr, lineNum, colNum|
 
       exception_message = ""
@@ -54,9 +56,7 @@ module DevCycle
           end
         end
       }
-
-      STDERR.puts("WASM Exception: #{exception_message} - #{exception_filename} #{lineNum}:#{colNum}")
-      exit(100)
+      @@stack_tracer.call("WASM Exception: #{exception_message} - #{exception_filename} #{lineNum}:#{colNum}")
     end
 
     @@linker.func_new("env", "console.log", [:i32], []) do |_caller, messagePtr|
@@ -93,7 +93,7 @@ module DevCycle
       @options = options
 
       # TODO: Initialize Config Polling
-      platform_data = PlatformData.new('server', '1.0.0', RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
+      platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
 
       init_event_queue(options.event_queue_options)
@@ -104,6 +104,7 @@ module DevCycle
 
       sdkkey_addr = malloc_asc_string(@sdkkey)
       user_addr = malloc_asc_string(user.to_json)
+      @@stack_tracer = lambda { |message| raise message }
       config_addr = @@instance.invoke("generateBucketedConfigForUser", sdkkey_addr, user_addr)
       bucketed_config_json = read_asc_string(config_addr)
     end
@@ -111,6 +112,7 @@ module DevCycle
     sig { returns(EventsPayload) }
     def flush_event_queue
       sdkkey_addr = malloc_asc_string(@sdkkey)
+      @@stack_tracer = lambda { |message| raise message }
       payload_addr = @@instance.invoke("flushEventQueue", sdkkey_addr)
       raw_json = read_asc_string(payload_addr)
       raw_payload = Oj.load(raw_json)[0]
@@ -125,6 +127,7 @@ module DevCycle
     sig { returns(Integer) }
     def check_event_queue_size
       sdkkey_addr = malloc_asc_string(@sdkkey)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("eventQueueSize", sdkkey_addr)
     end
 
@@ -132,6 +135,7 @@ module DevCycle
     def on_payload_success(payload_id)
       sdkkey_addr = malloc_asc_string(@sdkkey)
       payload_addr = malloc_asc_string(payload_id)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("onPayloadSuccess", sdkkey_addr, payload_addr)
     end
 
@@ -140,15 +144,18 @@ module DevCycle
       sdkkey_addr = malloc_asc_string(@sdkkey)
       user_addr = malloc_asc_string(user)
       event_addr = malloc_asc_string(event)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
     end
 
     sig { params(payload_id: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
+
       sdkkey_addr = malloc_asc_string(@sdkkey)
       user_addr = malloc_asc_string(bucketeduser)
       varmap_addr = malloc_asc_string(bucketeduser.variation_map)
       event_addr = malloc_asc_string(event)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("queueAggregateEvent", sdkkey_addr, user_addr, event_addr, varmap_addr)
     end
 
@@ -156,6 +163,7 @@ module DevCycle
     def on_payload_failure(payload_id, retryable)
       sdkkey_addr = malloc_asc_string(@sdkkey)
       payload_addr = malloc_asc_string(payload_id)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("onPayloadFailure", sdkkey_addr, payload_addr, retryable ? 1 : 0)
     end
 
@@ -163,6 +171,7 @@ module DevCycle
     def store_config(sdkkey, config)
       sdkkey_addr = malloc_asc_string(sdkkey)
       config_addr = malloc_asc_string(config)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setConfigData", sdkkey_addr, config_addr)
     end
 
@@ -170,8 +179,10 @@ module DevCycle
 
     sig { params(platformdata: PlatformData).returns(NilClass) }
     def set_platform_data(platformdata)
+
       platformdata_json = Oj.dump(platformdata)
       platformdata_addr = malloc_asc_string(platformdata_json)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setPlatformData", platformdata_addr)
     end
 
@@ -180,6 +191,7 @@ module DevCycle
       options_json = Oj.dump(options)
       sdkkey_addr = malloc_asc_string(@sdkkey)
       options_addr = malloc_asc_string(options_json)
+      @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
     end
 
@@ -188,6 +200,7 @@ module DevCycle
     sig { params(string: String).returns(Integer) }
     def malloc_asc_string(string)
       wasm_object_id = 1
+      @@stack_tracer = lambda { |message| raise message }
       wasm_new = @@instance.export("__new").to_func
       utf8_bytes = string.encode("iso-8859-1").force_encoding("utf-8").bytes
       byte_len = utf8_bytes.length
@@ -195,6 +208,7 @@ module DevCycle
       start_addr = wasm_new.call(byte_len * 2, wasm_object_id)
       i = 0
       while i < byte_len
+        @@stack_tracer = lambda { |message| raise message }
         @@memory.write(start_addr + (i * 2), [utf8_bytes[i]].pack('U'))
         i += 1
       end
@@ -205,6 +219,7 @@ module DevCycle
     # @return [String] resulting string
     sig { params(address: Integer).returns(String) }
     def read_asc_string(address)
+      @@stack_tracer = lambda { |message| raise message }
       raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
       len = 0
       raw_bytes.each { |j|
@@ -213,6 +228,7 @@ module DevCycle
       result = ""
       i = 0
       while i < len
+        @@stack_tracer = lambda { |message| raise message }
         result += @@memory.read(address + i, 1)
         i += 2
       end

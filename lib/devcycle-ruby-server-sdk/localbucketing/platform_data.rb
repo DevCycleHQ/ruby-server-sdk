@@ -16,7 +16,7 @@ module DevCycle
     end
     def default
       @sdkType='server'
-      @sdkVersion = '1.0.0'
+      @sdkVersion = VERSION
       @platformVersion = RUBY_VERSION
       @deviceModel = nil
       @platform = 'Ruby'
