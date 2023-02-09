@@ -117,11 +117,9 @@ module DevCycle
       raw_json = read_asc_string(payload_addr)
       raw_payload = Oj.load(raw_json)[0]
 
-      puts(raw_json)
-      payload = EventsPayload.new(raw_payload["records"],
-                                  raw_payload["payloadId"],
-                                  raw_payload["eventCount"])
-      payload
+      EventsPayload.new(raw_payload["records"],
+                              raw_payload["payloadId"],
+                              raw_payload["eventCount"])
     end
 
     sig { returns(Integer) }

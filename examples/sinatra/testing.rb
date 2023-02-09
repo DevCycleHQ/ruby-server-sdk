@@ -7,7 +7,12 @@ localbucketing.store_config("dvc_server_token_hash", '{"project":{"settings":{"e
 puts(localbucketing.generate_bucketed_config(DevCycle::UserData.new({ user_id: "test" })))
 puts("queue event")
 
-localbucketing.queue_event('{"user_idd":"test"}', '{ "type":"customEvent", "target":"testing"}')
+begin
+  localbucketing.queue_event('{"user_id":"test"}', '{ "type":"customEvent", "target":"testing"}')
+rescue
+  puts("Caught exception")
+end
+
 
 puts("event queue size")
 puts(localbucketing.check_event_queue_size)
