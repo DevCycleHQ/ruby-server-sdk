@@ -12,9 +12,14 @@ OpenAPI Generator version: 5.3.0
 
 require 'date'
 require 'time'
+require 'oj'
 
 module DevCycle
   class UserData
+
+    def to_json
+      Oj.dump(self)
+    end
     # Unique id to identify the user
     attr_accessor :user_id
 
@@ -31,37 +36,37 @@ module DevCycle
     attr_accessor :country
 
     # App Version of the running application
-    attr_accessor :app_version
+    attr_accessor :appVersion
 
     # App Build number of the running application
-    attr_accessor :app_build
+    attr_accessor :appBuild
 
     # User's custom data to target the user with, data will be logged to DevCycle for use in dashboard.
-    attr_accessor :custom_data
+    attr_accessor :customData
 
     # User's custom data to target the user with, data will not be logged to DevCycle only used for feature bucketing.
-    attr_accessor :private_custom_data
+    attr_accessor :privateCustomData
 
     # Date the user was created, Unix epoch timestamp format
-    attr_accessor :created_date
+    attr_accessor :createdDate
 
     # Date the user was created, Unix epoch timestamp format
-    attr_accessor :last_seen_date
+    attr_accessor :lastSeenDate
 
     # Platform the Client SDK is running on
     attr_accessor :platform
 
     # Version of the platform the Client SDK is running on
-    attr_accessor :platform_version
+    attr_accessor :platformVersion
 
     # User's device model
-    attr_accessor :device_model
+    attr_accessor :deviceModel
 
     # DevCycle SDK type
-    attr_accessor :sdk_type
+    attr_accessor :sdkType
 
     # DevCycle SDK Version
-    attr_accessor :sdk_version
+    attr_accessor :sdkVersion
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -93,17 +98,17 @@ module DevCycle
         :'name' => :'name',
         :'language' => :'language',
         :'country' => :'country',
-        :'app_version' => :'appVersion',
-        :'app_build' => :'appBuild',
-        :'custom_data' => :'customData',
-        :'private_custom_data' => :'privateCustomData',
-        :'created_date' => :'createdDate',
-        :'last_seen_date' => :'lastSeenDate',
+        :'appVersion' => :'appVersion',
+        :'appBuild' => :'appBuild',
+        :'customData' => :'customData',
+        :'privateCustomData' => :'privateCustomData',
+        :'createdDate' => :'createdDate',
+        :'lastSeenDate' => :'lastSeenDate',
         :'platform' => :'platform',
-        :'platform_version' => :'platformVersion',
-        :'device_model' => :'deviceModel',
-        :'sdk_type' => :'sdkType',
-        :'sdk_version' => :'sdkVersion'
+        :'platformVersion' => :'platformVersion',
+        :'deviceModel' => :'deviceModel',
+        :'sdkType' => :'sdkType',
+        :'sdkVersion' => :'sdkVersion'
       }
     end
 
@@ -120,24 +125,24 @@ module DevCycle
         :'name' => :'String',
         :'language' => :'String',
         :'country' => :'String',
-        :'app_version' => :'String',
-        :'app_build' => :'String',
-        :'custom_data' => :'Object',
-        :'private_custom_data' => :'Object',
-        :'created_date' => :'Float',
-        :'last_seen_date' => :'Float',
+        :'appVersion' => :'String',
+        :'appBuild' => :'String',
+        :'customData' => :'Object',
+        :'privateCustomData' => :'Object',
+        :'createdDate' => :'Float',
+        :'lastSeenDate' => :'Float',
         :'platform' => :'String',
-        :'platform_version' => :'String',
-        :'device_model' => :'String',
-        :'sdk_type' => :'String',
-        :'sdk_version' => :'String'
+        :'platformVersion' => :'String',
+        :'deviceModel' => :'String',
+        :'sdkType' => :'String',
+        :'sdkVersion' => :'String'
       }
     end
 
     # List of attributes with nullable: true
     def self.openapi_nullable
       Set.new([
-      ])
+              ])
     end
 
     # Initializes the object
@@ -155,7 +160,7 @@ module DevCycle
         h[k.to_sym] = v
       }
 
-      self.set_default_platform_info()
+      self.set_default_platform_info(PlatformData.new(nil, nil, nil, nil, nil, nil).default)
 
       if attributes.key?(:'user_id')
         self.user_id = attributes[:'user_id']
@@ -177,56 +182,56 @@ module DevCycle
         self.country = attributes[:'country']
       end
 
-      if attributes.key?(:'app_version')
-        self.app_version = attributes[:'app_version']
+      if attributes.key?(:'appVersion')
+        self.appVersion = attributes[:'appVersion']
       end
 
-      if attributes.key?(:'app_build')
-        self.app_build = attributes[:'app_build']
+      if attributes.key?(:'appBuild')
+        self.appBuild = attributes[:'appBuild']
       end
 
-      if attributes.key?(:'custom_data')
-        self.custom_data = attributes[:'custom_data']
+      if attributes.key?(:'customData')
+        self.customData = attributes[:'customData']
       end
 
-      if attributes.key?(:'private_custom_data')
-        self.private_custom_data = attributes[:'private_custom_data']
+      if attributes.key?(:'privateCustomData')
+        self.privateCustomData = attributes[:'privateCustomData']
       end
 
-      if attributes.key?(:'created_date')
-        self.created_date = attributes[:'created_date']
+      if attributes.key?(:'createdDate')
+        self.createdDate = attributes[:'createdDate']
       end
 
-      if attributes.key?(:'last_seen_date')
-        self.last_seen_date = attributes[:'last_seen_date']
+      if attributes.key?(:'lastSeenDate')
+        self.lastSeenDate = attributes[:'lastSeenDate']
       end
 
       if attributes.key?(:'platform')
         self.platform = attributes[:'platform']
       end
 
-      if attributes.key?(:'platform_version')
-        self.platform_version = attributes[:'platform_version']
+      if attributes.key?(:'platformVersion')
+        self.platformVersion = attributes[:'platformVersion']
       end
 
-      if attributes.key?(:'device_model')
-        self.device_model = attributes[:'device_model']
+      if attributes.key?(:'deviceModel')
+        self.deviceModel = attributes[:'deviceModel']
       end
 
-      if attributes.key?(:'sdk_type')
-        self.sdk_type = attributes[:'sdk_type']
+      if attributes.key?(:'sdkType')
+        self.sdkType = attributes[:'sdkType']
       end
 
-      if attributes.key?(:'sdk_version')
-        self.sdk_version = attributes[:'sdk_version']
+      if attributes.key?(:'sdkVersion')
+        self.sdkVersion = attributes[:'sdkVersion']
       end
     end
 
-    def set_default_platform_info
-      self.sdk_type = 'server'
-      self.sdk_version = VERSION
-      self.platform = 'ruby'
-      self.platform_version = RUBY_VERSION
+    def set_default_platform_info(platformdata)
+      self.sdkType = platformdata.sdkType
+      self.sdkVersion = platformdata.sdkVersion
+      self.platform = platformdata.platform
+      self.platformVersion = platformdata.platformVersion
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -282,7 +287,7 @@ module DevCycle
     # Custom attribute writer method checking allowed values (enum).
     # @param [Object] sdk_type Object to be assigned
     def sdk_type=(sdk_type)
-      validator = EnumAttributeValidator.new('String', ["api", "server"])
+      validator = EnumAttributeValidator.new('String', ["server"])
       unless validator.valid?(sdk_type)
         fail ArgumentError, "invalid value for \"sdk_type\", must be one of #{validator.allowable_values}."
       end
@@ -294,22 +299,22 @@ module DevCycle
     def ==(o)
       return true if self.equal?(o)
       self.class == o.class &&
-          user_id == o.user_id &&
-          email == o.email &&
-          name == o.name &&
-          language == o.language &&
-          country == o.country &&
-          app_version == o.app_version &&
-          app_build == o.app_build &&
-          custom_data == o.custom_data &&
-          private_custom_data == o.private_custom_data &&
-          created_date == o.created_date &&
-          last_seen_date == o.last_seen_date &&
-          platform == o.platform &&
-          platform_version == o.platform_version &&
-          device_model == o.device_model &&
-          sdk_type == o.sdk_type &&
-          sdk_version == o.sdk_version
+        user_id == o.user_id &&
+        email == o.email &&
+        name == o.name &&
+        language == o.language &&
+        country == o.country &&
+        appVersion == o.appVersion &&
+        appBuild == o.appBuild &&
+        customData == o.customData &&
+        privateCustomData == o.privateCustomData &&
+        createdDate == o.createdDate &&
+        lastSeenDate == o.lastSeenDate &&
+        platform == o.platform &&
+        platformVersion == o.platformVersion &&
+        deviceModel == o.deviceModel &&
+        sdkType == o.sdkType &&
+        sdkVersion == o.sdkVersion
     end
 
     # @see the `==` method
@@ -321,7 +326,7 @@ module DevCycle
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [user_id, email, name, language, country, app_version, app_build, custom_data, private_custom_data, created_date, last_seen_date, platform, platform_version, device_model, sdk_type, sdk_version].hash
+      [user_id, email, name, language, country, appVersion, appBuild, customData, privateCustomData, createdDate, lastSeenDate, platform, platformVersion, deviceModel, sdkType, sdkVersion].hash
     end
 
     # Builds the object from hash
@@ -389,7 +394,8 @@ module DevCycle
             hash[_deserialize(k_type, k)] = _deserialize(v_type, v)
           end
         end
-      else # model
+      else
+        # model
         # models (e.g. Pet) or oneOf
         klass = DevCycle.const_get(type)
         klass.respond_to?(:openapi_one_of) ? klass.build(value) : klass.build_from_hash(value)
