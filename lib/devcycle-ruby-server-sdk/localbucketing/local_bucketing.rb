@@ -111,10 +111,10 @@ module DevCycle
       BucketedUserConfig.new(bucketed_config_hash['project'],
                              bucketed_config_hash['environment'],
                              bucketed_config_hash['features'],
-                             bucketed_config_hash['feature_var_map'],
-                             bucketed_config_hash['variable_var_map'],
+                             bucketed_config_hash['featureVariationMap'],
+                             bucketed_config_hash['variableVariationMap'],
                              bucketed_config_hash['variables'],
-                             bucketed_config_hash['known_variable_keys'])
+                             bucketed_config_hash['knownVariableKeys'])
     end
 
     sig { returns(EventsPayload) }
@@ -157,15 +157,14 @@ module DevCycle
       @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
     end
 
-    sig { params(payload_id: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
+    sig { params(event: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
 
       sdkkey_addr = malloc_asc_string(@sdkkey)
-      user_addr = malloc_asc_string(bucketeduser)
-      varmap_addr = malloc_asc_string(bucketeduser.variation_map)
-      event_addr = malloc_asc_string(event)
+      varmap_addr = malloc_asc_string(Oj.dump(bucketeduser.variable_variation_map))
+      event_addr = malloc_asc_string(Oj.dump(event))
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("queueAggregateEvent", sdkkey_addr, user_addr, event_addr, varmap_addr)
+      @@instance.invoke("queueAggregateEvent", sdkkey_addr, event_addr, varmap_addr)
     end
 
     sig { params(payload_id: String, retryable: Object).returns(NilClass) }

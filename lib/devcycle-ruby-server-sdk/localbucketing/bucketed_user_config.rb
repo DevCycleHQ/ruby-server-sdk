@@ -87,8 +87,8 @@ module DevCycle
       @project = project
       @environment = environment
       @features = features
-      @feature_var_map = feature_var_map
-      @variable_var_map = variable_var_map
+      @feature_variation_map = feature_var_map
+      @variable_variation_map = variable_var_map
       @variables = variables
       @known_variable_keys = known_variable_keys
     end
