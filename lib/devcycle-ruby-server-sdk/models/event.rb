@@ -95,7 +95,7 @@ module DevCycle
       end
 
       if attributes.key?(:'metaData')
-        self.meta_data = attributes[:'metaData']
+        self.metaData = attributes[:'metaData']
       end
     end
 
