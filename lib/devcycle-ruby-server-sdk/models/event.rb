@@ -28,7 +28,7 @@ module DevCycle
     attr_accessor :value
 
     # Extra JSON metadata for event. Contextual to event type
-    attr_accessor :meta_data
+    attr_accessor :metaData
 
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
@@ -37,7 +37,7 @@ module DevCycle
         :'target' => :'target',
         :'date' => :'date',
         :'value' => :'value',
-        :'meta_data' => :'metaData'
+        :'metaData' => :'metaData'
       }
     end
 
@@ -53,7 +53,7 @@ module DevCycle
         :'target' => :'String',
         :'date' => :'Float',
         :'value' => :'Float',
-        :'meta_data' => :'Object'
+        :'metaData' => :'Object'
       }
     end
 
@@ -94,8 +94,8 @@ module DevCycle
         self.value = attributes[:'value']
       end
 
-      if attributes.key?(:'meta_data')
-        self.meta_data = attributes[:'meta_data']
+      if attributes.key?(:'metaData')
+        self.meta_data = attributes[:'metaData']
       end
     end
 
@@ -138,7 +138,7 @@ module DevCycle
     # Calculates hash code according to all attributes.
     # @return [Integer] Hash code
     def hash
-      [type, target, date, value, meta_data].hash
+      [type, target, date, value, metaData].hash
     end
 
     # Builds the object from hash

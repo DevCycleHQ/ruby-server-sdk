@@ -99,7 +99,7 @@ module DevCycle
       init_event_queue(options.event_queue_options)
     end
 
-    sig { params(user: UserData).returns(String) }
+    sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
 
       sdkkey_addr = malloc_asc_string(@sdkkey)
@@ -107,6 +107,14 @@ module DevCycle
       @@stack_tracer = lambda { |message| raise message }
       config_addr = @@instance.invoke("generateBucketedConfigForUser", sdkkey_addr, user_addr)
       bucketed_config_json = read_asc_string(config_addr)
+      bucketed_config_hash = Oj.load(bucketed_config_json)
+      BucketedUserConfig.new(bucketed_config_hash['project'],
+                             bucketed_config_hash['environment'],
+                             bucketed_config_hash['features'],
+                             bucketed_config_hash['feature_var_map'],
+                             bucketed_config_hash['variable_var_map'],
+                             bucketed_config_hash['variables'],
+                             bucketed_config_hash['known_variable_keys'])
     end
 
     sig { returns(EventsPayload) }
@@ -117,6 +125,9 @@ module DevCycle
       raw_json = read_asc_string(payload_addr)
       raw_payload = Oj.load(raw_json)[0]
 
+      if raw_payload == nil
+        return EventsPayload.new([], "", 0)
+      end
       EventsPayload.new(raw_payload["records"],
                               raw_payload["payloadId"],
                               raw_payload["eventCount"])
@@ -137,11 +148,11 @@ module DevCycle
       @@instance.invoke("onPayloadSuccess", sdkkey_addr, payload_addr)
     end
 
-    sig { params(user: String, event: String).returns(NilClass) }
+    sig { params(user: UserData, event: Event).returns(NilClass) }
     def queue_event(user, event)
       sdkkey_addr = malloc_asc_string(@sdkkey)
-      user_addr = malloc_asc_string(user)
-      event_addr = malloc_asc_string(event)
+      user_addr = malloc_asc_string(Oj.dump(user))
+      event_addr = malloc_asc_string(Oj.dump(event))
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
     end

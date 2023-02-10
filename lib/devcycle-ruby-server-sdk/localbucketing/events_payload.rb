@@ -6,7 +6,6 @@ module DevCycle
 
     attr_accessor :records
     attr_accessor :payloadId
-    attr_accessor :eventCount
 
     sig { params(records: T::Array[EventsRecord], payloadId: String, eventCount: Integer).returns(Integer) }
     def initialize(records, payloadId, eventCount)
