@@ -16,11 +16,14 @@ module DevCycle
   class DVCClient
     attr_accessor :api_client
     attr_accessor :localbucketing
+    attr_accessor :sdkKey
 
-    def initialize(api_client = ApiClient.default, dvc_options = DVCOptions.new)
+    def initialize(sdkKey, api_client = ApiClient.default, dvc_options = DVCOptions.new)
       @api_client = api_client
-      if !@api_client.config.enable_cloud_bucketing
-        @localbucketing = LocalBucketing.new(@api_client.config.api_key['bearerAuth'], dvc_options)
+      @sdkKey = sdkKey
+      api_client.config.api_key['bearerAuth'] = @sdkKey
+      if !@api_client.config.enable_cloud_bucketing && @sdkKey != nil
+        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options)
       end
     end
 
