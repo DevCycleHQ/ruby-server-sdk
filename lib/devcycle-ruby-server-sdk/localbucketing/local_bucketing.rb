@@ -28,7 +28,23 @@ module DevCycle
       DateTime.now.strftime("%Q").to_i
     end
 
-    @@stack_tracer = lambda { }
+    inline_read_asc_string = lambda { |address|
+      raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
+      message_len = 0
+      raw_bytes.each { |j|
+        message_len = (message_len << 8) + (j & 0xFF)
+      }
+      length = message_len
+      result = ""
+      i = 0
+      while i < length
+        result += @@memory.read(address + i, 1)
+        i += 2
+      end
+      result
+    }
+
+    @@stack_tracer = lambda {}
 
     @@linker.func_new("env", "abort", [:i32, :i32, :i32, :i32], []) do |_caller, messagePtr, filenamePtr, lineNum, colNum|
 
@@ -36,18 +52,7 @@ module DevCycle
       exception_filename = ""
 
       [messagePtr, filenamePtr].each { |m|
-        raw_bytes = @@memory.read(m - 4, 4).bytes.reverse
-        message_len = 0
-        raw_bytes.each { |j|
-          message_len = (message_len << 8) + (j & 0xFF)
-        }
-        length = message_len
-        result = ""
-        i = 0
-        while i < length
-          result += @@memory.read(m + i, 1)
-          i += 2
-        end
+        result = inline_read_asc_string.call(m)
         if m == messagePtr
           exception_message = result
         else
@@ -60,23 +65,7 @@ module DevCycle
     end
 
     @@linker.func_new("env", "console.log", [:i32], []) do |_caller, messagePtr|
-      message = read_asc_string(messagePtr)
-
-      [messagePtr].each { |m|
-        raw_bytes = @@memory.read(m - 4, 4).bytes.reverse
-        message_len = 0
-        raw_bytes.each { |j|
-          message_len = (message_len << 8) + (j & 0xFF)
-        }
-        length = message_len
-        result = ""
-        i = 0
-        while i < length
-          result += @@memory.read(m + i, 1)
-          i += 2
-        end
-        STDOUT.puts(message)
-      }
+      STDOUT.puts(inline_read_asc_string.call(messagePtr))
     end
 
     @@linker.func_new("env", "seed", [], [:f64]) do |_caller|
@@ -129,8 +118,8 @@ module DevCycle
         return EventsPayload.new([], "", 0)
       end
       EventsPayload.new(raw_payload["records"],
-                              raw_payload["payloadId"],
-                              raw_payload["eventCount"])
+                        raw_payload["payloadId"],
+                        raw_payload["eventCount"])
     end
 
     sig { returns(Integer) }

@@ -15,9 +15,16 @@ require 'cgi'
 module DevCycle
   class DVCClient
     attr_accessor :api_client
+    attr_accessor :localbucketing
+    attr_accessor :sdkKey
 
-    def initialize(api_client = ApiClient.default)
+    def initialize(sdkKey, api_client = ApiClient.default, dvc_options = DVCOptions.new)
       @api_client = api_client
+      @sdkKey = sdkKey
+      api_client.config.api_key['bearerAuth'] = @sdkKey
+      if !@api_client.config.enable_cloud_bucketing && @sdkKey != nil
+        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options)
+      end
     end
 
     def validate_model(model)
@@ -65,7 +72,7 @@ module DevCycle
       # HTTP header 'Content-Type'
       content_type = @api_client.select_header_content_type(['application/json'])
       if !content_type.nil?
-          header_params['Content-Type'] = content_type
+        header_params['Content-Type'] = content_type
       end
 
       # form parameters
@@ -145,7 +152,7 @@ module DevCycle
       # HTTP header 'Content-Type'
       content_type = @api_client.select_header_content_type(['application/json'])
       if !content_type.nil?
-          header_params['Content-Type'] = content_type
+        header_params['Content-Type'] = content_type
       end
 
       # form parameters
@@ -225,7 +232,7 @@ module DevCycle
       # HTTP header 'Content-Type'
       content_type = @api_client.select_header_content_type(['application/json'])
       if !content_type.nil?
-          header_params['Content-Type'] = content_type
+        header_params['Content-Type'] = content_type
       end
 
       # form parameters
@@ -294,9 +301,9 @@ module DevCycle
       end
 
       user_data_and_events_body = DevCycle::UserDataAndEventsBody.new({
-        user: user_data,
-        events: [event_data]
-      })
+                                                                        user: user_data,
+                                                                        events: [event_data]
+                                                                      })
 
       # resource path
       local_var_path = '/v1/track'
@@ -311,7 +318,7 @@ module DevCycle
       # HTTP header 'Content-Type'
       content_type = @api_client.select_header_content_type(['application/json'])
       if !content_type.nil?
-          header_params['Content-Type'] = content_type
+        header_params['Content-Type'] = content_type
       end
 
       # form parameters

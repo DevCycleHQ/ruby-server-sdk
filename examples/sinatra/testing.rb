@@ -16,18 +16,13 @@ puts("queue event")
 begin
   localbucketing.queue_event(test_user, test_event)
 rescue
-  puts("Caught exception")
+  puts("Caught exception that doesn't exist.")
 end
 
 puts("event queue size")
 puts(localbucketing.check_event_queue_size)
 puts("flush events")
 flushed = localbucketing.flush_event_queue
-puts(flushed.payloadId)
-if flushed.payloadId != ""
-  localbucketing.on_payload_success(flushed.payloadId)
-  puts("success flush")
-end
 puts(localbucketing.check_event_queue_size)
 puts("queue new event")
 localbucketing.queue_event(test_user, test_event)
