@@ -1,6 +1,3 @@
-# frozen_string_literal: true
-
-
 module DevCycle
 
   class BucketedUserConfig
@@ -13,7 +10,6 @@ module DevCycle
     attr_accessor :known_variable_keys
 
     def initialize(project, environment, features, feature_var_map, variable_var_map, variables, known_variable_keys)
-
       @project = project
       @environment = environment
       @features = features

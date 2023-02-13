@@ -137,9 +137,12 @@ module DevCycle
 
     attr_accessor :force_ending_format
 
-   # Define if EdgeDB is Enabled (Boolean)
-   # Default to false
-   attr_accessor :enable_edge_db
+    # Define if EdgeDB is Enabled (Boolean)
+    # Default to false
+    attr_accessor :enable_edge_db
+
+
+    attr_accessor :enable_cloud_bucketing
 
     def initialize
       @scheme = 'https'
@@ -163,6 +166,7 @@ module DevCycle
       @force_ending_format = false
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
       @enable_edge_db = false
+      @enable_cloud_bucketing = false
 
       yield(self) if block_given?
     end
@@ -280,7 +284,7 @@ module DevCycle
     end
 
     def enable_edge_db=(enable_edge_db = false)
-      if(enable_edge_db)
+      if (enable_edge_db)
         @enable_edge_db = true
       end
     end
