@@ -8,13 +8,12 @@ test_event = DevCycle::Event.new( {
                                     :'type' => :'randomEval',
                                     :'target' => :'custom target'})
 puts("config?")
-sleep(20)
+sleep(10)
 bucketed_config = localbucketing.generate_bucketed_config(test_user)
 puts(bucketed_config.variable_variation_map)
 puts(Oj.dump(bucketed_config))
 puts(bucketed_config.project)
 puts("queue event")
-sleep(20)
 begin
   localbucketing.queue_event(test_user, test_event)
 rescue
