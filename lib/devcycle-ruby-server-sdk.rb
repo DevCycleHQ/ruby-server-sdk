@@ -15,6 +15,7 @@ require 'devcycle-ruby-server-sdk/api_client'
 require 'devcycle-ruby-server-sdk/api_error'
 require 'devcycle-ruby-server-sdk/version'
 require 'devcycle-ruby-server-sdk/configuration'
+require 'devcycle-ruby-server-sdk/event_queue'
 
 # Models
 require 'devcycle-ruby-server-sdk/models/error_response'
