@@ -9,10 +9,11 @@ module DevCycle
   class ConfigManager
     extend T::Sig
 
-    @config_version = "v1"
+
     sig { params(sdkKey: String, local_bucketing: LocalBucketing).returns(NilClass) }
     def initialize(sdkKey, local_bucketing)
       @first_load = true
+      @config_version = "v1"
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @config_e_tag = ""
