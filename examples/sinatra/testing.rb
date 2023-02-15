@@ -8,7 +8,6 @@ test_event = DevCycle::Event.new( {
                                     :'type' => :'randomEval',
                                     :'target' => :'custom target'})
 puts("config?")
-sleep(10)
 bucketed_config = localbucketing.generate_bucketed_config(test_user)
 puts(bucketed_config.variable_variation_map)
 puts(Oj.dump(bucketed_config))
