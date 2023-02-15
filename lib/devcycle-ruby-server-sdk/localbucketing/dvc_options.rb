@@ -50,8 +50,8 @@ module DevCycle
       @flush_event_queue_size = flush_event_queue_size
       @disable_custom_event_logging = disable_custom_event_logging
       @disable_automatic_event_logging = disable_automatic_event_logging
-      @config_cdn_uri = "https://config-cdn.devcycle.com/"
-      @events_api_uri = "https://events.devcycle.com/"
+      @config_cdn_uri = "https://config-cdn.devcycle.com"
+      @events_api_uri = "https://events.devcycle.com"
       @bucketing_api_uri = "https://bucketing-api.devcyle.com"
     end
 

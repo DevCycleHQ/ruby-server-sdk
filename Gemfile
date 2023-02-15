@@ -4,6 +4,7 @@ gemspec
 gem 'sorbet-runtime'
 gem 'oj'
 gem 'wasmtime'
+gem 'concurrent-ruby'
 
 group :development, :test do
   gem 'sorbet'

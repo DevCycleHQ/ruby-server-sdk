@@ -6,6 +6,7 @@ require 'sorbet-runtime'
 require_relative 'dvc_options'
 require_relative 'platform_data'
 require_relative 'events_payload'
+require_relative 'config_manager'
 
 # Temp commenting out the module for testing within the file raw.
 module DevCycle
@@ -84,7 +85,7 @@ module DevCycle
       # TODO: Initialize Config Polling
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
-
+      @configmanager = ConfigManager.new(@sdkkey, self)
       init_event_queue(options.event_queue_options)
     end
 
@@ -170,6 +171,10 @@ module DevCycle
       config_addr = malloc_asc_string(config)
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setConfigData", sdkkey_addr, config_addr)
+    end
+
+    def options
+      @options
     end
 
     private

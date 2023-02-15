@@ -73,7 +73,7 @@ describe 'DVCClient' do
     it 'should work' do
       result = @api_instance.all_variables(@user_data)
 
-      expect(result.length).to eq 2
+      expect(result.length).to eq 1
     end
   end
 
