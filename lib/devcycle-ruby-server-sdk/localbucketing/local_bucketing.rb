@@ -66,7 +66,7 @@ module DevCycle
     end
 
     @@linker.func_new("env", "console.log", [:i32], []) do |_caller, messagePtr|
-      STDOUT.puts(inline_read_asc_string.call(messagePtr))
+      @logger.info(inline_read_asc_string.call(messagePtr))
     end
 
     @@linker.func_new("env", "seed", [], [:f64]) do |_caller|
@@ -81,7 +81,7 @@ module DevCycle
     def initialize(sdkkey, options)
       @sdkkey = sdkkey
       @options = options
-
+      @logger = options.logger
       # TODO: Initialize Config Polling
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
