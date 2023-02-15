@@ -188,6 +188,14 @@ module DevCycle
       @@instance.invoke("setPlatformData", platformdata_addr)
     end
 
+    sig { params(customdata: Hash).returns(NilClass) }
+    def set_client_custom_data(customdata)
+      customdata_json = Oj.dump(customdata)
+      customdata_addr = malloc_asc_string(customdata_json)
+      @@stack_tracer = lambda { |message| raise message }
+      @@instance.invoke("setClientCustomData", customdata_addr)
+    end
+
     sig { params(options: EventQueueOptions).returns(NilClass) }
     def init_event_queue(options)
       options_json = Oj.dump(options)
