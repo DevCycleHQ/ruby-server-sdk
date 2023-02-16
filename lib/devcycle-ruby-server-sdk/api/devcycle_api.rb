@@ -11,16 +11,21 @@ OpenAPI Generator version: 5.3.0
 =end
 
 require 'cgi'
+require 'logger'
 
 module DevCycle
   class DVCClient
     attr_accessor :api_client
     attr_accessor :localbucketing
     attr_accessor :sdkKey
+    attr_accessor :dvcoptions
 
     def initialize(sdkKey, api_client = ApiClient.default, dvc_options = DVCOptions.new)
       @api_client = api_client
       @sdkKey = sdkKey
+      @dvcoptions = dvc_options
+      @logger = dvc_options.logger
+
       api_client.config.api_key['bearerAuth'] = @sdkKey
       if !@api_client.config.enable_cloud_bucketing && @sdkKey != nil
         @localbucketing = LocalBucketing.new(@sdkKey, dvc_options)

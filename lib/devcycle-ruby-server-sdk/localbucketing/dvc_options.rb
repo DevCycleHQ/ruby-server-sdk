@@ -14,6 +14,7 @@ module DevCycle
     attr_accessor :config_cdn_uri
     attr_accessor :events_api_uri
     attr_accessor :bucketing_api_uri
+    attr_accessor :logger
 
     def initialize(event_flush_interval_ms = 1000,
                    disable_custom_event_logging = false,
@@ -21,7 +22,8 @@ module DevCycle
                    config_polling_interval_ms = 10000,
                    request_timeout_ms = 5000,
                    max_event_queue_size = 10000,
-                   flush_event_queue_size = 1000)
+                   flush_event_queue_size = 1000,
+                   logger = nil)
       if event_flush_interval_ms < 500 || event_flush_interval_ms > 60000
         puts("Event Flush interval must be between 500ms to 60000ms. Defaulting to 30000ms")
         event_flush_interval_ms = 30000
@@ -43,9 +45,12 @@ module DevCycle
         max_event_queue_size = 10000
       end
       @max_event_queue_size = max_event_queue_size
+
       if flush_event_queue_size <= 0
         flush_event_queue_size = 1000
       end
+
+      @logger = logger || defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
 
       @flush_event_queue_size = flush_event_queue_size
       @disable_custom_event_logging = disable_custom_event_logging

@@ -17,6 +17,7 @@ module DevCycle
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @config_e_tag = ""
+      @logger = local_bucketing.options.logger
 
       @config_poller = Concurrent::TimerTask.new(
         {
@@ -55,7 +56,7 @@ module DevCycle
         if !retrying
           return fetch_config(true, task)
         end
-        puts("Failed to download DevCycle config. Status: #{resp.code}")
+        @logger.warn("Failed to download DevCycle config. Status: #{resp.code}")
       else
         if task != nil
           task.shutdown
@@ -75,12 +76,12 @@ module DevCycle
         @local_bucketing.store_config(@sdkKey, config)
       rescue => error
         # TODO: Remove after we're done testing
-        puts("Invalid config set")
-        puts(error)
+        @logger.error("Invalid config set")
+        @logger.error(error)
         exit(-1)
       end
       if @first_load
-        puts("Config Set.")
+        @logger.info("Config Set. Client Initialized.")
       end
       @config_e_tag = etag
     end
