@@ -20,9 +20,10 @@ module DevCycle
       @sdkKey = sdkKey
       @dvcoptions = dvc_options
       @logger = dvc_options.logger
+      @is_localbucketing = !@api_client.config.enable_cloud_bucketing
 
       api_client.config.api_key['bearerAuth'] = @sdkKey
-      if !@api_client.config.enable_cloud_bucketing && @sdkKey != nil
+      if @is_localbucketing && @sdkKey != nil
         @localbucketing = LocalBucketing.new(@sdkKey, dvc_options)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @localbucketing)
       end
@@ -117,6 +118,25 @@ module DevCycle
       end
 
       validate_model(user_data)
+
+      if @is_localbucketing && @localbucketing.init_complete
+        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+        variable_json = bucketed_config.variables[key]
+        if variable_json == nil
+          return Variable.new({ key: key, value: default, isDefaulted: true })
+        end
+        return Variable.new({
+                              key: key,
+                              type: variable_json['type'],
+                              value: variable_json['value'],
+                              isDefaulted: false
+                            })
+
+      else
+        if @is_localbucketing && !@localbucketing.init_complete
+          return Variable.new({ key: key, value: default, isDefaulted: true })
+        end
+      end
 
       data, _status_code, _headers = variable_with_http_info(key, user_data, default, opts)
       data

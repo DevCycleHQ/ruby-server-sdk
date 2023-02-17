@@ -15,9 +15,6 @@ require 'time'
 
 module DevCycle
   class Variable
-    # unique database id
-    attr_accessor :_id
-
     # Unique key by Project, can be used in the SDK / API to reference by 'key' rather than _id.
     attr_accessor :key
 
@@ -55,7 +52,6 @@ module DevCycle
     # Attribute mapping from ruby-style variable name to JSON key.
     def self.attribute_map
       {
-        :'_id' => :'_id',
         :'key' => :'key',
         :'type' => :'type',
         :'value' => :'value',
@@ -71,7 +67,6 @@ module DevCycle
     # Attribute type mapping.
     def self.openapi_types
       {
-        :'_id' => :'String',
         :'key' => :'String',
         :'type' => :'String',
         :'value' => :'Object',
@@ -100,10 +95,6 @@ module DevCycle
         h[k.to_sym] = v
       }
 
-      if attributes.key?(:'_id')
-        self._id = attributes[:'_id']
-      end
-
       if attributes.key?(:'key')
         self.key = attributes[:'key']
       end
@@ -127,9 +118,6 @@ module DevCycle
     # @return Array for valid properties with the reasons
     def list_invalid_properties
       invalid_properties = Array.new
-      if @_id.nil?
-        invalid_properties.push('invalid value for "_id", _id cannot be nil.')
-      end
 
       if @key.nil?
         invalid_properties.push('invalid value for "key", key cannot be nil.')
@@ -149,7 +137,6 @@ module DevCycle
     # Check to see if the all the properties in the model are valid
     # @return true if the model is valid
     def valid?
-      return false if @_id.nil?
       return false if @key.nil?
       return false if @type.nil?
       type_validator = EnumAttributeValidator.new('String', ["String", "Boolean", "Number", "JSON"])
