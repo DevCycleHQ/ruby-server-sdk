@@ -14,6 +14,7 @@ module DevCycle
     extend T::Sig
 
     attr_reader :options
+    attr_accessor :init_complete
 
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new

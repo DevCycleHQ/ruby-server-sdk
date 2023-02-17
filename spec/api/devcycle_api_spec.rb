@@ -56,11 +56,26 @@ describe 'DVCClient' do
   # @param user_data 
   # @param [Hash] opts the optional parameters
   # @return [Variable]
-  describe 'get_variable_by_key test' do
+  describe 'get_variable_by_key activate-flag' do
     it 'should work' do
       result = @api_instance.variable(@user_data, "activate-flag", false)
 
       expect(result.isDefaulted).to eq true
+    end
+  end
+
+  # unit tests for get_variable_by_key
+  # Get variable by key for user data
+  # @param key Variable key
+  # @param user_data
+  # @param [Hash] opts the optional parameters
+  # @return [Variable]
+  describe 'get_variable_by_key test' do
+    it 'should work' do
+      result = @api_instance.variable(@user_data, "test", false)
+
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq true
     end
   end
 

@@ -82,6 +82,7 @@ module DevCycle
       end
       if @first_load
         @logger.info("Config Set. Client Initialized.")
+        @local_bucketing.init_complete = true
       end
       @config_e_tag = etag
     end
