@@ -29,6 +29,13 @@ module DevCycle
       end
     end
 
+
+    def set_client_custom_data(customdata)
+      if @api_client.config.enable_cloud_bucketing
+        fail ArgumentError("Client Custom Data is only available in Local bucketing mode.")
+      end
+      @localbucketing.set_client_custom_data(customdata)
+    end
     def validate_model(model)
       return if model.valid?
       fail ArgumentError, "Invalid data provided for model #{model.class.name}: #{model.list_invalid_properties()}"
