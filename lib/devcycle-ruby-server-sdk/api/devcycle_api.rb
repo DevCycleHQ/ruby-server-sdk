@@ -44,7 +44,14 @@ module DevCycle
       end
 
       validate_model(user_data)
-
+      if @is_localbucketing && @localbucketing.init_complete
+        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+        return bucketed_config.features
+      else
+        if @is_localbucketing && !@localbucketing.init_complete
+          return {}
+        end
+      end
       data, _status_code, _headers = all_features_with_http_info(user_data, opts)
       data
     end
