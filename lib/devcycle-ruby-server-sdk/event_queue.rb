@@ -1,0 +1,120 @@
+require 'typhoeus'
+require 'sorbet-runtime'
+require 'concurrent-ruby'
+
+module DevCycle
+  class EventQueue
+    extend T::Sig
+
+    sig { params(sdk_key: String, options: EventQueueOptions, local_bucketing: LocalBucketing).returns(NilClass) }
+    def initialize(sdk_key, options, local_bucketing)
+      @sdk_key = sdk_key
+      @events_api_uri = options.events_api_uri
+      @logger = options.logger
+      @event_flush_interval_ms = options.event_flush_interval_ms
+      @flush_event_queue_size = options.flush_event_queue_size
+      @max_event_queue_size = options.max_event_queue_size
+
+      @flush_timer_task = Concurrent::TimerTask.new(
+        execution_interval: @event_flush_interval_ms.fdiv(1000),
+        run_now: true
+      ) {
+        flush_events
+      }
+      @flush_timer_task.execute
+      @flush_timer_task.add_observer(FlushTimerTaskObserver.new)
+
+      @local_bucketing = local_bucketing
+      @local_bucketing.init_event_queue(options)
+
+      @flush_mutex = Mutex.new
+      nil
+    end
+
+    sig { returns(NilClass) }
+    def flush_events
+      @flush_mutex.synchronize do
+        payloads = @local_bucketing.flush_event_queue
+        if payloads.length == 0
+          return
+        end
+        eventCount = payloads.reduce(0) { |sum, payload| sum + payload.eventCount }
+        @logger.debug("DVC: Flushing #{eventCount} event(s) for #{payloads.length} user(s)")
+
+        payloads.each do |payload|
+          begin
+            response = Typhoeus.post(
+              @events_api_uri + '/v1/events/batch',
+              headers: { 'Authorization': @sdk_key },
+              body: { 'batch': payload.records }.to_json
+            )
+            if response.code != 201
+              @logger.error("Error publishing events, status: #{response.code}, body: #{response.return_message}")
+              @local_bucketing.on_payload_failure(payload.payloadId, response.code >= 500)
+            else
+              @logger.debug("DVC: Flushed #{eventCount} event(s), for #{payload.records.length} user(s)")
+              @local_bucketing.on_payload_success(payload.payloadId)
+            end
+          rescue => e
+            @logger.error("DVC Error Flushing Events response message: #{e.message}")
+            @local_bucketing.on_payload_failure(payload.payloadId, false)
+          end
+        end
+      end
+      nil
+    end
+
+    # Todo: implement PopulatedUser
+    sig { params(user: UserData, event: Event).returns(NilClass) }
+    def queue_event(user, event)
+      if max_event_queue_size_reached?
+        @logger.warn("Max event queue size reached, dropping event: #{event}")
+        return
+      end
+
+      @local_bucketing.queue_event(user, event)
+      nil
+    end
+
+    sig { params(event: Event, bucketed_config: BucketedUserConfig).returns(NilClass) }
+    def queue_aggregate_event(event, bucketed_config)
+      if max_event_queue_size_reached?
+        @logger.warn("Max event queue size reached, dropping event: #{event}")
+        return
+      end
+
+      @local_bucketing.queue_aggregate_event(event, bucketed_config)
+      nil
+    end
+
+    sig { returns(T::Boolean) }
+    def max_event_queue_size_reached?
+      queue_size = @local_bucketing.check_event_queue_size()
+      if queue_size >= @flush_event_queue_size
+        flush_events
+        if queue_size >= @max_event_queue_size
+          return true
+        end
+      end
+      false
+    end
+
+    sig { returns(NilClass) }
+    def cleanup
+      @flush_timer_task.shutdown
+    end
+  end
+
+  # Todo: remove when done testing
+  class FlushTimerTaskObserver
+    def update(time, result, ex)
+      return if ex.nil?
+
+      if ex.is_a?(Concurrent::TimeoutError)
+        print("DVC FlushTimerTaskObserver: Execution timed out")
+      else
+        print("DVC FlushTimerTaskObserver: Execution failed with error: #{ex}")
+      end
+    end
+  end
+end

@@ -13,6 +13,8 @@ module DevCycle
   class LocalBucketing
     extend T::Sig
 
+    attr_reader :options
+
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new
 
@@ -86,12 +88,11 @@ module DevCycle
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
       @configmanager = ConfigManager.new(@sdkkey, self)
-      init_event_queue(options.event_queue_options)
+      nil
     end
 
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
-
       sdkkey_addr = malloc_asc_string(@sdkkey)
       user_addr = malloc_asc_string(user.to_json)
       @@stack_tracer = lambda { |message| raise message }
@@ -107,20 +108,18 @@ module DevCycle
                              bucketed_config_hash['knownVariableKeys'])
     end
 
-    sig { returns(EventsPayload) }
+    sig { returns(T::Array[EventsPayload]) }
     def flush_event_queue
       sdkkey_addr = malloc_asc_string(@sdkkey)
       @@stack_tracer = lambda { |message| raise message }
       payload_addr = @@instance.invoke("flushEventQueue", sdkkey_addr)
       raw_json = read_asc_string(payload_addr)
-      raw_payload = Oj.load(raw_json)[0]
+      raw_payloads = Oj.load(raw_json)
 
-      if raw_payload == nil
-        return EventsPayload.new([], "", 0)
+      if raw_payloads == nil
+        return []
       end
-      EventsPayload.new(raw_payload["records"],
-                        raw_payload["payloadId"],
-                        raw_payload["eventCount"])
+      raw_payloads.map { |raw_payload| EventsPayload.new(raw_payload["records"], raw_payload["payloadId"], raw_payload["eventCount"]) }
     end
 
     sig { returns(Integer) }
@@ -149,7 +148,6 @@ module DevCycle
 
     sig { params(event: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
-
       sdkkey_addr = malloc_asc_string(@sdkkey)
       varmap_addr = malloc_asc_string(Oj.dump(bucketeduser.variable_variation_map))
       event_addr = malloc_asc_string(Oj.dump(event))
@@ -173,15 +171,19 @@ module DevCycle
       @@instance.invoke("setConfigData", sdkkey_addr, config_addr)
     end
 
-    def options
-      @options
+    sig { params(options: EventQueueOptions).returns(NilClass) }
+    def init_event_queue(options)
+      options_json = Oj.dump(options)
+      sdkkey_addr = malloc_asc_string(@sdkkey)
+      options_addr = malloc_asc_string(options_json)
+      @@stack_tracer = lambda { |message| raise message }
+      @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
     end
 
     private
 
     sig { params(platformdata: PlatformData).returns(NilClass) }
     def set_platform_data(platformdata)
-
       platformdata_json = Oj.dump(platformdata)
       platformdata_addr = malloc_asc_string(platformdata_json)
       @@stack_tracer = lambda { |message| raise message }
@@ -194,15 +196,6 @@ module DevCycle
       customdata_addr = malloc_asc_string(customdata_json)
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setClientCustomData", customdata_addr)
-    end
-
-    sig { params(options: EventQueueOptions).returns(NilClass) }
-    def init_event_queue(options)
-      options_json = Oj.dump(options)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
-      options_addr = malloc_asc_string(options_json)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
     end
 
     # @param [String] string utf8 string to allocate
