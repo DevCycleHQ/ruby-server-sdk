@@ -180,6 +180,14 @@ module DevCycle
       @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
     end
 
+    sig { params(customdata: Hash).returns(NilClass) }
+    def set_client_custom_data(customdata)
+      customdata_json = Oj.dump(customdata)
+      customdata_addr = malloc_asc_string(customdata_json)
+      @@stack_tracer = lambda { |message| raise message }
+      @@instance.invoke("setClientCustomData", customdata_addr)
+    end
+
     private
 
     sig { params(platformdata: PlatformData).returns(NilClass) }
@@ -188,14 +196,6 @@ module DevCycle
       platformdata_addr = malloc_asc_string(platformdata_json)
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setPlatformData", platformdata_addr)
-    end
-
-    sig { params(customdata: Hash).returns(NilClass) }
-    def set_client_custom_data(customdata)
-      customdata_json = Oj.dump(customdata)
-      customdata_addr = malloc_asc_string(customdata_json)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("setClientCustomData", customdata_addr)
     end
 
     # @param [String] string utf8 string to allocate
