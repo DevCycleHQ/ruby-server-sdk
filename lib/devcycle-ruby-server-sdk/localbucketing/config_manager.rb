@@ -8,8 +8,6 @@ require 'json'
 module DevCycle
   class ConfigManager
     extend T::Sig
-
-
     sig { params(sdkKey: String, local_bucketing: LocalBucketing, initialize_callback: T.nilable(T.proc.params(error: String).returns(NilClass))).returns(NilClass) }
     def initialize(sdkKey, local_bucketing, initialize_callback)
       @first_load = true

@@ -38,15 +38,27 @@ module DevCycle
 
     def close
       if @dvc_options.enable_cloud_bucketing
+        @logger.info("Cloud Bucketing does not require closing.")
         return
+      end
+      if @localbucketing != nil
+        if !@localbucketing.initialized
+          @logger.info("Awaiting client initialization before closing")
+          while !@localbucketing.initialized
+            sleep(0.5)
+          end
+        end
+        @localbucketing.close
+        @logger.info("Closed DevCycle Local Bucketing Engine.")
       end
 
       if @event_queue != nil
         @event_queue.close
+        @logger.info("Closed DevCycle Event Batching")
       end
-      if @localbucketing != nil
-        @localbucketing.close
-      end
+
+      @logger.info("Closed DevCycle Client.")
+      true
     end
 
     def set_client_custom_data(customdata)
