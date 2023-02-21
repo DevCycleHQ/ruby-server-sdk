@@ -49,6 +49,7 @@ module DevCycle
           end
         end
         @localbucketing.close
+        @localbucketing = nil
         @logger.info("Closed DevCycle Local Bucketing Engine.")
       end
 
