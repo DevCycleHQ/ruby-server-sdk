@@ -64,7 +64,7 @@ module DevCycle
         return data
       end
 
-      if initialized?
+      if local_bucketing_initialized?
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         bucketed_config.features
       else
@@ -147,12 +147,19 @@ module DevCycle
         return data
       end
 
-      if initialized?
+      if local_bucketing_initialized?
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         variable_json = bucketed_config.variables[key]
         if variable_json == nil
+          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_evaluated], target: key })
+          @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+
           return Variable.new({ key: key, value: default, isDefaulted: true })
         end
+
+        variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_evaluated], target: key })
+        @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+
         Variable.new({
                       key: key,
                       type: variable_json['type'],
@@ -160,6 +167,9 @@ module DevCycle
                       isDefaulted: false
                     })
       else
+        variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
+        @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+
         Variable.new({ key: key, value: default, isDefaulted: true })
       end
     end
@@ -251,7 +261,7 @@ module DevCycle
         return data
       end
 
-      if initialized?
+      if local_bucketing_initialized?
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         bucketed_config.variables
       else
@@ -334,8 +344,16 @@ module DevCycle
 
       validate_model(event_data)
 
-      data, _status_code, _headers = track_with_http_info(user_data, event_data, opts)
-      data
+      if @dvc_options.enable_cloud_bucketing
+        track_with_http_info(user_data, event_data, opts)
+        return
+      end
+
+      if local_bucketing_initialized?
+        @event_queue.queue_event(user_data, event_data)
+      else
+        @logger.warn('track called before DVCClient initialized, event will not be tracked')
+      end
     end
 
     # Post events to DevCycle for user
@@ -405,7 +423,7 @@ module DevCycle
       return data, status_code, headers
     end
 
-    def initialized?
+    def local_bucketing_initialized?
       !@localbucketing.nil? && @localbucketing.initialized
     end
   end

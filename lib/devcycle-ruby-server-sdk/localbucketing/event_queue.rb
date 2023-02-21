@@ -76,7 +76,7 @@ module DevCycle
       nil
     end
 
-    sig { params(event: Event, bucketed_config: BucketedUserConfig).returns(NilClass) }
+    sig { params(event: Event, bucketed_config: T.nilable(BucketedUserConfig)).returns(NilClass) }
     def queue_aggregate_event(event, bucketed_config)
       if max_event_queue_size_reached?
         @logger.warn("Max event queue size reached, dropping event: #{event}")
