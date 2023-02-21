@@ -103,11 +103,6 @@ module DevCycle
       end
       false
     end
-
-    sig { returns(NilClass) }
-    def cleanup
-      @flush_timer_task.shutdown
-    end
   end
 
   # Todo: remove when done testing
