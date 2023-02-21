@@ -6,9 +6,9 @@ module DevCycle
   class EventQueue
     extend T::Sig
 
-    sig { params(sdk_key: String, options: EventQueueOptions, local_bucketing: LocalBucketing).returns(NilClass) }
-    def initialize(sdk_key, options, local_bucketing)
-      @sdk_key = sdk_key
+    sig { params(sdkKey: String, options: EventQueueOptions, local_bucketing: LocalBucketing).returns(NilClass) }
+    def initialize(sdkKey, options, local_bucketing)
+      @sdkKey = sdkKey
       @events_api_uri = options.events_api_uri
       @logger = options.logger
       @event_flush_interval_ms = options.event_flush_interval_ms
@@ -45,7 +45,7 @@ module DevCycle
           begin
             response = Typhoeus.post(
               @events_api_uri + '/v1/events/batch',
-              headers: { 'Authorization': @sdk_key },
+              headers: { 'Authorization': @sdkKey },
               body: { 'batch': payload.records }.to_json
             )
             if response.code != 201

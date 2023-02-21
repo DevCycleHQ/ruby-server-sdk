@@ -11,6 +11,7 @@ module DevCycle
     attr_reader :logger
 
     def initialize(
+      enable_cloud_bucketing: false,
       event_flush_interval_ms: 10 * 1000,
       disable_custom_event_logging: false,
       disable_automatic_event_logging: false,
@@ -22,6 +23,8 @@ module DevCycle
       logger: nil,
       events_api_uri: 'https://events.devcycle.com'
     )
+      @enable_cloud_bucketing = enable_cloud_bucketing
+
       if config_polling_interval_ms < 1000
         puts('config_polling_interval cannot be less than 1000ms, defaulting to 10000ms')
         config_polling_interval_ms = 10000

@@ -15,18 +15,25 @@ require 'logger'
 
 module DevCycle
   class DVCClient
-    def initialize(sdkKey, api_client = ApiClient.default, dvc_options = DVCOptions.new)
-      @api_client = api_client
-      @sdkKey = sdkKey
-      @dvcoptions = dvc_options
-      @logger = dvc_options.logger
-      @is_localbucketing = !@api_client.config.enable_cloud_bucketing
+    def initialize(sdkKey, dvc_options = DVCOptions.new, &initialize_callback)
+      if sdkKey.nil?
+        raise ArgumentError('Missing SDK key!')
+      elsif !sdkKey.start_with?('server') && !sdkKey.start_with?('dvc_server')
+        raise ArgumentError('Invalid SDK key!')
+      end
 
-      api_client.config.api_key['bearerAuth'] = @sdkKey
-      if @is_localbucketing && @sdkKey != nil
-        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options)
+      @sdkKey = sdkKey
+      @dvc_options = dvc_options
+      @logger = dvc_options.logger
+
+      if @dvc_options.enable_cloud_bucketing
+        @api_client = ApiClient.default
+        @api_client.config.api_key['bearerAuth'] = @sdkKey
+      else
+        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options, initialize_callback)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @localbucketing)
       end
+      nil
     end
 
 
@@ -51,16 +58,18 @@ module DevCycle
       end
 
       validate_model(user_data)
-      if @is_localbucketing && @localbucketing.init_complete
-        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
-        return bucketed_config.features
-      else
-        if @is_localbucketing && !@localbucketing.init_complete
-          return {}
-        end
+
+      if @dvc_options.enable_cloud_bucketing
+        data, _status_code, _headers = all_features_with_http_info(user_data, opts)
+        return data
       end
-      data, _status_code, _headers = all_features_with_http_info(user_data, opts)
-      data
+
+      if initialized?
+        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+        bucketed_config.features
+      else
+        {}
+      end
     end
 
     # Get all features by key for user data
@@ -133,27 +142,26 @@ module DevCycle
 
       validate_model(user_data)
 
-      if @is_localbucketing && @localbucketing.init_complete
+      if @dvc_options.enable_cloud_bucketing
+        data, _status_code, _headers = variable_with_http_info(key, user_data, default, opts)
+        return data
+      end
+
+      if initialized?
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         variable_json = bucketed_config.variables[key]
         if variable_json == nil
           return Variable.new({ key: key, value: default, isDefaulted: true })
         end
-        return Variable.new({
-                              key: key,
-                              type: variable_json['type'],
-                              value: variable_json['value'],
-                              isDefaulted: false
-                            })
-
+        Variable.new({
+                      key: key,
+                      type: variable_json['type'],
+                      value: variable_json['value'],
+                      isDefaulted: false
+                    })
       else
-        if @is_localbucketing && !@localbucketing.init_complete
-          return Variable.new({ key: key, value: default, isDefaulted: true })
-        end
+        Variable.new({ key: key, value: default, isDefaulted: true })
       end
-
-      data, _status_code, _headers = variable_with_http_info(key, user_data, default, opts)
-      data
     end
 
     # Get variable by key for user data
@@ -237,16 +245,18 @@ module DevCycle
       end
 
       validate_model(user_data)
-      if @is_localbucketing && @localbucketing.init_complete
-        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
-        return bucketed_config.variables
-      else
-        if @is_localbucketing && !@localbucketing.init_complete
-          return {}
-        end
+ 
+      if @dvc_options.enable_cloud_bucketing
+        data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
+        return data
       end
-      data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
-      data
+
+      if initialized?
+        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+        bucketed_config.variables
+      else
+        {}
+      end
     end
 
     # Get all variables by key for user data
@@ -393,6 +403,10 @@ module DevCycle
         @api_client.config.logger.debug "API called: DVCClient#post_events\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
+    end
+
+    def initialized?
+      !@localbucketing.nil? && @localbucketing.initialized
     end
   end
 end

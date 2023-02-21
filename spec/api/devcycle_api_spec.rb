@@ -19,7 +19,8 @@ require 'json'
 describe 'DVCClient' do
   before(:all) do
     # run before each test
-    @api_instance = DevCycle::DVCClient.new("dvc_server_token_hash")
+    options = DevCycle::DVCOptions.new(enable_cloud_bucketing: true)
+    @api_instance = DevCycle::DVCClient.new("dvc_server_token_hash", options)
     
     @user_data = DevCycle::UserData.new({
         user_id: 'test-user',
