@@ -10,25 +10,25 @@ module DevCycle
     extend T::Sig
 
 
-    sig { params(sdkKey: String, local_bucketing: LocalBucketing).returns(NilClass) }
-    def initialize(sdkKey, local_bucketing)
+    sig { params(sdkKey: String, local_bucketing: LocalBucketing, initialize_callback: T.nilable(T.proc.params(error: String).returns(NilClass))).returns(NilClass) }
+    def initialize(sdkKey, local_bucketing, initialize_callback)
       @first_load = true
       @config_version = "v1"
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @config_e_tag = ""
       @logger = local_bucketing.options.logger
+      @initialize_callback = initialize_callback
 
       @config_poller = Concurrent::TimerTask.new(
         {
-          execution_interval: @local_bucketing.options.config_polling_interval_ms / 1000,
+          execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000),
           run_now: true
         }) do |task|
         fetch_config(false, task)
       end
 
-      fetch_config(false, nil)
-      @config_poller.execute
+      Thread.start { fetch_config(false, nil) }
       nil
     end
 
@@ -72,19 +72,25 @@ module DevCycle
         raise("Invalid JSON body parsed from Config Response")
       end
 
+      error = nil
       begin
         @local_bucketing.store_config(@sdkKey, config)
-      rescue => error
+      rescue => e
         # TODO: Remove after we're done testing
         @logger.error("Invalid config set")
-        @logger.error(error)
-        exit(-1)
+        @logger.error(e)
+        error = e.to_s
       end
+
+      @config_e_tag = etag
+
       if @first_load
         @logger.info("Config Set. Client Initialized.")
-        @local_bucketing.init_complete = true
+        @first_load = false
+        @local_bucketing.initialized = true
+        @config_poller.execute
+        @initialize_callback.call(error) if @initialize_callback != nil
       end
-      @config_e_tag = etag
     end
 
     def get_config_url
@@ -92,10 +98,8 @@ module DevCycle
       "#{configBasePath}/config/#{@config_version}/server/#{@sdkKey}.json"
     end
 
+    # TODO: Add a close method
     def close
-
     end
-
   end
-
 end

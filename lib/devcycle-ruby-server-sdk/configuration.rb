@@ -141,9 +141,6 @@ module DevCycle
     # Default to false
     attr_accessor :enable_edge_db
 
-
-    attr_accessor :enable_cloud_bucketing
-
     def initialize
       @scheme = 'https'
       @host = 'bucketing-api.devcycle.com'
@@ -166,7 +163,6 @@ module DevCycle
       @force_ending_format = false
       @logger = defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
       @enable_edge_db = false
-      @enable_cloud_bucketing = false
 
       yield(self) if block_given?
     end

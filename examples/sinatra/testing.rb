@@ -1,27 +1,32 @@
 require 'devcycle-ruby-server-sdk'
 
-options = DevCycle::DVCOptions.new(event_flush_interval_ms: 500)
-localbucketing = DevCycle::LocalBucketing.new("dvc_server_token_hash", options)
+options = DevCycle::DVCOptions.new(enable_cloud_bucketing: false, event_flush_interval_ms: 1000, config_polling_interval_ms: 1000)
 test_user = DevCycle::UserData.new({ user_id: "test" })
-test_event = DevCycle::Event.new({
-                                    :'type' => :'randomEval',
-                                    :'target' => :'custom target'
-                                  })
-puts("config?")
-bucketed_config = localbucketing.generate_bucketed_config(test_user)
+dvc_client = DevCycle::DVCClient.new("dvc_server_token_hash", options) do |error|
+  if error.nil?
+    sleep 5
+    puts 'DVC Client initialized'
+    puts dvc_client.variable(test_user, 'test', false)
+    puts dvc_client.all_variables(test_user)
+    puts dvc_client.all_features(test_user)
+  else
+    puts error
+  end
+end
+puts dvc_client.variable(test_user, 'test', false)
+puts dvc_client.all_variables(test_user)
+puts dvc_client.all_features(test_user)
 
-event_queue = DevCycle::EventQueue.new("dvc_server_token_hash", options.event_queue_options, localbucketing)
-event_queue.queue_event(test_user, test_event)
-event_queue.queue_event(test_user, test_event)
-event_queue.queue_event(test_user, test_event)
-event_queue.queue_event(test_user, test_event)
-event_queue.queue_aggregate_event(test_event, bucketed_config)
-event_queue.flush_events
-puts(bucketed_config.variable_variation_map)
-puts(Oj.dump(bucketed_config))
-puts(bucketed_config.project)
+sleep 15
+# test_event = DevCycle::Event.new({
+#                                     :'type' => :'randomEval',
+#                                     :'target' => :'custom target'
+#                                   })
+# bucketed_config = localbucketing.generate_bucketed_config(test_user)
+# puts(bucketed_config.variable_variation_map)
+# puts(Oj.dump(bucketed_config))
+# puts(bucketed_config.project)
 
-# puts("queue event")
 # begin
 #   localbucketing.queue_event(test_user, test_event)
 # rescue

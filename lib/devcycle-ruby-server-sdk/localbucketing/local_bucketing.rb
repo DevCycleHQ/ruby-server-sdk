@@ -8,13 +8,12 @@ require_relative 'platform_data'
 require_relative 'events_payload'
 require_relative 'config_manager'
 
-# Temp commenting out the module for testing within the file raw.
 module DevCycle
   class LocalBucketing
     extend T::Sig
 
     attr_reader :options
-    attr_accessor :init_complete
+    attr_accessor :initialized
 
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new
@@ -80,15 +79,16 @@ module DevCycle
     @@instance = @@linker.instantiate(@@store, @@wasmmodule)
     @@memory = @@instance.export("memory").to_memory
 
-    sig { params(sdkkey: String, options: DVCOptions).returns(NilClass) }
-    def initialize(sdkkey, options)
+    sig { params(sdkkey: String, options: DVCOptions, initialize_callback: T.nilable(T.proc.params(error: String).returns(NilClass))).returns(NilClass) }
+    def initialize(sdkkey, options, initialize_callback)
+      @initialized = false
       @sdkkey = sdkkey
       @options = options
       @logger = options.logger
-      # TODO: Initialize Config Polling
+
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
-      @configmanager = ConfigManager.new(@sdkkey, self)
+      @configmanager = ConfigManager.new(@sdkkey, self, initialize_callback)
       nil
     end
 
