@@ -31,6 +31,11 @@ module DevCycle
       nil
     end
 
+    def close
+      @flush_timer_task.shutdown
+      flush_events
+    end
+
     sig { returns(NilClass) }
     def flush_events
       @flush_mutex.synchronize do
@@ -97,11 +102,6 @@ module DevCycle
         end
       end
       false
-    end
-
-    sig { returns(NilClass) }
-    def cleanup
-      @flush_timer_task.shutdown
     end
   end
 

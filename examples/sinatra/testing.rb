@@ -24,6 +24,7 @@ puts dvc_client.all_variables(test_user)
 puts dvc_client.all_features(test_user)
 dvc_client.track(test_user, test_event)
 
+puts(dvc_client.close)
 sleep 15
 # test_event = DevCycle::Event.new({
 #                                     :'type' => :'randomEval',

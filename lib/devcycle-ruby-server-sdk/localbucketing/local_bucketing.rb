@@ -92,6 +92,11 @@ module DevCycle
       nil
     end
 
+    def close
+      @configmanager.close
+      @configmanager = nil
+    end
+
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
       sdkkey_addr = malloc_asc_string(@sdkkey)
