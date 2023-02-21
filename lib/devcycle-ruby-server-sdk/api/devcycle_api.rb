@@ -36,6 +36,18 @@ module DevCycle
       nil
     end
 
+    def close
+      if @dvc_options.enable_cloud_bucketing
+        return
+      end
+
+      if @event_queue != nil
+        @event_queue.close
+      end
+      if @localbucketing != nil
+        @localbucketing.close
+      end
+    end
 
     def set_client_custom_data(customdata)
       if @api_client.config.enable_cloud_bucketing
@@ -43,6 +55,7 @@ module DevCycle
       end
       @localbucketing.set_client_custom_data(customdata)
     end
+
     def validate_model(model)
       return if model.valid?
       fail ArgumentError, "Invalid data provided for model #{model.class.name}: #{model.list_invalid_properties()}"
@@ -161,11 +174,11 @@ module DevCycle
         @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
         Variable.new({
-                      key: key,
-                      type: variable_json['type'],
-                      value: variable_json['value'],
-                      isDefaulted: false
-                    })
+                       key: key,
+                       type: variable_json['type'],
+                       value: variable_json['value'],
+                       isDefaulted: false
+                     })
       else
         variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
         @event_queue.queue_aggregate_event(variable_event, bucketed_config)
@@ -255,7 +268,7 @@ module DevCycle
       end
 
       validate_model(user_data)
- 
+
       if @dvc_options.enable_cloud_bucketing
         data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
         return data

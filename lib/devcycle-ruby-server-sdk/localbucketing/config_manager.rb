@@ -98,8 +98,9 @@ module DevCycle
       "#{configBasePath}/config/#{@config_version}/server/#{@sdkKey}.json"
     end
 
-    # TODO: Add a close method
     def close
+      @config_poller.shutdown
+      nil
     end
   end
 end
