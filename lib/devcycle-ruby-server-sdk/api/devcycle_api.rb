@@ -52,11 +52,7 @@ module DevCycle
         @logger.info("Closed DevCycle Local Bucketing Engine.")
       end
 
-      if @event_queue != nil
-        @event_queue.close
-        @logger.info("Closed DevCycle Event Batching")
-      end
-
+      @event_queue.close
       @logger.info("Closed DevCycle Client.")
     end
 
