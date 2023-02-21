@@ -47,26 +47,28 @@ module DevCycle
     # User's custom data to target the user with, data will not be logged to DevCycle only used for feature bucketing.
     attr_accessor :privateCustomData
 
-    # Date the user was created, Unix epoch timestamp format
-    attr_accessor :createdDate
-
-    # Date the user was created, Unix epoch timestamp format
-    attr_accessor :lastSeenDate
-
-    # Platform the Client SDK is running on
-    attr_accessor :platform
-
-    # Version of the platform the Client SDK is running on
-    attr_accessor :platformVersion
-
     # User's device model
     attr_accessor :deviceModel
 
+    # read-only instance variables
+
+    # Date the user was created, Unix epoch timestamp format
+    attr_reader :createdDate
+
+    # Date the user was created, Unix epoch timestamp format
+    attr_reader :lastSeenDate
+
+    # Platform the Client SDK is running on
+    attr_reader :platform
+
+    # Version of the platform the Client SDK is running on
+    attr_reader :platformVersion
+
     # DevCycle SDK type
-    attr_accessor :sdkType
+    attr_reader :sdkType
 
     # DevCycle SDK Version
-    attr_accessor :sdkVersion
+    attr_reader :sdkVersion
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -141,8 +143,7 @@ module DevCycle
 
     # List of attributes with nullable: true
     def self.openapi_nullable
-      Set.new([
-              ])
+      Set.new([])
     end
 
     # Initializes the object
@@ -159,8 +160,6 @@ module DevCycle
         end
         h[k.to_sym] = v
       }
-
-      self.set_default_platform_info(PlatformData.new(nil, nil, nil, nil, nil, nil).default)
 
       if attributes.key?(:'user_id')
         self.user_id = attributes[:'user_id']
@@ -198,40 +197,18 @@ module DevCycle
         self.privateCustomData = attributes[:'privateCustomData']
       end
 
-      if attributes.key?(:'createdDate')
-        self.createdDate = attributes[:'createdDate']
-      end
-
-      if attributes.key?(:'lastSeenDate')
-        self.lastSeenDate = attributes[:'lastSeenDate']
-      end
-
-      if attributes.key?(:'platform')
-        self.platform = attributes[:'platform']
-      end
-
-      if attributes.key?(:'platformVersion')
-        self.platformVersion = attributes[:'platformVersion']
-      end
-
       if attributes.key?(:'deviceModel')
         self.deviceModel = attributes[:'deviceModel']
       end
 
-      if attributes.key?(:'sdkType')
-        self.sdkType = attributes[:'sdkType']
-      end
-
-      if attributes.key?(:'sdkVersion')
-        self.sdkVersion = attributes[:'sdkVersion']
-      end
-    end
-
-    def set_default_platform_info(platformdata)
-      self.sdkType = platformdata.sdkType
-      self.sdkVersion = platformdata.sdkVersion
-      self.platform = platformdata.platform
-      self.platformVersion = platformdata.platformVersion
+      # set read-only instance variables
+      default_platform_data = PlatformData.new.default
+      @sdkType = default_platform_data.sdkType
+      @sdkVersion = default_platform_data.sdkVersion
+      @platform = default_platform_data.platform
+      @platformVersion = default_platform_data.platformVersion
+      @createdDate = Time.now
+      @lastSeenDate = Time.now
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?
@@ -282,16 +259,6 @@ module DevCycle
       end
 
       @country = country
-    end
-
-    # Custom attribute writer method checking allowed values (enum).
-    # @param [Object] sdk_type Object to be assigned
-    def sdk_type=(sdk_type)
-      validator = EnumAttributeValidator.new('String', ["server"])
-      unless validator.valid?(sdk_type)
-        fail ArgumentError, "invalid value for \"sdk_type\", must be one of #{validator.allowable_values}."
-      end
-      @sdk_type = sdk_type
     end
 
     # Checks equality by comparing each attribute.
@@ -447,7 +414,5 @@ module DevCycle
         value
       end
     end
-
   end
-
 end
