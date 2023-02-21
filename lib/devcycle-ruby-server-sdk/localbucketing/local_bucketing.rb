@@ -147,10 +147,16 @@ module DevCycle
       @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
     end
 
-    sig { params(event: Event, bucketeduser: BucketedUserConfig).returns(NilClass) }
+    sig { params(event: Event, bucketeduser: T.nilable(BucketedUserConfig)).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
       sdkkey_addr = malloc_asc_string(@sdkkey)
-      varmap_addr = malloc_asc_string(Oj.dump(bucketeduser.variable_variation_map))
+      variable_variation_map =
+      if !bucketeduser.nil?
+        bucketeduser.variable_variation_map 
+      else
+        {}
+      end
+      varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
       event_addr = malloc_asc_string(Oj.dump(event))
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("queueAggregateEvent", sdkkey_addr, event_addr, varmap_addr)

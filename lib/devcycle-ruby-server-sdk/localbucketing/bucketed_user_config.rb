@@ -1,5 +1,4 @@
 module DevCycle
-
   class BucketedUserConfig
     attr_accessor :project
     attr_accessor :environment
@@ -19,5 +18,4 @@ module DevCycle
       @known_variable_keys = known_variable_keys
     end
   end
-
 end

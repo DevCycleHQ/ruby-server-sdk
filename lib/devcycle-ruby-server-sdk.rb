@@ -15,7 +15,8 @@ require 'devcycle-ruby-server-sdk/api_client'
 require 'devcycle-ruby-server-sdk/api_error'
 require 'devcycle-ruby-server-sdk/version'
 require 'devcycle-ruby-server-sdk/configuration'
-require 'devcycle-ruby-server-sdk/event_queue'
+require 'devcycle-ruby-server-sdk/localbucketing/event_queue'
+require 'devcycle-ruby-server-sdk/localbucketing/event_types'
 
 # Models
 require 'devcycle-ruby-server-sdk/models/error_response'
@@ -33,6 +34,8 @@ require 'devcycle-ruby-server-sdk/localbucketing/dvc_options'
 require 'devcycle-ruby-server-sdk/localbucketing/local_bucketing'
 require 'devcycle-ruby-server-sdk/localbucketing/platform_data'
 require 'devcycle-ruby-server-sdk/localbucketing/bucketed_user_config'
+require 'devcycle-ruby-server-sdk/localbucketing/event_queue'
+require 'devcycle-ruby-server-sdk/localbucketing/event_types'
 
 module DevCycle
   class << self

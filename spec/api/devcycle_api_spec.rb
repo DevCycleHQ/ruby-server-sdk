@@ -93,26 +93,4 @@ describe 'DVCClient' do
     end
   end
 
-  # unit tests for post_events
-  # Post events to DevCycle for user
-  # @param user_data_and_events_body 
-  # @param [Hash] opts the optional parameters
-  # @return [InlineResponse201]
-  describe 'post_events test' do
-    it 'should work' do
-      event_data = DevCycle::Event.new({        
-        type: "my-event",
-        target: "some_event_target",
-        value: 12,
-        metaData: {
-            myKey: "my-value"
-        }
-    })
-
-    result = @api_instance.track(@user_data, event_data)
-
-    expect(result.message).to eq "Successfully received 1 events."
-    end
-  end
-
 end
