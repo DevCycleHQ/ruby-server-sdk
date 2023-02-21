@@ -58,7 +58,6 @@ module DevCycle
       end
 
       @logger.info("Closed DevCycle Client.")
-      true
     end
 
     def set_client_custom_data(customdata)
