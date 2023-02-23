@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'wasmtime', '5.0.0'
   s.add_runtime_dependency 'concurrent-ruby', '1.2.0'
   s.add_runtime_dependency 'sorbet-runtime', '0.5.10648'
+  s.add_runtime_dependency 'oj', '3.13.2'
 
 
   s.add_development_dependency 'rspec', '~> 3.6', '>= 3.6.0'

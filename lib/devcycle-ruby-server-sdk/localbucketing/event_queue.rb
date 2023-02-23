@@ -6,7 +6,7 @@ module DevCycle
   class EventQueue
     extend T::Sig
 
-    sig { params(sdkKey: String, options: EventQueueOptions, local_bucketing: LocalBucketing).returns(NilClass) }
+    sig { params(sdkKey: String, options: EventQueueOptions, local_bucketing: LocalBucketing).void }
     def initialize(sdkKey, options, local_bucketing)
       @sdkKey = sdkKey
       @events_api_uri = options.events_api_uri

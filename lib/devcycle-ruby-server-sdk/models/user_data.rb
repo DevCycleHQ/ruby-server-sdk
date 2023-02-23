@@ -207,8 +207,8 @@ module DevCycle
       @sdkVersion = default_platform_data.sdkVersion
       @platform = default_platform_data.platform
       @platformVersion = default_platform_data.platformVersion
-      @createdDate = Time.now
-      @lastSeenDate = Time.now
+      @createdDate = Time.now.utc.iso8601
+      @lastSeenDate = Time.now.utc.iso8601
     end
 
     # Show invalid properties with the reasons. Usually used together with valid?

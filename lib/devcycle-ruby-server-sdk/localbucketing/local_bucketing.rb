@@ -79,8 +79,12 @@ module DevCycle
     @@instance = @@linker.instantiate(@@store, @@wasmmodule)
     @@memory = @@instance.export("memory").to_memory
 
-    sig { params(sdkkey: String, options: DVCOptions, initialize_callback: T.nilable(T.proc.params(error: String).returns(NilClass))).returns(NilClass) }
-    def initialize(sdkkey, options, initialize_callback)
+    sig { params(
+      sdkkey: String,
+      options: DVCOptions,
+      wait_for_init: T::Boolean
+    ).void }
+    def initialize(sdkkey, options, wait_for_init)
       @initialized = false
       @sdkkey = sdkkey
       @options = options
@@ -88,8 +92,7 @@ module DevCycle
 
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
-      @configmanager = ConfigManager.new(@sdkkey, self, initialize_callback)
-      nil
+      @configmanager = ConfigManager.new(@sdkkey, self, wait_for_init)
     end
 
     def close

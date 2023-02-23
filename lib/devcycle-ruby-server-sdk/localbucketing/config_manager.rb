@@ -8,15 +8,18 @@ require 'json'
 module DevCycle
   class ConfigManager
     extend T::Sig
-    sig { params(sdkKey: String, local_bucketing: LocalBucketing, initialize_callback: T.nilable(T.proc.params(error: String).returns(NilClass))).returns(NilClass) }
-    def initialize(sdkKey, local_bucketing, initialize_callback)
+    sig { params(
+      sdkKey: String,
+      local_bucketing: LocalBucketing,
+      wait_for_init: T::Boolean
+    ).void }
+    def initialize(sdkKey, local_bucketing, wait_for_init)
       @first_load = true
       @config_version = "v1"
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @config_e_tag = ""
       @logger = local_bucketing.options.logger
-      @initialize_callback = initialize_callback
 
       @config_poller = Concurrent::TimerTask.new(
         {
@@ -26,8 +29,8 @@ module DevCycle
         fetch_config(false, task)
       end
 
-      Thread.start { fetch_config(false, nil) }
-      nil
+      t = Thread.new { fetch_config(false, nil) }
+      t.join if wait_for_init
     end
 
     def fetch_config(retrying, task)
@@ -38,7 +41,7 @@ module DevCycle
         })
 
       if @config_e_tag != ""
-        req.headers['If-None-Match'] = @config_e_tag
+        req.options[:headers]['If-None-Match'] = @config_e_tag
       end
 
       resp = req.run
@@ -70,16 +73,7 @@ module DevCycle
         raise("Invalid JSON body parsed from Config Response")
       end
 
-      error = nil
-      begin
-        @local_bucketing.store_config(@sdkKey, config)
-      rescue => e
-        # TODO: Remove after we're done testing
-        @logger.error("Invalid config set")
-        @logger.error(e)
-        error = e.to_s
-      end
-
+      @local_bucketing.store_config(@sdkKey, config)
       @config_e_tag = etag
 
       if @first_load
@@ -87,7 +81,6 @@ module DevCycle
         @first_load = false
         @local_bucketing.initialized = true
         @config_poller.execute
-        @initialize_callback.call(error) if @initialize_callback != nil
       end
     end
 
