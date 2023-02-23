@@ -29,6 +29,8 @@ module DevCycle
       if @dvc_options.enable_cloud_bucketing
         @api_client = ApiClient.default
         @api_client.config.api_key['bearerAuth'] = @sdkKey
+        @api_client.config.enable_edge_db = @dvc_options.enable_edge_db
+        @api_client.config.logger = @logger
       else
         @localbucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @localbucketing)
