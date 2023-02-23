@@ -21,12 +21,20 @@ module DevCycle
       flush_event_queue_size: 1000,
       event_request_chunk_size: 100,
       logger: nil,
-      events_api_uri: 'https://events.devcycle.com'
+      events_api_uri: 'https://events.devcycle.com',
+      enable_edge_db: false
     )
+      @logger = logger || defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
       @enable_cloud_bucketing = enable_cloud_bucketing
 
+      @enable_edge_db = enable_edge_db
+
+      if !@enable_cloud_bucketing && @enable_edge_db
+        raise ArgumentError.new('Cannot enable edgedb without enabling cloud bucketing.')
+      end
+
       if config_polling_interval_ms < 1000
-        puts('config_polling_interval cannot be less than 1000ms, defaulting to 10000ms')
+        @logger.warn('config_polling_interval cannot be less than 1000ms, defaulting to 10000ms')
         config_polling_interval_ms = 10000
       end
       @config_polling_interval_ms = config_polling_interval_ms
@@ -36,7 +44,6 @@ module DevCycle
       end
       @request_timeout_ms = request_timeout_ms
 
-      @logger = logger || defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
 
       if event_flush_interval_ms < 500 || event_flush_interval_ms > (60 * 1000)
         raise ArgumentError.new('event_flush_interval_ms must be between 500ms and 1 minute')
