@@ -32,7 +32,10 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rspec', '~> 3.6', '>= 3.6.0'
 
-  s.files         = `find *`.split("\n").uniq.sort.select { |f| !f.empty? }
+  s.files         = Dir['README.md', 'LICENSE',
+                        'lib/**/*',
+                        'devcycle-ruby-server-sdk.gemspec',
+                        'Gemfile']
   s.test_files    = `find spec/*`.split("\n")
   s.executables   = []
   s.require_paths = ["lib"]
