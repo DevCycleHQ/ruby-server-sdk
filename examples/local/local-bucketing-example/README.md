@@ -6,7 +6,7 @@ You will need Ruby and Ruby on Rails to run this app
 
 ### Installing Ruby
 
-You can install a specific verion of Ruby via Homebrew or use a ruby version manager like [dotenv](https://github.com/rbenv/rbenv)
+You can install a specific verion of Ruby via Homebrew or use a ruby version manager like [rbenv](https://github.com/rbenv/rbenv)
 
 ### Installing Rails
 
