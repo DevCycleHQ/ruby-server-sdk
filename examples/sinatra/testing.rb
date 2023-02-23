@@ -6,26 +6,14 @@ test_event = DevCycle::Event.new({
                                     :'type' => :'randomEval',
                                     :'target' => :'custom target'
                                   })
-dvc_client = DevCycle::DVCClient.new("dvc_server_token_hash", options) do |error|
-  if error.nil?
-    sleep 5
-    puts "\n"
-    puts 'DVC Client initialized'
-    puts dvc_client.variable(test_user, 'test', false)
-    puts dvc_client.all_variables(test_user)
-    puts dvc_client.all_features(test_user)
-    dvc_client.track(test_user, test_event)
-  else
-    puts error
-  end
-end
+dvc_client = DevCycle::DVCClient.new("dvc_server_token_hash", options, true)
 puts dvc_client.variable(test_user, 'test', false)
 puts dvc_client.all_variables(test_user)
 puts dvc_client.all_features(test_user)
 dvc_client.track(test_user, test_event)
 
 puts(dvc_client.close)
-sleep 15
+sleep 10
 # test_event = DevCycle::Event.new({
 #                                     :'type' => :'randomEval',
 #                                     :'target' => :'custom target'

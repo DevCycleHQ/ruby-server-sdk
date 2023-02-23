@@ -15,7 +15,7 @@ require 'logger'
 
 module DevCycle
   class DVCClient
-    def initialize(sdkKey, dvc_options = DVCOptions.new, &initialize_callback)
+    def initialize(sdkKey, dvc_options = DVCOptions.new, wait_for_init = false)
       if sdkKey.nil?
         raise ArgumentError('Missing SDK key!')
       elsif !sdkKey.start_with?('server') && !sdkKey.start_with?('dvc_server')
@@ -30,10 +30,9 @@ module DevCycle
         @api_client = ApiClient.default
         @api_client.config.api_key['bearerAuth'] = @sdkKey
       else
-        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options, initialize_callback)
+        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @localbucketing)
       end
-      nil
     end
 
     def close
@@ -172,7 +171,7 @@ module DevCycle
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         variable_json = bucketed_config.variables[key]
         if variable_json == nil
-          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_evaluated], target: key })
+          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
           @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
           return Variable.new({ key: key, value: default, isDefaulted: true })
@@ -442,6 +441,10 @@ module DevCycle
         @api_client.config.logger.debug "API called: DVCClient#post_events\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
       end
       return data, status_code, headers
+    end
+
+    def flush_events
+      @event_queue.flush_events
     end
 
     def local_bucketing_initialized?
