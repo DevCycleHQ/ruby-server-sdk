@@ -17,9 +17,9 @@ module DevCycle
   class DVCClient
     def initialize(sdkKey, dvc_options = DVCOptions.new, wait_for_init = false)
       if sdkKey.nil?
-        raise ArgumentError('Missing SDK key!')
+        raise ArgumentError.new('Missing SDK key!')
       elsif !sdkKey.start_with?('server') && !sdkKey.start_with?('dvc_server')
-        raise ArgumentError('Invalid SDK key!')
+        raise ArgumentError.new('Invalid SDK key!')
       end
 
       @sdkKey = sdkKey
