@@ -73,7 +73,7 @@ module DevCycle
         raise("Invalid JSON body parsed from Config Response")
       end
 
-      @local_bucketing.store_config(@sdkKey, config)
+      @local_bucketing.store_config(config)
       @config_e_tag = etag
 
       if @first_load

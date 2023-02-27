@@ -89,7 +89,7 @@ module DevCycle
       @sdkkey = sdkkey
       @options = options
       @logger = options.logger
-
+      setSDKKeyInternal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
       @configmanager = ConfigManager.new(@sdkkey, self, wait_for_init)
@@ -102,12 +102,12 @@ module DevCycle
 
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       user_addr = malloc_asc_string(user.to_json)
       @@stack_tracer = lambda { |message| raise message }
-      config_addr = @@instance.invoke("generateBucketedConfigForUser", sdkkey_addr, user_addr)
+      config_addr = @@instance.invoke("generateBucketedConfigForUser", @sdkKeyAddr, user_addr)
       bucketed_config_json = read_asc_string(config_addr)
       bucketed_config_hash = Oj.load(bucketed_config_json)
+
       BucketedUserConfig.new(bucketed_config_hash['project'],
                              bucketed_config_hash['environment'],
                              bucketed_config_hash['features'],
@@ -119,9 +119,8 @@ module DevCycle
 
     sig { returns(T::Array[EventsPayload]) }
     def flush_event_queue
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       @@stack_tracer = lambda { |message| raise message }
-      payload_addr = @@instance.invoke("flushEventQueue", sdkkey_addr)
+      payload_addr = @@instance.invoke("flushEventQueue", @sdkKeyAddr)
       raw_json = read_asc_string(payload_addr)
       raw_payloads = Oj.load(raw_json)
 
@@ -133,66 +132,69 @@ module DevCycle
 
     sig { returns(Integer) }
     def check_event_queue_size
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("eventQueueSize", sdkkey_addr)
+      @@instance.invoke("eventQueueSize", @sdkKeyAddr)
     end
 
     sig { params(payload_id: String).returns(NilClass) }
     def on_payload_success(payload_id)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       payload_addr = malloc_asc_string(payload_id)
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("onPayloadSuccess", sdkkey_addr, payload_addr)
+      @@instance.invoke("onPayloadSuccess", @sdkKeyAddr, payload_addr)
     end
 
     sig { params(user: UserData, event: Event).returns(NilClass) }
     def queue_event(user, event)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
-      user_addr = malloc_asc_string(Oj.dump(user))
-      event_addr = malloc_asc_string(Oj.dump(event))
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("queueEvent", sdkkey_addr, user_addr, event_addr)
+      begin
+        user_addr = malloc_asc_string(Oj.dump(user))
+        asc_pin(user_addr)
+        event_addr = malloc_asc_string(Oj.dump(event))
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("queueEvent", @sdkKeyAddr, user_addr, event_addr)
+      ensure
+        asc_unpin(user_addr)
+      end
     end
 
     sig { params(event: Event, bucketeduser: T.nilable(BucketedUserConfig)).returns(NilClass) }
     def queue_aggregate_event(event, bucketeduser)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
-      variable_variation_map =
-      if !bucketeduser.nil?
-        bucketeduser.variable_variation_map 
-      else
-        {}
+      begin
+        variable_variation_map =
+          if !bucketeduser.nil?
+            bucketeduser.variable_variation_map
+          else
+            {}
+          end
+        varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
+        asc_pin(varmap_addr)
+        event_addr = malloc_asc_string(Oj.dump(event))
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("queueAggregateEvent", @sdkKeyAddr, event_addr, varmap_addr)
+      ensure
+        asc_unpin(varmap_addr)
       end
-      varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
-      event_addr = malloc_asc_string(Oj.dump(event))
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("queueAggregateEvent", sdkkey_addr, event_addr, varmap_addr)
     end
 
     sig { params(payload_id: String, retryable: Object).returns(NilClass) }
     def on_payload_failure(payload_id, retryable)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       payload_addr = malloc_asc_string(payload_id)
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("onPayloadFailure", sdkkey_addr, payload_addr, retryable ? 1 : 0)
+      @@instance.invoke("onPayloadFailure", @sdkKeyAddr, payload_addr, retryable ? 1 : 0)
     end
 
-    sig { params(sdkkey: String, config: String).returns(NilClass) }
-    def store_config(sdkkey, config)
-      sdkkey_addr = malloc_asc_string(sdkkey)
+    sig { params(config: String).returns(NilClass) }
+    def store_config(config)
       config_addr = malloc_asc_string(config)
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("setConfigData", sdkkey_addr, config_addr)
+      @@instance.invoke("setConfigData", @sdkKeyAddr, config_addr)
     end
 
     sig { params(options: EventQueueOptions).returns(NilClass) }
     def init_event_queue(options)
       options_json = Oj.dump(options)
-      sdkkey_addr = malloc_asc_string(@sdkkey)
       options_addr = malloc_asc_string(options_json)
       @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("initEventQueue", sdkkey_addr, options_addr)
+      @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
     end
 
     sig { params(customdata: Hash).returns(NilClass) }
@@ -211,6 +213,20 @@ module DevCycle
       platformdata_addr = malloc_asc_string(platformdata_json)
       @@stack_tracer = lambda { |message| raise message }
       @@instance.invoke("setPlatformData", platformdata_addr)
+    end
+
+    def setSDKKeyInternal(sdkKey)
+      addr = malloc_asc_string(sdkKey)
+      @sdkKeyAddr = addr
+      asc_pin(addr)
+    end
+
+    def asc_pin(addr)
+      @@instance.invoke("__pin", addr)
+    end
+
+    def asc_unpin(addr)
+      @@instance.invoke("__unpin", addr)
     end
 
     # @param [String] string utf8 string to allocate
