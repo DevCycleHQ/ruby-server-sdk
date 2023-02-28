@@ -9,8 +9,8 @@ jobs:
     name: Harness Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: DevCycleHQ/test-harness@dvc-6330-remote-trigger-test
+      - uses: DevCycleHQ/test-harness@main
         with:
-          sdk: ruby
+          sdks-to-test: ruby
           sdk-github-sha: ${{ env.GITHUB_SHA }}
           github-token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
