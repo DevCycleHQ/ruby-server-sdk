@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_HOST_IP: '172.17.0.1'
-      SDKS_TO_TEST: go
+      SDKS_TO_TEST: nodejs
       SDK_GITHUB_SHA: ${GITHUB_SHA}
     steps:
       - uses: actions/checkout@v3.3.0
