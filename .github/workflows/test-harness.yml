@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_HOST_IP: '172.17.0.1'
+      SDKS_TO_TEST: ruby
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -23,8 +24,8 @@ jobs:
         run: |
           if [ ! -f ".env" ]
           then 
-           echo "SDK_GITHUB_SHA='${{ github.event.inputs.sha }}'" >> ".env"
-           echo "SDKS_TO_TEST='${{ github.event.inputs.sdk }}'" >> ".env"
+           echo "SDK_GITHUB_SHA='${GITHUB_SHA}'" >> ".env"
+           echo "SDKS_TO_TEST='${{ env.SDKS_TO_TEST }}'" >> ".env"
           fi
       - name: Install Dependencies
         run: yarn install
