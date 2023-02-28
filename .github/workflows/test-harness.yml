@@ -9,7 +9,7 @@ jobs:
     name: Harness Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: DevCycleHQ/test-harness@c6320f4cb19b4d6c02d346122c51b51d09562ec7
+      - uses: DevCycleHQ/test-harness@caa0ba85e9a2e09d67dd0cfa2b67fe750b5b1c99
         with:
           sdk: nodejs
           sdk-github-sha: ${GITHUB_SHA}
