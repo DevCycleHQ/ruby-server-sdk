@@ -89,7 +89,7 @@ module DevCycle
       @sdkkey = sdkkey
       @options = options
       @logger = options.logger
-      setSDKKeyInternal(sdkkey)
+      set_sdk_key_internal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
       @configmanager = ConfigManager.new(@sdkkey, self, wait_for_init)
@@ -215,7 +215,7 @@ module DevCycle
       @@instance.invoke("setPlatformData", platformdata_addr)
     end
 
-    def setSDKKeyInternal(sdkKey)
+    def set_sdk_key_internal(sdkKey)
       addr = malloc_asc_string(sdkKey)
       @sdkKeyAddr = addr
       asc_pin(addr)
