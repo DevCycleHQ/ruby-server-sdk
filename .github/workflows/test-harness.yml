@@ -20,14 +20,14 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
-      - name: Write variables to .env file
-        run: |
-          if [ ! -f ".env" ]
-          then 
-           echo "SDK_GITHUB_SHA='${GITHUB_SHA}'" >> ".env"
-           echo "SDKS_TO_TEST='${{ env.SDKS_TO_TEST }}'" >> ".env"
-          fi
+#      - name: Write variables to .env file
+#        run: |
+#          if [ ! -f ".env" ]
+#          then
+#           echo "SDK_GITHUB_SHA='${GITHUB_SHA}'" >> ".env"
+#           echo "SDKS_TO_TEST='${{ env.SDKS_TO_TEST }}'" >> ".env"
+#          fi
       - name: Install Dependencies
         run: yarn install
       - name: Run All Tests
-        run: yarn test:ci
+        run: SDK_GITHUB_SHA='${GITHUB_SHA}' SDKS_TO_TEST=go yarn test:ci
