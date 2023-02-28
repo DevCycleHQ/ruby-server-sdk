@@ -8,28 +8,8 @@ jobs:
   harness-tests:
     name: Harness Tests
     runs-on: ubuntu-latest
-    env:
-      DOCKER_HOST_IP: '172.17.0.1'
-      SDKS_TO_TEST: nodejs
-      SDK_GITHUB_SHA: ${GITHUB_SHA}
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: DevCycleHQ/test-harness@c6320f4cb19b4d6c02d346122c51b51d09562ec7
         with:
-          repository: DevCycleHQ/test-harness
-          token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-      - name: Write variables to .env file
-        shell: bash
-        run: |
-          if [ ! -f ".env" ]
-          then
-           echo "SDK_GITHUB_SHA='${{ env.GITHUB_SHA }}'" >> ".env"
-           echo "SDKS_TO_TEST='${{ env.SDKS_TO_TEST }}'" >> ".env"
-          fi
-      - name: Install Dependencies
-        run: yarn install
-      - name: Run All Tests
-        run: yarn test:ci
+          sdk: nodejs
+          sdk-github-sha: ${GITHUB_SHA}
