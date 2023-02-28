@@ -21,7 +21,6 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
-          cache-dependency-path: '**/package-lock.json'
       - name: Write variables to .env file
         run: |
           if [ ! -f ".env" ]
