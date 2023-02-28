@@ -11,6 +11,7 @@ jobs:
     env:
       DOCKER_HOST_IP: '172.17.0.1'
       SDKS_TO_TEST: ruby
+      SDK_GITHUB_SHA: ${GITHUB_SHA}
     steps:
       - uses: actions/checkout@v3.3.0
         with:
@@ -30,4 +31,4 @@ jobs:
       - name: Install Dependencies
         run: yarn install
       - name: Run All Tests
-        run: SDK_GITHUB_SHA='${GITHUB_SHA}' SDKS_TO_TEST=go yarn test:ci
+        run: yarn test:ci
