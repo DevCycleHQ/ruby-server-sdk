@@ -11,6 +11,6 @@ jobs:
     steps:
       - uses: DevCycleHQ/test-harness@dvc-6330-remote-trigger-test
         with:
-          sdk: nodejs
+          sdk: ruby
           sdk-github-sha: ${GITHUB_SHA}
           github-token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
