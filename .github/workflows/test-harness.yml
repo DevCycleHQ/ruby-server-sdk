@@ -13,3 +13,4 @@ jobs:
         with:
           sdk: nodejs
           sdk-github-sha: ${GITHUB_SHA}
+          github-token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
