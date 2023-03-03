@@ -32,7 +32,7 @@ module LocalBucketingExample
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.after_initialize do
-      config.dvc_client = DevCycle::DVCClient.new(ENV['DVC_SDK_KEY'], DevCycle::DVCOptions.new, true)
+      config.dvc_client = DevCycle::DVCClient.new(ENV['DVC_SERVER_SDK_KEY'], DevCycle::DVCOptions.new, true)
     end
   end
 end
