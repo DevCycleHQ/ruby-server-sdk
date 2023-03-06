@@ -16,4 +16,4 @@ Once you have Ruby installed you'll be able to run `gem install rails` to instal
 
 In the `local-bucketing-example` directory, run `bundle install` to install required dependencies.
 
-Run `DVC_SDK_KEY={sdk_key} rails server` to start the rails server. The server should be running on `localhost:3000`
+Run `DVC_SERVER_SDK_KEY={sdk_key} bundle exec rails server` to start the rails server. The server should be running on `localhost:3000`
