@@ -23,8 +23,7 @@ module DevCycle
 
       @config_poller = Concurrent::TimerTask.new(
         {
-          execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000),
-          run_now: true
+          execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
         }) do |task|
         fetch_config(false, task)
       end

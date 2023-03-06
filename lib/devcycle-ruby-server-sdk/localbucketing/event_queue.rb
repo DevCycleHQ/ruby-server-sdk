@@ -14,21 +14,15 @@ module DevCycle
       @event_flush_interval_ms = options.event_flush_interval_ms
       @flush_event_queue_size = options.flush_event_queue_size
       @max_event_queue_size = options.max_event_queue_size
-
       @flush_timer_task = Concurrent::TimerTask.new(
-        execution_interval: @event_flush_interval_ms.fdiv(1000),
-        run_now: true
+        execution_interval: @event_flush_interval_ms.fdiv(1000)
       ) {
         flush_events
       }
       @flush_timer_task.execute
-      @flush_timer_task.add_observer(FlushTimerTaskObserver.new)
-
+      @flush_mutex = Mutex.new
       @local_bucketing = local_bucketing
       @local_bucketing.init_event_queue(options)
-
-      @flush_mutex = Mutex.new
-      nil
     end
 
     def close
@@ -50,7 +44,7 @@ module DevCycle
           begin
             response = Typhoeus.post(
               @events_api_uri + '/v1/events/batch',
-              headers: { 'Authorization': @sdkKey },
+              headers: { 'Authorization': @sdkKey, 'Content-Type': 'application/json' },
               body: { 'batch': payload.records }.to_json
             )
             if response.code != 201
@@ -102,19 +96,6 @@ module DevCycle
         end
       end
       false
-    end
-  end
-
-  # Todo: remove when done testing
-  class FlushTimerTaskObserver
-    def update(time, result, ex)
-      return if ex.nil?
-
-      if ex.is_a?(Concurrent::TimeoutError)
-        print("DVC FlushTimerTaskObserver: Execution timed out")
-      else
-        print("DVC FlushTimerTaskObserver: Execution failed with error: #{ex}")
-      end
     end
   end
 end
