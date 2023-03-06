@@ -56,6 +56,7 @@ module DevCycle
 
       @event_queue.close
       @logger.info("Closed DevCycle Client.")
+      nil
     end
 
     def set_client_custom_data(customdata)
