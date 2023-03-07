@@ -236,7 +236,7 @@ module DevCycle
       wasm_object_id = 1
       @@stack_tracer = lambda { |message| raise message }
       wasm_new = @@instance.export("__new").to_func
-      utf8_bytes = string.encode("iso-8859-1").force_encoding("utf-8").bytes
+      utf8_bytes = string.force_encoding("utf-8").bytes
       byte_len = utf8_bytes.length
 
       start_addr = wasm_new.call(byte_len * 2, wasm_object_id)
