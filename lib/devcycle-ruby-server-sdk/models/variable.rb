@@ -27,6 +27,8 @@ module DevCycle
     # Set to true if the Variable could not be fetched
     attr_accessor :isDefaulted
 
+    attr_accessor :defaultValue
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -55,6 +57,7 @@ module DevCycle
         :'key' => :'key',
         :'type' => :'type',
         :'value' => :'value',
+        :'defaultValue' => :'defaultValue',
         :'isDefaulted' => :'isDefaulted'
       }
     end
@@ -70,6 +73,7 @@ module DevCycle
         :'key' => :'String',
         :'type' => :'String',
         :'value' => :'Object',
+        :'defaultValue' => :'Object',
         :'isDefaulted' => :'Boolean'
       }
     end
@@ -111,6 +115,10 @@ module DevCycle
         self.isDefaulted = attributes[:'isDefaulted']
       else
         self.isDefaulted = false
+      end
+
+      if attributes.key?(:'defaultValue')
+        self.defaultValue = attributes[:'defaultValue']
       end
     end
 
@@ -296,7 +304,5 @@ module DevCycle
         value
       end
     end
-
   end
-
 end
