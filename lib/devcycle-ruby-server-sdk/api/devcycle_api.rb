@@ -174,26 +174,55 @@ module DevCycle
         bucketed_config = @localbucketing.generate_bucketed_config(user_data)
         variable_json = bucketed_config.variables[key]
         if variable_json == nil
+          @logger.warn("No variable found for key #{key}, returning default value")
           variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
           @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
-          return Variable.new({ key: key, value: default, isDefaulted: true })
+          return Variable.new({
+            key: key,
+            type: determine_variable_type(default),
+            value: default,
+            defaultValue: default,
+            isDefaulted: true
+          })
         end
+        default_type = determine_variable_type(default)
+        variable_type = variable_json['type']
+        if default_type != variable_type
+          @logger.warn("Type mismatch for variable #{key}, returning default value")
+          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
+          @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
+          return Variable.new({
+            key: key,
+            type: default_type,
+            value: default,
+            defaultValue: default,
+            isDefaulted: true
+          })
+        end
         variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_evaluated], target: key })
         @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
         Variable.new({
-                       key: key,
-                       type: variable_json['type'],
-                       value: variable_json['value'],
-                       isDefaulted: false
-                     })
+          key: key,
+          type: variable_type,
+          value: variable_json['value'],
+          defaultValue: default,
+          isDefaulted: false
+        })
       else
+        @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
         variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
         @event_queue.queue_aggregate_event(variable_event, bucketed_config)
 
-        Variable.new({ key: key, value: default, isDefaulted: true })
+        Variable.new({
+          key: key,
+          type: determine_variable_type(default),
+          value: default,
+          defaultValue: default,
+          isDefaulted: true
+        })
       end
     end
 
@@ -452,6 +481,20 @@ module DevCycle
 
     def local_bucketing_initialized?
       !@localbucketing.nil? && @localbucketing.initialized
+    end
+
+    def determine_variable_type(variable_value)
+      if variable_value.is_a?(String)
+        'String'
+      elsif variable_value.is_a?(TrueClass) || variable_value.is_a?(FalseClass)
+        'Boolean'
+      elsif variable_value.is_a?(Integer) || variable_value.is_a?(Float)
+        'Number'
+      elsif variable_value.is_a?(Hash)
+        'JSON'
+      else
+        raise ArgumentError, "Invalid type for variable: #{variable_value}"
+      end
     end
   end
 end
