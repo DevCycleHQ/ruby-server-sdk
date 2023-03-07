@@ -20,19 +20,33 @@ module DevCycle
       @sdkKey = sdkKey
       @config_e_tag = ""
       @logger = local_bucketing.options.logger
+      @polling_enabled = true
+      @max_config_retries = 2
 
-      @config_poller = Concurrent::TimerTask.new(
-        {
+      @config_poller = Concurrent::TimerTask.new({
           execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
         }) do |task|
-        fetch_config(false, task)
+        fetch_config
       end
 
-      t = Thread.new { fetch_config(false, nil) }
+      t = Thread.new { initialize_config }
       t.join if wait_for_init
     end
 
-    def fetch_config(retrying, task)
+    def initialize_config
+      begin
+        fetch_config
+        @config_poller.execute if @polling_enabled
+      rescue => e
+        @logger.error("DVC Error Initializing Config: #{e.message}")
+      ensure
+        @local_bucketing.initialized = true
+      end
+    end
+
+    def fetch_config
+      return unless @polling_enabled
+
       req = Typhoeus::Request.new(
         get_config_url,
         headers: {
@@ -43,25 +57,26 @@ module DevCycle
         req.options[:headers]['If-None-Match'] = @config_e_tag
       end
 
-      resp = req.run
-
-      case resp.code
-      when 304
-        return nil
-      when 200
-        return set_config(resp.body, resp.headers['Etag'])
-      when 403
-        raise("Failed to download DevCycle config; Invalid SDK Key.")
-      when 500...599
-        if !retrying
-          return fetch_config(true, task)
+      @max_config_retries.times do
+        resp = req.run
+        case resp.code
+        when 304
+          @logger.debug("Config not modified, using cache, etag: #{this.configEtag}")
+          return
+        when 200
+          set_config(resp.body, resp.headers['Etag'])
+          return
+        when 403
+          stop_polling
+          @logger.error("Failed to download DevCycle config; Invalid SDK Key.")
+          return
+        when 500...599
+          @logger.error("Failed to download DevCycle config. Status: #{resp.code}")
+        else
+          stop_polling
+          @logger.error("Unexpected response code - DevCycle Response: #{Oj.dump(resp)}")
+          return
         end
-        @logger.warn("Failed to download DevCycle config. Status: #{resp.code}")
-      else
-        if task != nil
-          task.shutdown
-        end
-        raise("Unexpected response code - DevCycle Response: #{Oj.dump(resp)}")
       end
 
       nil
@@ -74,13 +89,6 @@ module DevCycle
 
       @local_bucketing.store_config(config)
       @config_e_tag = etag
-
-      if @first_load
-        @logger.info("Config Set. Client Initialized.")
-        @first_load = false
-        @local_bucketing.initialized = true
-        @config_poller.execute
-      end
     end
 
     def get_config_url
@@ -88,8 +96,13 @@ module DevCycle
       "#{configBasePath}/config/#{@config_version}/server/#{@sdkKey}.json"
     end
 
+    def stop_polling
+      @polling_enabled = false
+      @config_poller.shutdown if @config_poller.running?
+    end
+
     def close
-      @config_poller.shutdown
+      @config_poller.shutdown if @config_poller.running?
       nil
     end
   end
