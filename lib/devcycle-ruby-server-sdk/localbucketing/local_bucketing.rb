@@ -263,10 +263,11 @@ module DevCycle
       i = 0
       while i < len
         @@stack_tracer = lambda { |message| raise message }
-        result += (@@memory.read(address + i, 1) + @@memory.read(address+i+1, 1) << 8)
+        result += @@memory.read(address + i, 1)
         i += 2
       end
-      result
+      encoded = result.force_encoding('iso-8859-1').encode('utf-8')
+      encoded
     end
   end
 end
