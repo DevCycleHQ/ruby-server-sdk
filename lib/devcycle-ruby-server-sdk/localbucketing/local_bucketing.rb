@@ -266,7 +266,7 @@ module DevCycle
         result += @@memory.read(address + i, 1)
         i += 2
       end
-      encoded = result.force_encoding('iso-8859-1').encode('utf-8')
+      encoded = result.force_encoding('utf-8')
       encoded
     end
   end
