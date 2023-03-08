@@ -263,7 +263,7 @@ module DevCycle
       i = 0
       while i < len
         @@stack_tracer = lambda { |message| raise message }
-        result += @@memory.read(address + i, 1)
+        result += (@@memory.read(address + i, 1) + @@memory.read(address+i+1, 1) << 8)
         i += 2
       end
       result
