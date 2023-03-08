@@ -89,6 +89,7 @@ module DevCycle
 
       @local_bucketing.store_config(config)
       @config_e_tag = etag
+      @local_bucketing.has_config = true
     end
 
     def get_config_url
