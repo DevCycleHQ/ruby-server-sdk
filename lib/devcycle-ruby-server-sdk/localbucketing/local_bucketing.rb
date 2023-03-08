@@ -14,6 +14,7 @@ module DevCycle
 
     attr_reader :options
     attr_accessor :initialized
+    attr_accessor :has_config
 
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new
@@ -86,18 +87,19 @@ module DevCycle
     ).void }
     def initialize(sdkkey, options, wait_for_init)
       @initialized = false
+      @has_config = false
       @sdkkey = sdkkey
       @options = options
       @logger = options.logger
       set_sdk_key_internal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
-      @configmanager = ConfigManager.new(@sdkkey, self, wait_for_init)
+      @config_manager = ConfigManager.new(@sdkkey, self, wait_for_init)
     end
 
     def close
-      @configmanager.close
-      @configmanager = nil
+      @config_manager.close
+      @config_manager = nil
     end
 
     sig { params(user: UserData).returns(BucketedUserConfig) }
