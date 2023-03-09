@@ -250,7 +250,7 @@ module DevCycle
       result = ""
       i = 0
       while i < len
-        result += @@memory.read(address + i, 1)
+        result << @@memory.read(address + i, 1)
         i += 2
       end
       result
