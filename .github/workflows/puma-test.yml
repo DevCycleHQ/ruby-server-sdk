@@ -1,0 +1,25 @@
+name: Run Puma tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test-puma:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.2
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Run rails-app
+        run: cd examples/local/local-bucketing-example; bundle exec rails server &
+      - name: Test Response
+        run: curl -v -X GET http://localhost:3000/
