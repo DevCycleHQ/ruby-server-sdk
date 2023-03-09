@@ -91,6 +91,7 @@ module DevCycle
       @sdkkey = sdkkey
       @options = options
       @logger = options.logger
+      @wasm_mutex = Mutex.new
       set_sdk_key_internal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
@@ -104,117 +105,139 @@ module DevCycle
 
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
-      user_addr = malloc_asc_string(user.to_json)
-      @@stack_tracer = lambda { |message| raise message }
-      config_addr = @@instance.invoke("generateBucketedConfigForUser", @sdkKeyAddr, user_addr)
-      bucketed_config_json = read_asc_string(config_addr)
-      bucketed_config_hash = Oj.load(bucketed_config_json)
+      @wasm_mutex.synchronize do
+        user_addr = malloc_asc_string(user.to_json)
+        @@stack_tracer = lambda { |message| raise message }
+        config_addr = @@instance.invoke("generateBucketedConfigForUser", @sdkKeyAddr, user_addr)
+        bucketed_config_json = read_asc_string(config_addr)
+        bucketed_config_hash = Oj.load(bucketed_config_json)
 
-      BucketedUserConfig.new(bucketed_config_hash['project'],
-                             bucketed_config_hash['environment'],
-                             bucketed_config_hash['features'],
-                             bucketed_config_hash['featureVariationMap'],
-                             bucketed_config_hash['variableVariationMap'],
-                             bucketed_config_hash['variables'],
-                             bucketed_config_hash['knownVariableKeys'])
+        BucketedUserConfig.new(bucketed_config_hash['project'],
+                              bucketed_config_hash['environment'],
+                              bucketed_config_hash['features'],
+                              bucketed_config_hash['featureVariationMap'],
+                              bucketed_config_hash['variableVariationMap'],
+                              bucketed_config_hash['variables'],
+                              bucketed_config_hash['knownVariableKeys'])
+      end
     end
 
     sig { returns(T::Array[EventsPayload]) }
     def flush_event_queue
-      @@stack_tracer = lambda { |message| raise message }
-      payload_addr = @@instance.invoke("flushEventQueue", @sdkKeyAddr)
-      raw_json = read_asc_string(payload_addr)
-      raw_payloads = Oj.load(raw_json)
+      @wasm_mutex.synchronize do
+        @@stack_tracer = lambda { |message| raise message }
+        payload_addr = @@instance.invoke("flushEventQueue", @sdkKeyAddr)
+        raw_json = read_asc_string(payload_addr)
+        raw_payloads = Oj.load(raw_json)
 
-      if raw_payloads == nil
-        return []
+        if raw_payloads == nil
+          return []
+        end
+        raw_payloads.map { |raw_payload| EventsPayload.new(raw_payload["records"], raw_payload["payloadId"], raw_payload["eventCount"]) }
       end
-      raw_payloads.map { |raw_payload| EventsPayload.new(raw_payload["records"], raw_payload["payloadId"], raw_payload["eventCount"]) }
     end
 
     sig { returns(Integer) }
     def check_event_queue_size
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("eventQueueSize", @sdkKeyAddr)
+      @wasm_mutex.synchronize do
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("eventQueueSize", @sdkKeyAddr)
+      end
     end
 
     sig { params(payload_id: String).returns(NilClass) }
     def on_payload_success(payload_id)
-      payload_addr = malloc_asc_string(payload_id)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("onPayloadSuccess", @sdkKeyAddr, payload_addr)
-    end
-
-    sig { params(user: UserData, event: Event).returns(NilClass) }
-    def queue_event(user, event)
-      begin
-        user_addr = malloc_asc_string(Oj.dump(user))
-        asc_pin(user_addr)
-        event_addr = malloc_asc_string(Oj.dump(event))
+      @wasm_mutex.synchronize do
+        payload_addr = malloc_asc_string(payload_id)
         @@stack_tracer = lambda { |message| raise message }
-        @@instance.invoke("queueEvent", @sdkKeyAddr, user_addr, event_addr)
-      ensure
-        asc_unpin(user_addr)
-      end
-    end
-
-    sig { params(event: Event, bucketeduser: T.nilable(BucketedUserConfig)).returns(NilClass) }
-    def queue_aggregate_event(event, bucketeduser)
-      begin
-        variable_variation_map =
-          if !bucketeduser.nil?
-            bucketeduser.variable_variation_map
-          else
-            {}
-          end
-        varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
-        asc_pin(varmap_addr)
-        event_addr = malloc_asc_string(Oj.dump(event))
-        @@stack_tracer = lambda { |message| raise message }
-        @@instance.invoke("queueAggregateEvent", @sdkKeyAddr, event_addr, varmap_addr)
-      ensure
-        asc_unpin(varmap_addr)
+        @@instance.invoke("onPayloadSuccess", @sdkKeyAddr, payload_addr)
       end
     end
 
     sig { params(payload_id: String, retryable: Object).returns(NilClass) }
     def on_payload_failure(payload_id, retryable)
-      payload_addr = malloc_asc_string(payload_id)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("onPayloadFailure", @sdkKeyAddr, payload_addr, retryable ? 1 : 0)
+      @wasm_mutex.synchronize do
+        payload_addr = malloc_asc_string(payload_id)
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("onPayloadFailure", @sdkKeyAddr, payload_addr, retryable ? 1 : 0)
+      end
+    end
+
+    sig { params(user: UserData, event: Event).returns(NilClass) }
+    def queue_event(user, event)
+      @wasm_mutex.synchronize do
+        begin
+          user_addr = malloc_asc_string(Oj.dump(user))
+          asc_pin(user_addr)
+          event_addr = malloc_asc_string(Oj.dump(event))
+          @@stack_tracer = lambda { |message| raise message }
+          @@instance.invoke("queueEvent", @sdkKeyAddr, user_addr, event_addr)
+        ensure
+          asc_unpin(user_addr)
+        end
+      end
+    end
+
+    sig { params(event: Event, bucketeduser: T.nilable(BucketedUserConfig)).returns(NilClass) }
+    def queue_aggregate_event(event, bucketeduser)
+      @wasm_mutex.synchronize do
+        begin
+          variable_variation_map =
+            if !bucketeduser.nil?
+              bucketeduser.variable_variation_map
+            else
+              {}
+            end
+          varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
+          asc_pin(varmap_addr)
+          event_addr = malloc_asc_string(Oj.dump(event))
+          @@stack_tracer = lambda { |message| raise message }
+          @@instance.invoke("queueAggregateEvent", @sdkKeyAddr, event_addr, varmap_addr)
+        ensure
+          asc_unpin(varmap_addr)
+        end
+      end
     end
 
     sig { params(config: String).returns(NilClass) }
     def store_config(config)
-      config_addr = malloc_asc_string(config)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("setConfigData", @sdkKeyAddr, config_addr)
+      @wasm_mutex.synchronize do
+        config_addr = malloc_asc_string(config)
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("setConfigData", @sdkKeyAddr, config_addr)
+      end
     end
 
     sig { params(options: EventQueueOptions).returns(NilClass) }
     def init_event_queue(options)
-      options_json = Oj.dump(options)
-      options_addr = malloc_asc_string(options_json)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
+      @wasm_mutex.synchronize do
+        options_json = Oj.dump(options)
+        options_addr = malloc_asc_string(options_json)
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
+      end
     end
 
     sig { params(customdata: Hash).returns(NilClass) }
     def set_client_custom_data(customdata)
-      customdata_json = Oj.dump(customdata)
-      customdata_addr = malloc_asc_string(customdata_json)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("setClientCustomData", customdata_addr)
+      @wasm_mutex.synchronize do
+        customdata_json = Oj.dump(customdata)
+        customdata_addr = malloc_asc_string(customdata_json)
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("setClientCustomData", customdata_addr)
+      end
     end
 
     private
 
     sig { params(platformdata: PlatformData).returns(NilClass) }
     def set_platform_data(platformdata)
-      platformdata_json = Oj.dump(platformdata)
-      platformdata_addr = malloc_asc_string(platformdata_json)
-      @@stack_tracer = lambda { |message| raise message }
-      @@instance.invoke("setPlatformData", platformdata_addr)
+      @wasm_mutex.synchronize do
+        platformdata_json = Oj.dump(platformdata)
+        platformdata_addr = malloc_asc_string(platformdata_json)
+        @@stack_tracer = lambda { |message| raise message }
+        @@instance.invoke("setPlatformData", platformdata_addr)
+      end
     end
 
     def set_sdk_key_internal(sdkKey)

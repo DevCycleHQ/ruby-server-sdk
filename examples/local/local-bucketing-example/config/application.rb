@@ -13,6 +13,7 @@ require "action_text/engine"
 require "action_view/railtie"
 # require "action_cable/engine"
 require "rails/test_unit/railtie"
+require "devcycle-ruby-server-sdk"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -30,9 +31,5 @@ module LocalBucketingExample
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-
-    config.after_initialize do
-      config.dvc_client = DevCycle::DVCClient.new(ENV['DVC_SERVER_SDK_KEY'], DevCycle::DVCOptions.new, true)
-    end
   end
 end
