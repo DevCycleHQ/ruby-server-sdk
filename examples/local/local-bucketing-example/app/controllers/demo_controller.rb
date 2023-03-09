@@ -3,14 +3,11 @@ class DemoController < ApplicationController
     user = DevCycle::UserData.new({ user_id: 'test', country: 'JP' })
     @bool_var = DevCycleClient.variable(user, 'bool-var', false)
     @string_var = DevCycleClient.variable(user, 'string-var', 'default')
-    # puts "string var: #{@string_var.value}"
     @number_var = DevCycleClient.variable(user, 'number-var', 0)
     @json_var = DevCycleClient.variable(user, 'json-var-ruby-too', {})
-
     @non_existant_var = DevCycleClient.variable(user, 'non-existant-variable', "I don't exist")
 
     @all_variables = DevCycleClient.all_variables(user)
-    # puts "all variables: #{@all_variables}"
 
     @all_features = DevCycleClient.all_features(user)
   end

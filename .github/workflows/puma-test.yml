@@ -23,5 +23,7 @@ jobs:
         run: cd examples/local/local-bucketing-example; bundle install
       - name: Run rails-app
         run: cd examples/local/local-bucketing-example; bundle exec rails server &
+        env:
+          DVC_SERVER_SDK_KEY: ${{ secrets.DVC_SERVER_SDK_KEY }}
       - name: Test Response
         run: curl -v -X GET http://localhost:3000/
