@@ -19,6 +19,8 @@ jobs:
         with:
           ruby-version: 3.1.2
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Install Depends
+        run: bundle install
       - name: Run rails-app
         run: cd examples/local/local-bucketing-example; bundle exec rails server &
       - name: Test Response
