@@ -263,14 +263,10 @@ module DevCycle
       raw_bytes.each { |j|
         len = (len << 8) + (j & 0xFF)
       }
-      result = ""
-      i = 0
-      while i < len
-        @@stack_tracer = @@stack_tracer_raise
-        result << @@memory.read(address + i, 1)
-        i += 2
-      end
-      result
+
+      @@stack_tracer = @@stack_tracer_raise
+      result = @@memory.read(address, len).bytes
+      result.select.with_index { |_, i| i.even? }.pack('c*')
     end
   end
 end
