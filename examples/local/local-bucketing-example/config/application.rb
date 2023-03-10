@@ -18,6 +18,22 @@ require "rails/test_unit/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+require 'webmock'
+include WebMock::API
+
+if ENV['MOCK_CONFIG'] == 'true'
+  ENV['DVC_SERVER_SDK_KEY'] = 'dvc_server_token_hash'
+  WebMock.enable!
+  WebMock.disable_net_connect!
+
+  config_path = File.expand_path('../test_data/large_config.json', __dir__)
+  stub_request(:get, "https://config-cdn.devcycle.com/config/v1/server/#{ENV['DVC_SERVER_SDK_KEY']}.json").
+    to_return(headers: { 'Etag': 'test' }, body: File.new(config_path).read, status: 200)
+
+  stub_request(:post, 'https://events.devcycle.com/v1/events/batch').
+    to_return(status: 201, body: '{}')
+end
+
 module LocalBucketingExample
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -30,9 +46,5 @@ module LocalBucketingExample
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-
-    config.after_initialize do
-      config.dvc_client = DevCycle::DVCClient.new(ENV['DVC_SERVER_SDK_KEY'], DevCycle::DVCOptions.new, true)
-    end
   end
 end
