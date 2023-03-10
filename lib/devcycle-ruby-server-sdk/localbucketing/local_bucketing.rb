@@ -48,7 +48,9 @@ module DevCycle
       result
     }
 
-    @@stack_tracer = lambda { |message| raise message }
+    @@stack_tracer_raise = lambda { |message| raise message }
+    # each method reassigns stack_tracer so the call stack is properly displayed
+    @@stack_tracer = lambda {}
 
     @@linker.func_new("env", "abort", [:i32, :i32, :i32, :i32], []) do |_caller, messagePtr, filenamePtr, lineNum, colNum|
 
@@ -105,6 +107,7 @@ module DevCycle
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
       user_addr = malloc_asc_string(user.to_json)
+      @@stack_tracer = @@stack_tracer_raise
       config_addr = @@instance.invoke("generateBucketedConfigForUser", @sdkKeyAddr, user_addr)
       bucketed_config_json = read_asc_string(config_addr)
       bucketed_config_hash = Oj.load(bucketed_config_json)
@@ -120,6 +123,7 @@ module DevCycle
 
     sig { returns(T::Array[EventsPayload]) }
     def flush_event_queue
+      @@stack_tracer = @@stack_tracer_raise
       payload_addr = @@instance.invoke("flushEventQueue", @sdkKeyAddr)
       raw_json = read_asc_string(payload_addr)
       raw_payloads = Oj.load(raw_json)
@@ -132,12 +136,14 @@ module DevCycle
 
     sig { returns(Integer) }
     def check_event_queue_size
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("eventQueueSize", @sdkKeyAddr)
     end
 
     sig { params(payload_id: String).returns(NilClass) }
     def on_payload_success(payload_id)
       payload_addr = malloc_asc_string(payload_id)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("onPayloadSuccess", @sdkKeyAddr, payload_addr)
     end
 
@@ -147,6 +153,7 @@ module DevCycle
         user_addr = malloc_asc_string(Oj.dump(user))
         asc_pin(user_addr)
         event_addr = malloc_asc_string(Oj.dump(event))
+        @@stack_tracer = @@stack_tracer_raise
         @@instance.invoke("queueEvent", @sdkKeyAddr, user_addr, event_addr)
       ensure
         asc_unpin(user_addr)
@@ -165,6 +172,7 @@ module DevCycle
         varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
         asc_pin(varmap_addr)
         event_addr = malloc_asc_string(Oj.dump(event))
+        @@stack_tracer = @@stack_tracer_raise
         @@instance.invoke("queueAggregateEvent", @sdkKeyAddr, event_addr, varmap_addr)
       ensure
         asc_unpin(varmap_addr)
@@ -174,12 +182,14 @@ module DevCycle
     sig { params(payload_id: String, retryable: Object).returns(NilClass) }
     def on_payload_failure(payload_id, retryable)
       payload_addr = malloc_asc_string(payload_id)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("onPayloadFailure", @sdkKeyAddr, payload_addr, retryable ? 1 : 0)
     end
 
     sig { params(config: String).returns(NilClass) }
     def store_config(config)
       config_addr = malloc_asc_string(config)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("setConfigData", @sdkKeyAddr, config_addr)
     end
 
@@ -187,6 +197,7 @@ module DevCycle
     def init_event_queue(options)
       options_json = Oj.dump(options)
       options_addr = malloc_asc_string(options_json)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
     end
 
@@ -194,6 +205,7 @@ module DevCycle
     def set_client_custom_data(customdata)
       customdata_json = Oj.dump(customdata)
       customdata_addr = malloc_asc_string(customdata_json)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("setClientCustomData", customdata_addr)
     end
 
@@ -203,6 +215,7 @@ module DevCycle
     def set_platform_data(platformdata)
       platformdata_json = Oj.dump(platformdata)
       platformdata_addr = malloc_asc_string(platformdata_json)
+      @@stack_tracer = @@stack_tracer_raise
       @@instance.invoke("setPlatformData", platformdata_addr)
     end
 
@@ -225,6 +238,7 @@ module DevCycle
     sig { params(string: String).returns(Integer) }
     def malloc_asc_string(string)
       wasm_object_id = 1
+      @@stack_tracer = @@stack_tracer_raise
       wasm_new = @@instance.export("__new").to_func
       utf8_bytes = string.bytes
       byte_len = utf8_bytes.length
@@ -232,6 +246,7 @@ module DevCycle
       start_addr = wasm_new.call(byte_len * 2, wasm_object_id)
       i = 0
       while i < byte_len
+        @@stack_tracer = @@stack_tracer_raise
         @@memory.write(start_addr + (i * 2), [utf8_bytes[i]].pack('U'))
         i += 1
       end
@@ -242,6 +257,7 @@ module DevCycle
     # @return [String] resulting string
     sig { params(address: Integer).returns(String) }
     def read_asc_string(address)
+      @@stack_tracer = @@stack_tracer_raise
       raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
       len = 0
       raw_bytes.each { |j|
@@ -250,6 +266,7 @@ module DevCycle
       result = ""
       i = 0
       while i < len
+        @@stack_tracer = @@stack_tracer_raise
         result << @@memory.read(address + i, 1)
         i += 2
       end
