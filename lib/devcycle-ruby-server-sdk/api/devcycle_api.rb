@@ -59,18 +59,19 @@ module DevCycle
       nil
     end
 
-    def set_client_custom_data(customdata)
-      if @dvc_options.enable_cloud_bucketing
-        raise StandardError.new("Client Custom Data is only available in Local bucketing mode.")
-      end
+    # NOTE: Feature not supported yet
+    # def set_client_custom_data(customdata)
+    #   if @dvc_options.enable_cloud_bucketing
+    #     raise StandardError.new("Client Custom Data is only available in Local bucketing mode.")
+    #   end
 
-      if local_bucketing_initialized?
-        @localbucketing.set_client_custom_data(customdata)
-      else
-        @logger.warn("Local bucketing not initialized. Unable to set client custom data.")
-      end
-      nil
-    end
+    #   if local_bucketing_initialized?
+    #     @localbucketing.set_client_custom_data(customdata)
+    #   else
+    #     @logger.warn("Local bucketing not initialized. Unable to set client custom data.")
+    #   end
+    #   nil
+    # end
 
     def validate_model(model)
       return if model.valid?

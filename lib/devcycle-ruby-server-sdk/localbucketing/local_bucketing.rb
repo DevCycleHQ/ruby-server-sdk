@@ -201,13 +201,13 @@ module DevCycle
       @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
     end
 
-    sig { params(customdata: Hash).returns(NilClass) }
-    def set_client_custom_data(customdata)
-      customdata_json = Oj.dump(customdata)
-      customdata_addr = malloc_asc_string(customdata_json)
-      @@stack_tracer = @@stack_tracer_raise
-      @@instance.invoke("setClientCustomData", customdata_addr)
-    end
+    # sig { params(customdata: Hash).returns(NilClass) }
+    # def set_client_custom_data(customdata)
+    #   customdata_json = Oj.dump(customdata)
+    #   customdata_addr = malloc_asc_string(customdata_json)
+    #   @@stack_tracer = @@stack_tracer_raise
+    #   @@instance.invoke("setClientCustomData", customdata_addr)
+    # end
 
     private
 
