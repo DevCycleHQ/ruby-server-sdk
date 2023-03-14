@@ -272,7 +272,7 @@ module DevCycle
       i = 0
       while i < byte_len
         @@stack_tracer = @@stack_tracer_raise
-        @@memory.write(start_addr + (i * 2), [utf8_bytes[i]].pack('U'))
+        @@memory.write(start_addr + (i * 2), [utf8_bytes[i]].pack('c'))
         i += 1
       end
       start_addr
