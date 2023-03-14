@@ -43,5 +43,6 @@ build/
 .rvmrc
 .vscode
 .idea/*
+*.iml
 
 Gemfile.lock
