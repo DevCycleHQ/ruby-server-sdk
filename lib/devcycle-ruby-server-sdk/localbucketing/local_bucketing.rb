@@ -220,13 +220,15 @@ module DevCycle
       end
     end
 
-    # sig { params(customdata: Hash).returns(NilClass) }
-    # def set_client_custom_data(customdata)
-    #   customdata_json = Oj.dump(customdata)
-    #   customdata_addr = malloc_asc_string(customdata_json)
-    #   @@stack_tracer = @@stack_tracer_raise
-    #   @@instance.invoke("setClientCustomData", customdata_addr)
-    # end
+    sig { params(customdata: Hash).returns(NilClass) }
+    def set_client_custom_data(customdata)
+      @wasm_mutex.synchronize do
+        customdata_json = Oj.dump(customdata)
+        customdata_addr = malloc_asc_string(customdata_json)
+        @@stack_tracer = @@stack_tracer_raise
+        @@instance.invoke("setClientCustomData", @sdkKeyAddr, customdata_addr)
+      end
+    end
 
     private
 
