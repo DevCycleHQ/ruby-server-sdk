@@ -13,6 +13,7 @@ module DevCycle
     extend T::Sig
 
     attr_reader :options
+    attr_reader :variable_type_codes
     attr_accessor :initialized
     attr_accessor :has_config
 
@@ -94,6 +95,12 @@ module DevCycle
       @options = options
       @logger = options.logger
       @wasm_mutex = Mutex.new
+      @variable_type_codes = {
+        boolean: @@instance.export("VariableType.Boolean").to_global.get.to_i,
+        string: @@instance.export("VariableType.String").to_global.get.to_i,
+        number: @@instance.export("VariableType.Number").to_global.get.to_i,
+        json: @@instance.export("VariableType.JSON").to_global.get.to_i
+      }
       set_sdk_key_internal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
@@ -121,6 +128,17 @@ module DevCycle
                               bucketed_config_hash['variableVariationMap'],
                               bucketed_config_hash['variables'],
                               bucketed_config_hash['knownVariableKeys'])
+      end
+    end
+
+    sig { params(user: UserData, key: String, variable_type: Integer).returns(T.nilable(String)) }
+    def variable_for_user(user, key, variable_type)
+      @wasm_mutex.synchronize do
+        user_addr = malloc_asc_string(user.to_json)
+        key_addr = malloc_asc_string(key)
+        @@stack_tracer = @@stack_tracer_raise
+        var_addr = @@instance.invoke("variableForUser", @sdkKeyAddr, user_addr, key_addr, variable_type, 1)
+        read_asc_string(var_addr)
       end
     end
 
@@ -280,8 +298,13 @@ module DevCycle
 
     # @param [Integer] address start address of string.
     # @return [String] resulting string
-    sig { params(address: Integer).returns(String) }
+    sig { params(address: Integer).returns(T.nilable(String)) }
     def read_asc_string(address)
+      if address == 0
+        @logger.debug("null address passed to read_asc_string")
+        return nil
+      end
+
       @@stack_tracer = @@stack_tracer_raise
       raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
       len = 0

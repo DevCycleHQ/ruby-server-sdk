@@ -32,8 +32,8 @@ module DevCycle
         @api_client.config.enable_edge_db = @dvc_options.enable_edge_db
         @api_client.config.logger = @logger
       else
-        @localbucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
-        @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @localbucketing)
+        @local_bucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
+        @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @local_bucketing)
       end
     end
 
@@ -42,15 +42,15 @@ module DevCycle
         @logger.info("Cloud Bucketing does not require closing.")
         return
       end
-      if @localbucketing != nil
-        if !@localbucketing.initialized
+      if @local_bucketing != nil
+        if !@local_bucketing.initialized
           @logger.info("Awaiting client initialization before closing")
-          while !@localbucketing.initialized
+          while !@local_bucketing.initialized
             sleep(0.5)
           end
         end
-        @localbucketing.close
-        @localbucketing = nil
+        @local_bucketing.close
+        @local_bucketing = nil
         @logger.info("Closed DevCycle Local Bucketing Engine.")
       end
 
@@ -65,7 +65,7 @@ module DevCycle
       end
 
       if local_bucketing_initialized?
-        @localbucketing.set_client_custom_data(customdata)
+        @local_bucketing.set_client_custom_data(customdata)
       else
         @logger.warn("Local bucketing not initialized. Unable to set client custom data.")
       end
@@ -93,8 +93,8 @@ module DevCycle
         return data
       end
 
-      if local_bucketing_initialized? && @localbucketing.has_config
-        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+      if local_bucketing_initialized? && @local_bucketing.has_config
+        bucketed_config = @local_bucketing.generate_bucketed_config(user_data)
         bucketed_config.features
       else
         {}
@@ -176,60 +176,40 @@ module DevCycle
         return data
       end
 
-      if local_bucketing_initialized? && @localbucketing.has_config
-        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
-        variable_json = bucketed_config.variables[key]
+      value = default
+      type = determine_variable_type(default)
+      defaulted = true
+      if local_bucketing_initialized? && @local_bucketing.has_config
+        type_code = variable_type_code_from_type(type)
+        variable_json = variable_for_user(user_data, key, type_code)
         if variable_json == nil
           @logger.warn("No variable found for key #{key}, returning default value")
-          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
-          @event_queue.queue_aggregate_event(variable_event, bucketed_config)
-
-          return Variable.new({
-            key: key,
-            type: determine_variable_type(default),
-            value: default,
-            defaultValue: default,
-            isDefaulted: true
-          })
-        end
-        default_type = determine_variable_type(default)
-        variable_type = variable_json['type']
-        if default_type != variable_type
+        elsif type != variable_json['type']
           @logger.warn("Type mismatch for variable #{key}, returning default value")
-          variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
-          @event_queue.queue_aggregate_event(variable_event, bucketed_config)
-
-          return Variable.new({
-            key: key,
-            type: default_type,
-            value: default,
-            defaultValue: default,
-            isDefaulted: true
-          })
+        else
+          value = variable_json['value']
+          defaulted = false
         end
-        variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_evaluated], target: key })
-        @event_queue.queue_aggregate_event(variable_event, bucketed_config)
-
-        Variable.new({
-          key: key,
-          type: variable_type,
-          value: variable_json['value'],
-          defaultValue: default,
-          isDefaulted: false
-        })
       else
         @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
         variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
+        bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
         @event_queue.queue_aggregate_event(variable_event, bucketed_config)
-
-        Variable.new({
-          key: key,
-          type: determine_variable_type(default),
-          value: default,
-          defaultValue: default,
-          isDefaulted: true
-        })
       end
+
+      Variable.new({
+        key: key,
+        value: value,
+        type: type,
+        defaultValue: default,
+        isDefaulted: defaulted
+      })
+    end
+
+    def variable_for_user(user, key, variable_type_code)
+      json_str = @local_bucketing.variable_for_user(user, key, variable_type_code)
+      return nil if json_str.nil?
+      JSON.parse(json_str)
     end
 
     # Get variable by key for user data
@@ -319,8 +299,8 @@ module DevCycle
         return data
       end
 
-      if local_bucketing_initialized? && @localbucketing.has_config
-        bucketed_config = @localbucketing.generate_bucketed_config(user_data)
+      if local_bucketing_initialized? && @local_bucketing.has_config
+        bucketed_config = @local_bucketing.generate_bucketed_config(user_data)
         bucketed_config.variables
       else
         {}
@@ -486,7 +466,7 @@ module DevCycle
     end
 
     def local_bucketing_initialized?
-      !@localbucketing.nil? && @localbucketing.initialized
+      !@local_bucketing.nil? && @local_bucketing.initialized
     end
 
     def determine_variable_type(variable_value)
@@ -500,6 +480,21 @@ module DevCycle
         'JSON'
       else
         raise ArgumentError, "Invalid type for variable: #{variable_value}"
+      end
+    end
+
+    def variable_type_code_from_type(type)
+      case type
+      when 'String'
+        @local_bucketing.variable_type_codes[:string]
+      when 'Boolean'
+        @local_bucketing.variable_type_codes[:boolean]
+      when 'Number'
+        @local_bucketing.variable_type_codes[:number]
+      when 'JSON'
+        @local_bucketing.variable_type_codes[:json]
+      else
+        raise ArgumentError.new("Invalid type for variable: #{type}")
       end
     end
   end
