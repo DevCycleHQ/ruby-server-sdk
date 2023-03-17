@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   root to: "demo#index"
   get "/track", to: "demo#track"
   get "/flush_events", to: "demo#flush_events"
+  get "/variable", to: "demo#variable"
 end
