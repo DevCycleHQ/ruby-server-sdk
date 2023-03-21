@@ -5,6 +5,7 @@ gem 'sorbet-runtime'
 gem 'oj'
 gem 'wasmtime'
 gem 'concurrent-ruby'
+gem 'google-protobuf'
 
 group :development, :test do
   gem 'sorbet'

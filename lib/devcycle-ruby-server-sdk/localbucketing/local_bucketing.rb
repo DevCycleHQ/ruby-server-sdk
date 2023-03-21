@@ -17,6 +17,11 @@ module DevCycle
     attr_accessor :initialized
     attr_accessor :has_config
 
+    BUFFER_HEADER_SIZE = 12
+    ARRAY_BUFFER_CLASS_ID = 1
+    STRING_CLASS_ID = 2
+    HEADER_ID = 9
+
     @@rand = Random.new(seed = Random.new_seed)
     @@engine = Wasmtime::Engine.new
 
@@ -77,7 +82,6 @@ module DevCycle
 
     @@linker.func_new("env", "seed", [], [:f64]) do |_caller|
       @@rand.rand(1.0) * DateTime.now.strftime("%Q").to_i
-
     end
 
     @@instance = @@linker.instantiate(@@store, @@wasmmodule)
@@ -101,6 +105,8 @@ module DevCycle
         number: @@instance.export("VariableType.Number").to_global.get.to_i,
         json: @@instance.export("VariableType.JSON").to_global.get.to_i
       }
+      @buffer_header_addr = @@instance.export("__new").to_func.call(BUFFER_HEADER_SIZE, HEADER_ID)
+      asc_pin(@buffer_header_addr)
       set_sdk_key_internal(sdkkey)
       platform_data = PlatformData.new('server', VERSION, RUBY_VERSION, nil, 'Ruby', Socket.gethostname)
       set_platform_data(platform_data)
@@ -139,6 +145,16 @@ module DevCycle
         @@stack_tracer = @@stack_tracer_raise
         var_addr = @@instance.invoke("variableForUser", @sdkKeyAddr, user_addr, key_addr, variable_type, 1)
         read_asc_string(var_addr)
+      end
+    end
+
+    sig { params(bin_str: String).returns(T.nilable(String)) }
+    def variable_for_user_pb(bin_str)
+      @wasm_mutex.synchronize do
+        @@stack_tracer = @@stack_tracer_raise
+        params_addr = malloc_asc_byte_array(bin_str)
+        var_addr = @@instance.invoke("variableForUser_PB", params_addr)
+        read_asc_byte_array(var_addr)
       end
     end
 
@@ -280,13 +296,12 @@ module DevCycle
     # @return [Integer] address to WASM String
     sig { params(string: String).returns(Integer) }
     def malloc_asc_string(string)
-      wasm_object_id = 1
       @@stack_tracer = @@stack_tracer_raise
       wasm_new = @@instance.export("__new").to_func
       utf8_bytes = string.bytes
       byte_len = utf8_bytes.length
 
-      start_addr = wasm_new.call(byte_len * 2, wasm_object_id)
+      start_addr = wasm_new.call(byte_len * 2, STRING_CLASS_ID)
       i = 0
       while i < byte_len
         @@stack_tracer = @@stack_tracer_raise
@@ -306,15 +321,77 @@ module DevCycle
       end
 
       @@stack_tracer = @@stack_tracer_raise
-      raw_bytes = @@memory.read(address - 4, 4).bytes.reverse
-      len = 0
-      raw_bytes.each { |j|
-        len = (len << 8) + (j & 0xFF)
-      }
+      raw_bytes = @@memory.read(address - 4, 4).bytes
+      len = asc_bytes_to_int(raw_bytes)
 
       @@stack_tracer = @@stack_tracer_raise
       result = @@memory.read(address, len).bytes
       result.select.with_index { |_, i| i.even? }.pack('c*')
+    end
+
+    sig { params(bin_string: String).returns(Integer) }
+    def malloc_asc_byte_array(bin_string)
+      align = 0
+      @@stack_tracer = @@stack_tracer_raise
+      wasm_new = @@instance.export("__new").to_func
+
+      length = bin_string.length
+
+      # allocate buffer of size length - returned address is in Big Endian order
+      buffer_addr = wasm_new.call(length << align, ARRAY_BUFFER_CLASS_ID)
+
+      # convert to array of bytes in Little Endian order
+      # - pack('L<') packs the address into a binary sequence in Little Endian order
+      # - unpack('C*') converts each byte in the string to it's decimal representation
+      buffer_addr_little_endian_bytes = [buffer_addr].pack('L<').unpack('C*')
+
+      # write address byte values in Little Endian order to header
+      buffer_addr_little_endian_bytes.each_with_index { |byte, i|
+        @@memory.write(@buffer_header_addr + i, [byte].pack('C'))
+        @@memory.write(@buffer_header_addr + i + 4, [byte].pack('C'))
+      }
+
+      # convert length to an array of bytes in Little Endian order
+      byte_len_little_endian_bytes = [length].pack('L<').unpack('C*')
+
+      # write length to header
+      byte_len_little_endian_bytes.each_with_index { |byte, i|
+        @@memory.write(@buffer_header_addr + i + 8, [byte].pack('C'))
+      }
+
+      # write data bytes to buffer
+      bin_string.each_char.with_index { |char, i|
+        @@memory.write(buffer_addr + i, char)
+      }
+
+      @buffer_header_addr
+    end
+
+    sig { params(address: Integer).returns(T.nilable(String)) }
+    def read_asc_byte_array(address)
+      if address == 0
+        @logger.debug("null address passed to read_asc_byte_array")
+        return nil
+      end
+
+      length_bytes = @@memory.read(address + 8, 4).bytes
+      length = asc_bytes_to_int(length_bytes)
+
+      buffer_addr_bytes = @@memory.read(address, 4).bytes
+      buffer_addr = asc_bytes_to_int(buffer_addr_bytes)
+
+      @@memory.read(buffer_addr, length)
+    end
+
+    # @param [Array<Integer>] bytes: array of bytes in Little Endian order
+    # @return [Integer] integer value
+    # @example
+    #  asc_bytes_to_int([0, 4, 0, 0]) # => 1024 = (0 << 0) + (4 << 8) + (0 << 16) + (0 << 24)
+    sig { params(bytes: T::Array[Integer]).returns(Integer) }
+    def asc_bytes_to_int(bytes)
+      bytes.each_with_index.reduce(0) { |acc, (byte, i)|
+        acc + (byte << (i * 8))
+      }
     end
   end
 end
