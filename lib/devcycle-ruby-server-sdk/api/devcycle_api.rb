@@ -183,9 +183,7 @@ module DevCycle
         type_code = variable_type_code_from_type(type)
         variable_json = variable_for_user(user_data, key, type_code)
         if variable_json == nil
-          @logger.warn("No variable found for key #{key}, returning default value")
-        elsif type != variable_json['type']
-          @logger.warn("Type mismatch for variable #{key}, returning default value")
+          @logger.warn("No variable found or type mismatch for key #{key}, returning default value")
         else
           value = variable_json['value']
           defaulted = false
