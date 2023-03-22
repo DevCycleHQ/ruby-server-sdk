@@ -181,13 +181,13 @@ module DevCycle
       defaulted = true
       if local_bucketing_initialized? && @local_bucketing.has_config
         type_code = variable_type_code_from_type(type)
-        variable_pb = variable_for_user_pb(user_data, key, type_code)
-        if variable_pb == nil
+        variable_json = variable_for_user(user_data, key, type_code)
+        if variable_json == nil
           @logger.warn("No variable found for key #{key}, returning default value")
-        elsif type != variable_pb.type.to_s
+        elsif type != variable_json['type']
           @logger.warn("Type mismatch for variable #{key}, returning default value")
         else
-          value = get_variable_value(variable_pb)
+          value = variable_json['value']
           defaulted = false
         end
       else
@@ -210,23 +210,6 @@ module DevCycle
       json_str = @local_bucketing.variable_for_user(user, key, variable_type_code)
       return nil if json_str.nil?
       JSON.parse(json_str)
-    end
-
-    def variable_for_user_pb(user, key, variable_type_code)
-      user_data_pb = user.to_pb_user_data
-      params_pb = Proto::VariableForUserParams_PB.new(
-        sdkKey: @sdkKey,
-        variableKey: key,
-        variableType: variable_type_pb_code_from_type_code(variable_type_code),
-        user: user_data_pb,
-        shouldTrackEvent: true
-      )
-      param_bin_string = Proto::VariableForUserParams_PB.encode(params_pb)
-      var_bin_string = @local_bucketing.variable_for_user_pb(param_bin_string)
-      if var_bin_string.nil?
-        return nil
-      end
-      Proto::SDKVariable_PB.decode(var_bin_string)
     end
 
     # Get variable by key for user data
@@ -512,21 +495,6 @@ module DevCycle
         @local_bucketing.variable_type_codes[:json]
       else
         raise ArgumentError.new("Invalid type for variable: #{type}")
-      end
-    end
-
-    def variable_type_pb_code_from_type_code(type_code)
-      case type_code
-      when @local_bucketing.variable_type_codes[:string]
-        Proto::VariableType_PB::String
-      when @local_bucketing.variable_type_codes[:boolean]
-        Proto::VariableType_PB::Boolean
-      when @local_bucketing.variable_type_codes[:number]
-        Proto::VariableType_PB::Number
-      when @local_bucketing.variable_type_codes[:json]
-        Proto::VariableType_PB::JSON
-      else
-        raise ArgumentError.new("Invalid type code for variable: #{type_code}")
       end
     end
   end

@@ -414,20 +414,5 @@ module DevCycle
         value
       end
     end
-
-    def to_pb_user_data
-      pb_user = Proto::DVCUser_PB.new
-      pb_user.user_id = @user_id
-      pb_user.email = create_nullable_string(@email)
-      pb_user.name = create_nullable_string(@name)
-      pb_user.language = create_nullable_string(@language)
-      pb_user.country = create_nullable_string(@country)
-      pb_user.appVersion = create_nullable_string(@appVersion)
-      pb_user.appBuild = create_nullable_double(@appBuild)
-      pb_user.customData = create_nullable_custom_data(@customData)
-      pb_user.privateCustomData = create_nullable_custom_data(@privateCustomData)
-
-      pb_user
-    end
   end
 end
