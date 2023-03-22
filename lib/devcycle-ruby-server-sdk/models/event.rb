@@ -12,6 +12,7 @@ OpenAPI Generator version: 5.3.0
 
 require 'date'
 require 'time'
+require 'oj'
 
 module DevCycle
   class Event
@@ -259,6 +260,9 @@ module DevCycle
       end
     end
 
+    def to_json
+      Oj.dump(to_hash, mode: :json)
+    end
   end
 
 end

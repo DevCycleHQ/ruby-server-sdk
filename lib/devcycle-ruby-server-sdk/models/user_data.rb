@@ -17,9 +17,6 @@ require 'oj'
 module DevCycle
   class UserData
 
-    def to_json
-      Oj.dump(self)
-    end
     # Unique id to identify the user
     attr_accessor :user_id
 
@@ -413,6 +410,10 @@ module DevCycle
       else
         value
       end
+    end
+
+    def to_json
+      Oj.dump(to_hash, mode: :json)
     end
   end
 end

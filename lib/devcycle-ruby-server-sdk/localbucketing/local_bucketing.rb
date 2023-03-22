@@ -187,9 +187,9 @@ module DevCycle
     def queue_event(user, event)
       @wasm_mutex.synchronize do
         begin
-          user_addr = malloc_asc_string(Oj.dump(user))
+          user_addr = malloc_asc_string(user.to_json)
           asc_pin(user_addr)
-          event_addr = malloc_asc_string(Oj.dump(event))
+          event_addr = malloc_asc_string(event.to_json)
           @@stack_tracer = @@stack_tracer_raise
           @@instance.invoke("queueEvent", @sdkKeyAddr, user_addr, event_addr)
         ensure
@@ -210,7 +210,7 @@ module DevCycle
             end
           varmap_addr = malloc_asc_string(Oj.dump(variable_variation_map))
           asc_pin(varmap_addr)
-          event_addr = malloc_asc_string(Oj.dump(event))
+          event_addr = malloc_asc_string(event.to_json)
           @@stack_tracer = @@stack_tracer_raise
           @@instance.invoke("queueAggregateEvent", @sdkKeyAddr, event_addr, varmap_addr)
         ensure

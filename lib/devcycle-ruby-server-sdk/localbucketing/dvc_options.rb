@@ -1,5 +1,3 @@
-require 'oj'
-
 module DevCycle
   class DVCOptions
     attr_reader :config_polling_interval_ms
