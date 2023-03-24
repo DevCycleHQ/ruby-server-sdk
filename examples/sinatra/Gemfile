@@ -5,6 +5,5 @@ gem 'sinatra'
 gem 'oj'
 gem 'sinatra-contrib'
 gem 'thin'
-# gem 'devcycle-server-sdk'
 gem 'devcycle-ruby-server-sdk', path: "../../"
 
