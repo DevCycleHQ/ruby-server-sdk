@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'socket'
-require 'json'
+require 'oj'
 
 module DevCycle
   class PlatformData
@@ -24,6 +24,21 @@ module DevCycle
       @platform = 'Ruby'
       @hostname = Socket.gethostname
       self
+    end
+
+    def to_hash
+      {
+        sdkType: @sdkType,
+        sdkVersion: @sdkVersion,
+        platformVersion: @platformVersion,
+        deviceModel: @deviceModel,
+        platform: @platform,
+        hostname: @hostname
+      }
+    end
+
+    def to_json
+      Oj.dump(to_hash, mode: :json)
     end
   end
 end

@@ -3,9 +3,9 @@ require 'devcycle-ruby-server-sdk'
 options = DevCycle::DVCOptions.new(enable_cloud_bucketing: false, event_flush_interval_ms: 1000, config_polling_interval_ms: 1000)
 test_user = DevCycle::UserData.new({ user_id: "test" })
 test_event = DevCycle::Event.new({
-                                    :'type' => :'randomEval',
-                                    :'target' => :'custom target'
-                                  })
+                                   :'type' => :'randomEval',
+                                   :'target' => :'custom target'
+                                 })
 dvc_client = DevCycle::DVCClient.new("dvc_server_token_hash", options, true)
 puts dvc_client.variable(test_user, 'test', false)
 puts dvc_client.all_variables(test_user)
