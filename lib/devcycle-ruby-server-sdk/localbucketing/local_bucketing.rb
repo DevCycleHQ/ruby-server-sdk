@@ -121,10 +121,10 @@ module DevCycle
     sig { params(user: UserData).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
       @wasm_mutex.synchronize do
-        user_addr = malloc_asc_string(user.to_json)
+        user_addr = malloc_asc_byte_array(user.to_json)
         @@stack_tracer = @@stack_tracer_raise
-        config_addr = @@instance.invoke("generateBucketedConfigForUser", @sdkKeyAddr, user_addr)
-        bucketed_config_json = read_asc_string(config_addr)
+        config_addr = @@instance.invoke("generateBucketedConfigForUserUTF8", @sdkKeyAddr, user_addr)
+        bucketed_config_json = read_asc_byte_array(config_addr)
         bucketed_config_hash = Oj.load(bucketed_config_json)
 
         BucketedUserConfig.new(bucketed_config_hash['project'],
