@@ -34,7 +34,7 @@ require 'devcycle-ruby-server-sdk/localbucketing/platform_data'
 require 'devcycle-ruby-server-sdk/localbucketing/bucketed_user_config'
 require 'devcycle-ruby-server-sdk/localbucketing/event_queue'
 require 'devcycle-ruby-server-sdk/localbucketing/event_types'
-require 'devcycle-ruby-server-sdk/localbucketing/proto/variableForUser_pb'
+require 'devcycle-ruby-server-sdk/localbucketing/proto/variableForUserParams_pb'
 require 'devcycle-ruby-server-sdk/localbucketing/proto/helpers'
 
 module DevCycle
