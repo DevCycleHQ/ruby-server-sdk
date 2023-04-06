@@ -216,6 +216,10 @@ module DevCycle
         invalid_properties.push('invalid value for "user_id", user_id cannot be nil.')
       end
 
+      if !@user_id.is_a?(String)
+        invalid_properties.push('invalid value for "user_id", user_id must be a string.')
+      end
+
       if !@language.nil? && @language.to_s.length > 2
         invalid_properties.push('invalid value for "language", the character length must be smaller than or equal to 2.')
       end
@@ -231,6 +235,7 @@ module DevCycle
     # @return true if the model is valid
     def valid?
       return false if @user_id.nil?
+      return false if !@user_id.is_a?(String)
       return false if !@language.nil? && @language.to_s.length > 2
       return false if !@country.nil? && @country.to_s.length > 2
       sdk_type_validator = EnumAttributeValidator.new('String', ["api", "server"])
