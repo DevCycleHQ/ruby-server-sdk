@@ -182,9 +182,7 @@ module DevCycle
       if local_bucketing_initialized? && @local_bucketing.has_config
         type_code = variable_type_code_from_type(type)
         variable_pb = variable_for_user_pb(user_data, key, type_code)
-        if variable_pb == nil
-          @logger.warn("No variable found or type mismatch for key #{key}, returning default value")
-        else
+        unless variable_pb.nil?
           value = get_variable_value(variable_pb)
           defaulted = false
         end
