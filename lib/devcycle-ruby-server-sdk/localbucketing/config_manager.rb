@@ -58,7 +58,7 @@ module DevCycle
       end
 
       @max_config_retries.times do
-        @logger.debug("Requesting a new config for #{get_config_url}, etag: #{@config_e_tag}")
+        @logger.debug("Requesting new config from #{get_config_url}, current etag: #{@config_e_tag}")
         resp = req.run
         @logger.debug("Config request complete, status: #{resp.code}")
         case resp.code
@@ -66,8 +66,9 @@ module DevCycle
           @logger.debug("Config not modified, using cache, etag: #{@config_e_tag}")
           break
         when 200
-          @logger.debug("Config downloaded, etag: #{resp.headers['Etag']}")
+          @logger.info("New config received, etag: #{resp.headers['Etag']}")
           set_config(resp.body, resp.headers['Etag'])
+          @logger.info("New config stored, etag: #{@config_e_tag}")
           break
         when 403
           stop_polling
@@ -92,7 +93,6 @@ module DevCycle
 
       @local_bucketing.store_config(config)
       @config_e_tag = etag
-      @logger.debug("Config stored, etag: #{@config_e_tag}")
       @local_bucketing.has_config = true
     end
 
