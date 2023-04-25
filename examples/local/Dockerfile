@@ -11,4 +11,4 @@ RUN bundle install
 
 EXPOSE 3000
 
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["bundle", "exec", "unicorn", "-c", "config/unicorn.rb"]

@@ -1,16 +1,17 @@
 class DemoController < ApplicationController
   def index
-    user = DevCycle::UserData.new({ user_id: 'test', country: 'JP' })
-    @bool_var = DevCycleClient.variable(user, 'bool-var', false)
-    @string_var = DevCycleClient.variable(user, 'string-var', 'default')
-    @number_var = DevCycleClient.variable(user, 'number-var', 0)
-    @json_var = DevCycleClient.variable(user, 'json-var-ruby-too', {})
-
-    @non_existant_var = DevCycleClient.variable(user, 'non-existant-variable', "I don't exist")
-
-    @all_variables = DevCycleClient.all_variables(user)
-
-    @all_features = DevCycleClient.all_features(user)
+    # user = DevCycle::UserData.new({ user_id: 'test', country: 'JP' })
+    Rails.logger.info('doing stuff, beep boop')
+    # @bool_var = DevCycleClient.variable(user, 'bool-var', false)
+    # @string_var = DevCycleClient.variable(user, 'string-var', 'default')
+    # @number_var = DevCycleClient.variable(user, 'number-var', 0)
+    # @json_var = DevCycleClient.variable(user, 'json-var-ruby-too', {})
+    #
+    # @non_existent_var = DevCycleClient.variable(user, 'non-existent-variable', "I don't exist")
+    #
+    # @all_variables = DevCycleClient.all_variables(user)
+    #
+    # @all_features = DevCycleClient.all_features(user)
   end
 
   def track
