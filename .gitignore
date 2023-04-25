@@ -44,5 +44,6 @@ build/
 .vscode
 .idea/*
 *.iml
+**/.DS_Store
 
 Gemfile.lock
