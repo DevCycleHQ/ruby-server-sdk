@@ -5,9 +5,10 @@ RUN apt-get update -qq && apt-get install -y build-essential
 WORKDIR /app
 
 COPY Gemfile .
+RUN bundle install
+
 COPY . /app
 
-RUN bundle install
 
 EXPOSE 3000
 
