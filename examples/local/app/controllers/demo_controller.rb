@@ -6,7 +6,7 @@ class DemoController < ApplicationController
     @number_var = DevCycleClient.variable(user, 'number-var', 0)
     @json_var = DevCycleClient.variable(user, 'json-var-ruby-too', {})
 
-    @non_existant_var = DevCycleClient.variable(user, 'non-existant-variable', "I don't exist")
+    @non_existent_var = DevCycleClient.variable(user, 'non-existent-variable', "I don't exist")
 
     @all_variables = DevCycleClient.all_variables(user)
 

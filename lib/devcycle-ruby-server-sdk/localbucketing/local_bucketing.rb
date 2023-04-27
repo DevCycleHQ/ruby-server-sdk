@@ -23,7 +23,8 @@ module DevCycle
     HEADER_ID = 9
 
     @@rand = Random.new(seed = Random.new_seed)
-    @@engine = Wasmtime::Engine.new
+    @@engine = Wasmtime::Engine.new(parallel_compilation: false) 
+    # added to ensure that there is no processes deadlock when compiling wasm before forking
 
     @@wasmmodule = Wasmtime::Module.from_file(@@engine, "#{__dir__}/bucketing-lib.release.wasm")
     @@wasi_ctx = Wasmtime::WasiCtxBuilder.new
