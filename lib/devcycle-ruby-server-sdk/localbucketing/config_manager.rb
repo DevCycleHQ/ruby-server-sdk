@@ -66,9 +66,9 @@ module DevCycle
           @logger.debug("Config not modified, using cache, etag: #{@config_e_tag}")
           break
         when 200
-          @logger.info("New config received, etag: #{resp.headers['Etag']}")
+          @logger.debug("New config received, etag: #{resp.headers['Etag']}")
           set_config(resp.body, resp.headers['Etag'])
-          @logger.info("New config stored, etag: #{@config_e_tag}")
+          @logger.debug("New config stored, etag: #{@config_e_tag}")
           break
         when 403
           stop_polling
