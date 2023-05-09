@@ -158,6 +158,17 @@ module DevCycle
       return data, status_code, headers
     end
 
+    # Get variable value by key for user data
+    # @param user_data [UserData]
+    # @param key [String] Variable key
+    # @param default Default value for variable if none is retrieved
+    # @param [Hash] opts the optional parameters
+    # @return variable value which can be: string, number, boolean, or JSON
+    def variableValue(user_data, key, default, opts = {})
+      variable_obj = variable(user_data, key, default, opts)
+      variable_obj.value
+    end
+
     # Get variable by key for user data
     # @param user_data [UserData]
     # @param key [String] Variable key

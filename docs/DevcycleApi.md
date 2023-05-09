@@ -79,11 +79,43 @@ end
 - **Accept**: application/json
 
 
+## variableValue
+
+> variableValue(user_data, key)
+
+Get variable value by key for user data
+
+### Examples
+
+```ruby
+require 'time'
+require 'devcycle-ruby-server-sdk'
+# setup authorization
+DevCycle.configure do |config|
+  # Configure API key authorization: bearerAuth
+  config.api_key['bearerAuth'] = 'YOUR API KEY'
+  # Uncomment the following line to set a prefix for the API key, e.g. 'Bearer' (defaults to nil)
+  # config.api_key_prefix['bearerAuth'] = 'Bearer'
+end
+
+api_instance = DevCycle::DevcycleApi.new
+key = 'key_example' # String | Variable key
+user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+
+begin
+  # Get variable by key for user data
+  value = api_instance.variableValue(user_data, key)
+  p value
+rescue DevCycle::ApiError => e
+  puts "Error when calling DevcycleApi->variable: #{e}"
+end
+```
+
 ## variable
 
 > <Variable> variable(user_data, key)
 
-Get variable by key for user data
+Get variable object by key for user data
 
 ### Examples
 

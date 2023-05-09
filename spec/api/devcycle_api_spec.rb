@@ -60,7 +60,9 @@ describe 'DVCClient' do
   describe 'get_variable_by_key activate-flag' do
     it 'should work' do
       result = @api_instance.variable(@user_data, "activate-flag", false)
+      expect(result.isDefaulted).to eq true
 
+      result = @api_instance.variableValue(@user_data, "activate-flag", true)
       expect(result.isDefaulted).to eq true
     end
   end
@@ -74,7 +76,10 @@ describe 'DVCClient' do
   describe 'get_variable_by_key test' do
     it 'should work' do
       result = @api_instance.variable(@user_data, "test", false)
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq true
 
+      result = @api_instance.variableValue(@user_data, "test", true)
       expect(result.isDefaulted).to eq false
       expect(result.value).to eq true
     end
