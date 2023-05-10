@@ -24,8 +24,11 @@ user_data = DevCycle::UserData.new({ user_id: 'my-user' })
 
 get '/' do
   variable = api_instance.variable(user_data, "bool-var", false)
-  puts "variable value is: #{variable.value}"
+  puts "bool-var variable value is: #{variable.value}"
   puts "\n"
+
+  variableValue = api_instance.variableValue(user_data, "string-var", "string-var-default")
+  puts "string-var variable value is: #{variableValue}"
 
   all_variables = api_instance.all_variables(user_data)
   puts "all_variables result is:\n#{JSON.pretty_generate(all_variables.to_hash)}"
