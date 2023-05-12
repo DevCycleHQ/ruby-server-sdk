@@ -164,7 +164,7 @@ module DevCycle
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return variable value which can be: string, number, boolean, or JSON
-    def variableValue(user_data, key, default, opts = {})
+    def variable_value(user_data, key, default, opts = {})
       variable_obj = variable(user_data, key, default, opts)
       variable_obj.value
     end

@@ -79,9 +79,9 @@ end
 - **Accept**: application/json
 
 
-## variableValue
+## variable_value
 
-> variableValue(user_data, key)
+> variable_value(user_data, key)
 
 Get variable value by key for user data
 
@@ -104,7 +104,7 @@ user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData |
 
 begin
   # Get variable by key for user data
-  value = api_instance.variableValue(user_data, key)
+  value = api_instance.variable_value(user_data, key)
   p value
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->variable: #{e}"

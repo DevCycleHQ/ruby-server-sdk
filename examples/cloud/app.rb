@@ -27,8 +27,8 @@ get '/' do
   puts "bool-var variable value is: #{variable.value}"
   puts "\n"
 
-  variableValue = api_instance.variableValue(user_data, "string-var", "string-var-default")
-  puts "string-var variable value is: #{variableValue}"
+  variable_value = api_instance.variable_value(user_data, "string-var", "string-var-default")
+  puts "string-var variable value is: #{variable_value}"
 
   all_variables = api_instance.all_variables(user_data)
   puts "all_variables result is:\n#{JSON.pretty_generate(all_variables.to_hash)}"

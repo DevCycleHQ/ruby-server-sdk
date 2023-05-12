@@ -62,7 +62,7 @@ describe 'DVCClient' do
       result = @api_instance.variable(@user_data, "activate-flag", false)
       expect(result.isDefaulted).to eq true
 
-      result = @api_instance.variableValue(@user_data, "activate-flag", true)
+      result = @api_instance.variable_value(@user_data, "activate-flag", true)
       expect(result).to eq true
     end
   end
@@ -79,7 +79,7 @@ describe 'DVCClient' do
       expect(result.isDefaulted).to eq false
       expect(result.value).to eq true
 
-      result = @api_instance.variableValue(@user_data, "test", true)
+      result = @api_instance.variable_value(@user_data, "test", true)
       expect(result).to eq true
     end
   end
