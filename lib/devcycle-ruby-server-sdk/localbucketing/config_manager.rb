@@ -74,11 +74,16 @@ module DevCycle
           stop_polling
           @logger.error("Failed to download DevCycle config; Invalid SDK Key.")
           break
+        when 404
+          stop_polling
+          @logger.error("Failed to download DevCycle config; Config not found.")
+          break
         when 500...599
           @logger.error("Failed to download DevCycle config. Status: #{resp.code}")
         else
-          stop_polling
-          @logger.error("Unexpected response code - DevCycle Response: #{Oj.dump(resp)}")
+          @logger.error("Unexpected response from DevCycle CDN")
+          @logger.error("Response code: #{resp.code}")
+          @logger.error("Response body: #{resp.body}")
           break
         end
       end
