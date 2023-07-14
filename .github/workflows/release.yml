@@ -84,6 +84,7 @@ jobs:
           gem push *.gem
         env:
           GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+        if: inputs.prerelease != true && inputs.draft != true
 
       - name: Release SDK
         uses: DevCycleHQ/release-action/gh-release@main
