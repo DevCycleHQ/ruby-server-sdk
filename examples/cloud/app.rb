@@ -17,9 +17,9 @@ DevCycle.configure do |config|
   config.enable_edge_db = false
 end
 
-options = DevCycle::DVCOptions.new(enable_cloud_bucketing: true)
-api_instance = DevCycle::DVCClient.new(sdk_key, options)
-user_data = DevCycle::UserData.new({ user_id: 'my-user' })
+options = DevCycle::Options.new(enable_cloud_bucketing: true)
+api_instance = DevCycle::Client.new(sdk_key, options)
+user_data = DevCycle::User.new({ user_id: 'my-user' })
 
 
 get '/' do
@@ -39,7 +39,7 @@ get '/' do
 end
 
 get '/track_event' do
-  user_data = DevCycle::UserData.new({ user_id: 'my-user' })
+  user_data = DevCycle::User.new({ user_id: 'my-user' })
   event_data = DevCycle::Event.new({
       type: "my-event",
       target: "some_event_target",

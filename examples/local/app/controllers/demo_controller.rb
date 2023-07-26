@@ -1,6 +1,6 @@
 class DemoController < ApplicationController
   def index
-    user = DevCycle::UserData.new({ user_id: 'test', country: 'JP' })
+    user = DevCycle::User.new({ user_id: 'test', country: 'JP' })
     @bool_var = DevCycleClient.variable_value(user, 'bool-var', false)
     @string_var = DevCycleClient.variable_value(user, 'string-var', 'default')
     @number_var = DevCycleClient.variable_value(user, 'number-var', 0)
@@ -14,7 +14,7 @@ class DemoController < ApplicationController
   end
 
   def track
-    user = DevCycle::UserData.new({
+    user = DevCycle::User.new({
         user_id: 'test_' + rand(5).to_s,
         name: 'Mr. Test',
         email: 'mr_test@gmail.com',
@@ -22,16 +22,16 @@ class DemoController < ApplicationController
       })
     event = DevCycle::Event.new({ :'type' => :'randomEval', :'target' => :'custom target' })
     DevCycleClient.track(user, event)
-    render json: "track called on DVC client"
+    render json: "track called on DevCycle client"
   end
 
   def flush_events
     DevCycleClient.flush_events
-    render json: "flush_events called on DVC client"
+    render json: "flush_events called on DevCycle client"
   end
 
   def variable
-    user = DevCycle::UserData.new({ user_id: 'test' })
+    user = DevCycle::User.new({ user_id: 'test' })
     variable = DevCycleClient.variable(user, 'v-key-25', false)
     render json: variable
   end

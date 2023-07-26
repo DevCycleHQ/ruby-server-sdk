@@ -1,1 +1,1 @@
-DevCycleClient = DevCycle::DVCClient.new(ENV['DVC_SERVER_SDK_KEY'], DevCycle::DVCOptions.new, true)
+DevCycleClient = DevCycle::Client.new(ENV['DVC_SERVER_SDK_KEY'], DevCycle::Options.new, true)

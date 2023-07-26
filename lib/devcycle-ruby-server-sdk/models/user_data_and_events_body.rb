@@ -36,7 +36,7 @@ module DevCycle
     def self.openapi_types
       {
         :'events' => :'Array<Event>',
-        :'user' => :'UserData'
+        :'user' => :'User'
       }
     end
 

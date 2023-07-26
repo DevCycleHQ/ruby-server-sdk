@@ -3,7 +3,7 @@ require 'date'
 require 'bigdecimal'
 require 'sorbet-runtime'
 
-require_relative 'dvc_options'
+require_relative 'options'
 require_relative 'platform_data'
 require_relative 'events_payload'
 require_relative 'config_manager'
@@ -90,7 +90,7 @@ module DevCycle
 
     sig { params(
       sdkkey: String,
-      options: DVCOptions,
+      options: Options,
       wait_for_init: T::Boolean
     ).void }
     def initialize(sdkkey, options, wait_for_init)
@@ -119,7 +119,7 @@ module DevCycle
       @config_manager = nil
     end
 
-    sig { params(user: UserData).returns(BucketedUserConfig) }
+    sig { params(user: User).returns(BucketedUserConfig) }
     def generate_bucketed_config(user)
       @wasm_mutex.synchronize do
         user_addr = malloc_asc_byte_array(user.to_json)
@@ -138,7 +138,7 @@ module DevCycle
       end
     end
 
-    sig { params(user: UserData, key: String, variable_type: Integer).returns(T.nilable(String)) }
+    sig { params(user: User, key: String, variable_type: Integer).returns(T.nilable(String)) }
     def variable_for_user(user, key, variable_type)
       @wasm_mutex.synchronize do
         user_addr = malloc_asc_string(user.to_json)
@@ -200,7 +200,7 @@ module DevCycle
       end
     end
 
-    sig { params(user: UserData, event: Event).returns(NilClass) }
+    sig { params(user: User, event: Event).returns(NilClass) }
     def queue_event(user, event)
       @wasm_mutex.synchronize do
         begin

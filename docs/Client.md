@@ -1,13 +1,13 @@
-# DevCycle::DevcycleApi
+# DevCycle::Client
 
 All URIs are relative to *https://bucketing-api.devcycle.com*
 
 | Method | HTTP request | Description |
 | ------ | ------------ | ----------- |
-| [**all_features**](DevcycleApi.md#all_features) | **POST** /v1/features | Get all features by key for user data |
-| [**variable**](DevcycleApi.md#variable) | **POST** /v1/variables/{key} | Get variable by key for user data |
-| [**all_variables**](DevcycleApi.md#all_variables) | **POST** /v1/variables | Get all variables by key for user data |
-| [**track**](DevcycleApi.md#track) | **POST** /v1/track | Post events to DevCycle for user |
+| [**all_features**](Client.md#all_features) | **POST** /v1/features | Get all features by key for user data |
+| [**variable**](Client.md#variable) | **POST** /v1/variables/{key} | Get variable by key for user data |
+| [**all_variables**](Client.md#all_variables) | **POST** /v1/variables | Get all variables by key for user data |
+| [**track**](Client.md#track) | **POST** /v1/track | Post events to DevCycle for user |
 
 
 ## all_features
@@ -30,7 +30,7 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get all features by key for user data
@@ -61,9 +61,9 @@ end
 
 ### Parameters
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| **user_data** | [**UserData**](UserData.md) |  |  |
+| Name | Type                                  | Description | Notes |
+| ---- |---------------------------------------| ----------- | ----- |
+| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -100,7 +100,7 @@ end
 
 api_instance = DevCycle::DevcycleApi.new
 key = 'key_example' # String | Variable key
-user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get variable by key for user data
@@ -132,7 +132,7 @@ end
 
 api_instance = DevCycle::DevcycleApi.new
 key = 'key_example' # String | Variable key
-user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get variable by key for user data
@@ -163,10 +163,10 @@ end
 
 ### Parameters
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| **key** | **String** | Variable key |  |
-| **user_data** | [**UserData**](UserData.md) |  |  |
+| Name | Type                                  | Description | Notes |
+| ---- |---------------------------------------| ----------- | ----- |
+| **key** | **String**                            | Variable key |  |
+| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -202,7 +202,7 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
 
 begin
   # Get all variables by key for user data
@@ -233,9 +233,9 @@ end
 
 ### Parameters
 
-| Name | Type | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| **user_data** | [**UserData**](UserData.md) |  |  |
+| Name | Type                                  | Description | Notes |
+| ---- |---------------------------------------| ----------- | ----- |
+| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -271,7 +271,7 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::UserData.new # UserData | 
+user_data = DevCycle::User.new # DevCycle::User | 
 event_data = DevCycle::Event.new # Event | 
 
 begin

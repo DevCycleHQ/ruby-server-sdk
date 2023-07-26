@@ -7,12 +7,13 @@ Gemfile
 README.md
 Rakefile
 devcycle-server-sdk.gemspec
-docs/DevcycleApi.md
+docs/Client.md
+docs/User.md
 docs/ErrorResponse.md
 docs/Event.md
 docs/Feature.md
 docs/InlineResponse201.md
-docs/UserData.md
+docs/User.md
 docs/UserDataAndEventsBody.md
 docs/Variable.md
 git_push.sh

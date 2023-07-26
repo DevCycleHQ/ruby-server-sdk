@@ -13,8 +13,8 @@ stub_request(:get, 'https://config-cdn.devcycle.com/config/v1/server/dvc_server_
 stub_request(:post, 'https://events.devcycle.com/v1/events/batch').
   to_return(status: 201, body: '{}')
 
-dvc_client = DevCycle::DVCClient.new('dvc_server_token_hash', DevCycle::DVCOptions.new, true)
-user_data = DevCycle::UserData.new({ user_id: 'test' })
+dvc_client = DevCycle::Client.new('dvc_server_token_hash', DevCycle::Options.new, true)
+user_data = DevCycle::User.new({ user_id: 'test' })
 
 n = 500
 Benchmark.bm do |benchmark|

@@ -15,7 +15,7 @@ require 'time'
 require 'oj'
 
 module DevCycle
-  class UserData
+  class User
 
     # Unique id to identify the user
     attr_accessor :user_id
@@ -147,13 +147,13 @@ module DevCycle
     # @param [Hash] attributes Model attributes in the form of hash
     def initialize(attributes = {})
       if (!attributes.is_a?(Hash))
-        fail ArgumentError, "The input argument (attributes) must be a hash in `DevCycle::UserData` initialize method"
+        fail ArgumentError, "The input argument (attributes) must be a hash in `DevCycle::User` initialize method"
       end
 
       # check to see if the attribute exists and convert string to symbol for hash key
       attributes = attributes.each_with_object({}) { |(k, v), h|
         if (!self.class.attribute_map.key?(k.to_sym))
-          fail ArgumentError, "`#{k}` is not a valid attribute in `DevCycle::UserData`. Please check the name to make sure it's valid. List of attributes: " + self.class.attribute_map.keys.inspect
+          fail ArgumentError, "`#{k}` is not a valid attribute in `DevCycle::User`. Please check the name to make sure it's valid. List of attributes: " + self.class.attribute_map.keys.inspect
         end
         h[k.to_sym] = v
       }
@@ -436,4 +436,7 @@ module DevCycle
       pb_user
     end
   end
+
+  # @deprecated Use `DevCycle::User` instead.
+  UserData = User
 end
