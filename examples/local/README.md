@@ -16,7 +16,7 @@ Once you have Ruby installed you'll be able to run `gem install rails` to instal
 
 In the root dirctory run `bundle install` to install required dependencies.
 
-Run `DVC_SERVER_SDK_KEY={sdk_key} bundle exec rails server` to start the rails server. The server should be running on `localhost:3000`
+Run `DEVCYCLE_SERVER_SDK_KEY={sdk_key} bundle exec rails server` to start the rails server. The server should be running on `localhost:3000`
 
 ## Running With a Mocked Config
 
