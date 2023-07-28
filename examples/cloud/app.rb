@@ -19,27 +19,27 @@ end
 
 options = DevCycle::Options.new(enable_cloud_bucketing: true)
 api_instance = DevCycle::Client.new(sdk_key, options)
-user_data = DevCycle::User.new({ user_id: 'my-user' })
+user = DevCycle::User.new({ user_id: 'my-user' })
 
 
 get '/' do
-  variable = api_instance.variable(user_data, "bool-var", false)
+  variable = api_instance.variable(user, "bool-var", false)
   puts "bool-var variable value is: #{variable.value}"
   puts "\n"
 
-  variable_value = api_instance.variable_value(user_data, "string-var", "string-var-default")
+  variable_value = api_instance.variable_value(user, "string-var", "string-var-default")
   puts "string-var variable value is: #{variable_value}"
 
-  all_variables = api_instance.all_variables(user_data)
+  all_variables = api_instance.all_variables(user)
   puts "all_variables result is:\n#{JSON.pretty_generate(all_variables.to_hash)}"
   puts "\n"
 
-  all_features = api_instance.all_features(user_data)
+  all_features = api_instance.all_features(user)
   puts "all_features result is:\n#{JSON.pretty_generate(all_features.to_hash)}"
 end
 
 get '/track_event' do
-  user_data = DevCycle::User.new({ user_id: 'my-user' })
+  user = DevCycle::User.new({ user_id: 'my-user' })
   event_data = DevCycle::Event.new({
       type: "my-event",
       target: "some_event_target",
@@ -49,5 +49,5 @@ get '/track_event' do
       }
   })
 
-  result = api_instance.track(user_data, event_data)
+  result = api_instance.track(user, event_data)
 end

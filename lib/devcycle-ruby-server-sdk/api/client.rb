@@ -66,23 +66,23 @@ module DevCycle
     end
 
     # Get all features by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Feature>]
-    def all_features(user_data, opts = {})
-      if !user_data.is_a?(DevCycle::User)
-        fail ArgumentError, "user_data param must be an instance of DevCycle::User!"
+    def all_features(user, opts = {})
+      if !user.is_a?(DevCycle::User)
+        fail ArgumentError, "user param must be an instance of DevCycle::User!"
       end
 
-      validate_model(user_data)
+      validate_model(user)
 
       if @dvc_options.enable_cloud_bucketing
-        data, _status_code, _headers = all_features_with_http_info(user_data, opts)
+        data, _status_code, _headers = all_features_with_http_info(user, opts)
         return data
       end
 
       if local_bucketing_initialized? && @local_bucketing.has_config
-        bucketed_config = @local_bucketing.generate_bucketed_config(user_data)
+        bucketed_config = @local_bucketing.generate_bucketed_config(user)
         bucketed_config.features
       else
         {}
@@ -90,16 +90,16 @@ module DevCycle
     end
 
     # Get all features by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Feature>, Integer, Hash)>] Hash<String, Feature> data, response status code and response headers
-    def all_features_with_http_info(user_data, opts = {})
+    def all_features_with_http_info(user, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: DevCycle::Client.all_features ...'
       end
-      # verify the required parameter 'user_data' is set
-      if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DevCycle::Client.all_features"
+      # verify the required parameter 'user' is set
+      if @api_client.config.client_side_validation && user.nil?
+        fail ArgumentError, "Missing the required parameter 'user' when calling DevCycle::Client.all_features"
       end
       # resource path
       local_var_path = '/v1/features'
@@ -121,7 +121,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || user_data.to_json
+      post_body = opts[:debug_body] || user.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Hash<String, Feature>'
@@ -147,31 +147,31 @@ module DevCycle
     end
 
     # Get variable value by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param key [String] Variable key
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return variable value which can be: string, number, boolean, or JSON
-    def variable_value(user_data, key, default, opts = {})
-      variable_obj = variable(user_data, key, default, opts)
+    def variable_value(user, key, default, opts = {})
+      variable_obj = variable(user, key, default, opts)
       variable_obj.value
     end
 
     # Get variable by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param key [String] Variable key
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Variable]
-    def variable(user_data, key, default, opts = {})
-      if !user_data.is_a?(DevCycle::User)
-        fail ArgumentError, "user_data param must be an instance of DevCycle::User!"
+    def variable(user, key, default, opts = {})
+      if !user.is_a?(DevCycle::User)
+        fail ArgumentError, "user param must be an instance of DevCycle::User!"
       end
 
-      validate_model(user_data)
+      validate_model(user)
 
       if @dvc_options.enable_cloud_bucketing
-        data, _status_code, _headers = variable_with_http_info(key, user_data, default, opts)
+        data, _status_code, _headers = variable_with_http_info(key, user, default, opts)
         return data
       end
 
@@ -180,7 +180,7 @@ module DevCycle
       defaulted = true
       if local_bucketing_initialized? && @local_bucketing.has_config
         type_code = variable_type_code_from_type(type)
-        variable_pb = variable_for_user_pb(user_data, key, type_code)
+        variable_pb = variable_for_user_pb(user, key, type_code)
         unless variable_pb.nil?
           value = get_variable_value(variable_pb)
           defaulted = false
@@ -226,11 +226,11 @@ module DevCycle
 
     # Get variable by key for user data
     # @param key [String] Variable key
-    # @param user_data [User]
+    # @param user [User]
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Array<(Variable, Integer, Hash)>] Variable data, response status code and response headers
-    def variable_with_http_info(key, user_data, default, opts = {})
+    def variable_with_http_info(key, user, default, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: DevCycle::Client.variable ...'
       end
@@ -238,9 +238,9 @@ module DevCycle
       if @api_client.config.client_side_validation && key.nil?
         fail ArgumentError, "Missing the required parameter 'key' when calling DevCycle::Client.variable"
       end
-      # verify the required parameter 'user_data' is set
-      if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DevCycle::Client.variable"
+      # verify the required parameter 'user' is set
+      if @api_client.config.client_side_validation && user.nil?
+        fail ArgumentError, "Missing the required parameter 'user' when calling DevCycle::Client.variable"
       end
       # resource path
       local_var_path = '/v1/variables/{key}'.sub('{' + 'key' + '}', CGI.escape(key.to_s))
@@ -262,7 +262,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || user_data.to_json
+      post_body = opts[:debug_body] || user.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Variable'
@@ -296,23 +296,23 @@ module DevCycle
     end
 
     # Get all variables by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param [Hash] opts the optional parameters
     # @return [Hash<String, Variable>]
-    def all_variables(user_data, opts = {})
-      if !user_data.is_a?(DevCycle::User)
-        fail ArgumentError, "user_data param must be an instance of DevCycle::User!"
+    def all_variables(user, opts = {})
+      if !user.is_a?(DevCycle::User)
+        fail ArgumentError, "user param must be an instance of DevCycle::User!"
       end
 
-      validate_model(user_data)
+      validate_model(user)
 
       if @dvc_options.enable_cloud_bucketing
-        data, _status_code, _headers = all_variables_with_http_info(user_data, opts)
+        data, _status_code, _headers = all_variables_with_http_info(user, opts)
         return data
       end
 
       if local_bucketing_initialized? && @local_bucketing.has_config
-        bucketed_config = @local_bucketing.generate_bucketed_config(user_data)
+        bucketed_config = @local_bucketing.generate_bucketed_config(user)
         bucketed_config.variables
       else
         {}
@@ -320,16 +320,16 @@ module DevCycle
     end
 
     # Get all variables by key for user data
-    # @param user_data [User]
+    # @param user [User]
     # @param [Hash] opts the optional parameters
     # @return [Array<(Hash<String, Variable>, Integer, Hash)>] Hash<String, Variable> data, response status code and response headers
-    def all_variables_with_http_info(user_data, opts = {})
+    def all_variables_with_http_info(user, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: DevCycle::Client.all_variables ...'
       end
-      # verify the required parameter 'user_data' is set
-      if @api_client.config.client_side_validation && user_data.nil?
-        fail ArgumentError, "Missing the required parameter 'user_data' when calling DevCycle::Client.all_variables"
+      # verify the required parameter 'user' is set
+      if @api_client.config.client_side_validation && user.nil?
+        fail ArgumentError, "Missing the required parameter 'user' when calling DevCycle::Client.all_variables"
       end
       # resource path
       local_var_path = '/v1/variables'
@@ -351,7 +351,7 @@ module DevCycle
       form_params = opts[:form_params] || {}
 
       # http body (model)
-      post_body = opts[:debug_body] || user_data.to_json
+      post_body = opts[:debug_body] || user.to_json
 
       # return_type
       return_type = opts[:debug_return_type] || 'Hash<String, Variable>'
@@ -377,16 +377,16 @@ module DevCycle
     end
 
     # Post events to DevCycle for user
-    # @param user_data [User]
+    # @param user [User]
     # @param event_data [Event]
     # @param [Hash] opts the optional parameters
     # @return [InlineResponse201]
-    def track(user_data, event_data, opts = {})
-      if !user_data.is_a?(DevCycle::User)
-        fail ArgumentError, "user_data param must be an instance of DevCycle::User!"
+    def track(user, event_data, opts = {})
+      if !user.is_a?(DevCycle::User)
+        fail ArgumentError, "user param must be an instance of DevCycle::User!"
       end
 
-      validate_model(user_data)
+      validate_model(user)
 
       if !event_data.is_a?(DevCycle::Event)
         fail ArgumentError, "event_data param must be an instance of DevCycle::Event!"
@@ -395,33 +395,33 @@ module DevCycle
       validate_model(event_data)
 
       if @dvc_options.enable_cloud_bucketing
-        track_with_http_info(user_data, event_data, opts)
+        track_with_http_info(user, event_data, opts)
         return
       end
 
       if local_bucketing_initialized?
-        @event_queue.queue_event(user_data, event_data)
+        @event_queue.queue_event(user, event_data)
       else
         @logger.warn('track called before DevCycle::Client initialized, event will not be tracked')
       end
     end
 
     # Post events to DevCycle for user
-    # @param user_data [User]
+    # @param user [User]
     # @param event_data [Event]
     # @param [Hash] opts the optional parameters
     # @return [Array<(InlineResponse201, Integer, Hash)>] InlineResponse201 data, response status code and response headers
-    def track_with_http_info(user_data, event_data, opts = {})
+    def track_with_http_info(user, event_data, opts = {})
       if @api_client.config.debugging
         @api_client.config.logger.debug 'Calling API: DevCycle::Client.post_events ...'
       end
       # verify the required parameter 'user_data_and_events_body' is set
-      if @api_client.config.client_side_validation && (user_data.nil? || event_data.nil?)
+      if @api_client.config.client_side_validation && (user.nil? || event_data.nil?)
         fail ArgumentError, "Missing the required parameter 'user_data_and_events_body' when calling DevCycle::Client.post_events"
       end
 
       user_data_and_events_body = DevCycle::UserDataAndEventsBody.new({
-                                                                        user: user_data,
+                                                                        user: user,
                                                                         events: [event_data]
                                                                       })
 

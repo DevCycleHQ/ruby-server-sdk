@@ -12,7 +12,7 @@ All URIs are relative to *https://bucketing-api.devcycle.com*
 
 ## all_features
 
-> <Hash<String, Feature>> all_features(user_data)
+> <Hash<String, Feature>> all_features(user)
 
 Get all features by key for user data
 
@@ -30,11 +30,11 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get all features by key for user data
-  result = api_instance.all_features(user_data)
+  result = api_instance.all_features(user)
   p result
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->all_features: #{e}"
@@ -45,12 +45,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<Hash<String, Feature>>, Integer, Hash)> all_features_with_http_info(user_data)
+> <Array(<Hash<String, Feature>>, Integer, Hash)> all_features_with_http_info(user)
 
 ```ruby
 begin
   # Get all features by key for user data
-  data, status_code, headers = api_instance.all_features_with_http_info(user_data)
+  data, status_code, headers = api_instance.all_features_with_http_info(user)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <Hash<String, Feature>>
@@ -63,7 +63,7 @@ end
 
 | Name | Type                                  | Description | Notes |
 | ---- |---------------------------------------| ----------- | ----- |
-| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
+| **user** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -81,7 +81,7 @@ end
 
 ## variable_value
 
-> variable_value(user_data, key)
+> variable_value(user, key)
 
 Get variable value by key for user data
 
@@ -100,11 +100,11 @@ end
 
 api_instance = DevCycle::DevcycleApi.new
 key = 'key_example' # String | Variable key
-user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get variable by key for user data
-  value = api_instance.variable_value(user_data, key)
+  value = api_instance.variable_value(user, key)
   p value
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->variable: #{e}"
@@ -113,7 +113,7 @@ end
 
 ## variable
 
-> <Variable> variable(user_data, key)
+> <Variable> variable(user, key)
 
 Get variable object by key for user data
 
@@ -132,11 +132,11 @@ end
 
 api_instance = DevCycle::DevcycleApi.new
 key = 'key_example' # String | Variable key
-user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
   # Get variable by key for user data
-  result = api_instance.variable(user_data, key)
+  result = api_instance.variable(user, key)
   p result
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->variable: #{e}"
@@ -147,12 +147,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<Variable>, Integer, Hash)> variable_with_http_info(key, user_data)
+> <Array(<Variable>, Integer, Hash)> variable_with_http_info(key, user)
 
 ```ruby
 begin
   # Get variable by key for user data
-  data, status_code, headers = api_instance.variable_with_http_info(key, user_data)
+  data, status_code, headers = api_instance.variable_with_http_info(key, user)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <Variable>
@@ -166,7 +166,7 @@ end
 | Name | Type                                  | Description | Notes |
 | ---- |---------------------------------------| ----------- | ----- |
 | **key** | **String**                            | Variable key |  |
-| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
+| **user** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -184,7 +184,7 @@ end
 
 ## all_variables
 
-> <Hash<String, Variable>> all_variables(user_data)
+> <Hash<String, Variable>> all_variables(user)
 
 Get all variables by key for user data
 
@@ -202,11 +202,11 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
 
 begin
   # Get all variables by key for user data
-  result = api_instance.all_variables(user_data)
+  result = api_instance.all_variables(user)
   p result
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->all_variables: #{e}"
@@ -217,12 +217,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<Hash<String, Variable>>, Integer, Hash)> all_variables_with_http_info(user_data)
+> <Array(<Hash<String, Variable>>, Integer, Hash)> all_variables_with_http_info(user)
 
 ```ruby
 begin
   # Get all variables by key for user data
-  data, status_code, headers = api_instance.all_variables_with_http_info(user_data)
+  data, status_code, headers = api_instance.all_variables_with_http_info(user)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <Hash<String, Variable>>
@@ -235,7 +235,7 @@ end
 
 | Name | Type                                  | Description | Notes |
 | ---- |---------------------------------------| ----------- | ----- |
-| **user_data** | [**DevCycle::User**](DevCycleUser.md) |  |  |
+| **user** | [**DevCycle::User**](DevCycleUser.md) |  |  |
 
 ### Return type
 
@@ -253,7 +253,7 @@ end
 
 ## track
 
-> <InlineResponse201> track(user_data, event_data)
+> <InlineResponse201> track(user, event_data)
 
 Post events to DevCycle for user
 
@@ -271,12 +271,12 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::DevcycleApi.new
-user_data = DevCycle::User.new # DevCycle::User | 
+user = DevCycle::User.new # DevCycle::User | 
 event_data = DevCycle::Event.new # Event | 
 
 begin
   # Post events to DevCycle for user
-  result = api_instance.track(user_data, event_data)
+  result = api_instance.track(user, event_data)
   p result
 rescue DevCycle::ApiError => e
   puts "Error when calling DevcycleApi->track: #{e}"
@@ -287,12 +287,12 @@ end
 
 This returns an Array which contains the response data, status code and headers.
 
-> <Array(<InlineResponse201>, Integer, Hash)> track_with_http_info(user_data_and_events_body)
+> <Array(<InlineResponse201>, Integer, Hash)> track_with_http_info(user_and_events_body)
 
 ```ruby
 begin
   # Post events to DevCycle for user
-  data, status_code, headers = api_instance.track_with_http_info(user_data_and_events_body)
+  data, status_code, headers = api_instance.track_with_http_info(user_and_events_body)
   p status_code # => 2xx
   p headers # => { ... }
   p data # => <InlineResponse201>
@@ -305,7 +305,7 @@ end
 
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
-| **user_data_and_events_body** | [**UserDataAndEventsBody**](UserDataAndEventsBody.md) |  |  |
+| **user_and_events_body** | [**UserDataAndEventsBody**](UserDataAndEventsBody.md) |  |  |
 
 ### Return type
 

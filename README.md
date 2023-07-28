@@ -24,11 +24,11 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::Client.new
-user_data = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
 
 begin
   #Get all features for user data
-  result = api_instance.all_features(user_data)
+  result = api_instance.all_features(user)
   p result
 rescue DevCycle::ApiError => e
   puts "Exception when calling DevCycle::Client->all_features: #{e}"

@@ -22,7 +22,7 @@ describe 'DevCycle::Client' do
     options = DevCycle::Options.new(enable_cloud_bucketing: true)
     @api_instance = DevCycle::Client.new("dvc_server_token_hash", options)
     
-    @user_data = DevCycle::User.new({
+    @user = DevCycle::User.new({
         user_id: 'test-user',
         appVersion: '1.2.3'
     })
@@ -40,12 +40,12 @@ describe 'DevCycle::Client' do
 
   # unit tests for get_features
   # Get all features by key for user data
-  # @param user_data 
+  # @param user
   # @param [Hash] opts the optional parameters
   # @return [Hash<String, Feature>]
   describe 'get_features test' do
     it 'should work' do # but it don't
-      #result = @api_instance.all_features(@user_data)
+      #result = @api_instance.all_features(@user)
 
       #expect(result.length).to eq 1
     end
@@ -54,15 +54,15 @@ describe 'DevCycle::Client' do
   # unit tests for get_variable_by_key
   # Get variable by key for user data
   # @param key Variable key
-  # @param user_data 
+  # @param user
   # @param [Hash] opts the optional parameters
   # @return [Variable]
   describe 'get_variable_by_key activate-flag' do
     it 'should work' do
-      result = @api_instance.variable(@user_data, "activate-flag", false)
+      result = @api_instance.variable(@user, "activate-flag", false)
       expect(result.isDefaulted).to eq true
 
-      result = @api_instance.variable_value(@user_data, "activate-flag", true)
+      result = @api_instance.variable_value(@user, "activate-flag", true)
       expect(result).to eq true
     end
   end
@@ -70,28 +70,28 @@ describe 'DevCycle::Client' do
   # unit tests for get_variable_by_key
   # Get variable by key for user data
   # @param key Variable key
-  # @param user_data
+  # @param user
   # @param [Hash] opts the optional parameters
   # @return [Variable]
   describe 'get_variable_by_key test' do
     it 'should work' do
-      result = @api_instance.variable(@user_data, "test", false)
+      result = @api_instance.variable(@user, "test", false)
       expect(result.isDefaulted).to eq false
       expect(result.value).to eq true
 
-      result = @api_instance.variable_value(@user_data, "test", true)
+      result = @api_instance.variable_value(@user, "test", true)
       expect(result).to eq true
     end
   end
 
   # unit tests for get_variables
   # Get all variables by key for user data
-  # @param user_data 
+  # @param user
   # @param [Hash] opts the optional parameters
   # @return [Hash<String, Variable>]
   describe 'get_variables test' do
     it 'should work' do
-      result = @api_instance.all_variables(@user_data)
+      result = @api_instance.all_variables(@user)
 
       expect(result.length).to eq 1
     end
