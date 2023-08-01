@@ -29,7 +29,7 @@ DevCycle.configure do |config|
   # config.api_key_prefix['bearerAuth'] = 'Bearer'
 end
 
-api_instance = DevCycle::DevcycleApi.new
+api_instance = DevCycle::Client.new
 user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
 begin
@@ -98,7 +98,7 @@ DevCycle.configure do |config|
   # config.api_key_prefix['bearerAuth'] = 'Bearer'
 end
 
-api_instance = DevCycle::DevcycleApi.new
+api_instance = DevCycle::Client.new
 key = 'key_example' # String | Variable key
 user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
@@ -130,7 +130,7 @@ DevCycle.configure do |config|
   # config.api_key_prefix['bearerAuth'] = 'Bearer'
 end
 
-api_instance = DevCycle::DevcycleApi.new
+api_instance = DevCycle::Client.new
 key = 'key_example' # String | Variable key
 user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
 
@@ -201,7 +201,7 @@ DevCycle.configure do |config|
   # config.api_key_prefix['bearerAuth'] = 'Bearer'
 end
 
-api_instance = DevCycle::DevcycleApi.new
+api_instance = DevCycle::Client.new
 user = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
 
 begin
@@ -270,7 +270,7 @@ DevCycle.configure do |config|
   # config.api_key_prefix['bearerAuth'] = 'Bearer'
 end
 
-api_instance = DevCycle::DevcycleApi.new
+api_instance = DevCycle::Client.new
 user = DevCycle::User.new # DevCycle::User | 
 event_data = DevCycle::Event.new # Event | 
 
@@ -305,7 +305,7 @@ end
 
 | Name | Type | Description | Notes |
 | ---- | ---- | ----------- | ----- |
-| **user_and_events_body** | [**UserDataAndEventsBody**](UserDataAndEventsBody.md) |  |  |
+| **user_data_and_events_body** | [**UserDataAndEventsBody**](UserDataAndEventsBody.md) |  |  |
 
 ### Return type
 
