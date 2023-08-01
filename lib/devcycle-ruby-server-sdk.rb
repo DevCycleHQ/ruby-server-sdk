@@ -21,14 +21,14 @@ require 'devcycle-ruby-server-sdk/models/error_response'
 require 'devcycle-ruby-server-sdk/models/event'
 require 'devcycle-ruby-server-sdk/models/feature'
 require 'devcycle-ruby-server-sdk/models/inline_response201'
-require 'devcycle-ruby-server-sdk/models/user_data'
+require 'devcycle-ruby-server-sdk/models/user'
 require 'devcycle-ruby-server-sdk/models/user_data_and_events_body'
 require 'devcycle-ruby-server-sdk/models/variable'
 
 # APIs
-require 'devcycle-ruby-server-sdk/api/devcycle_api'
+require 'devcycle-ruby-server-sdk/api/client'
 
-require 'devcycle-ruby-server-sdk/localbucketing/dvc_options'
+require 'devcycle-ruby-server-sdk/localbucketing/options'
 require 'devcycle-ruby-server-sdk/localbucketing/local_bucketing'
 require 'devcycle-ruby-server-sdk/localbucketing/platform_data'
 require 'devcycle-ruby-server-sdk/localbucketing/bucketed_user_config'

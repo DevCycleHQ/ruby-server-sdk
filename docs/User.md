@@ -1,4 +1,4 @@
-# DevCycle::UserData
+# DevCycle::User
 
 ## Properties
 
@@ -26,7 +26,7 @@
 ```ruby
 require 'devcycle-ruby-server-sdk'
 
-instance = DevCycle::UserData.new(
+instance = DevCycle::User.new(
   user_id: null,
   email: null,
   name: null,

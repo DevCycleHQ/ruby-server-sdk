@@ -13,18 +13,18 @@ stub_request(:get, 'https://config-cdn.devcycle.com/config/v1/server/dvc_server_
 stub_request(:post, 'https://events.devcycle.com/v1/events/batch').
   to_return(status: 201, body: '{}')
 
-dvc_client = DevCycle::DVCClient.new('dvc_server_token_hash', DevCycle::DVCOptions.new, true)
-user_data = DevCycle::UserData.new({ user_id: 'test' })
+dvc_client = DevCycle::Client.new('dvc_server_token_hash', DevCycle::Options.new, true)
+user = DevCycle::User.new({ user_id: 'test' })
 
 n = 500
 Benchmark.bm do |benchmark|
   benchmark.report('Single Variable Evaluation') do
-    dvc_client.variable(user_data, 'v-key-25', false)
+    dvc_client.variable(user, 'v-key-25', false)
   end
 
   benchmark.report("#{n} Variable Evaluations") do
     n.times do
-      dvc_client.variable(user_data, 'v-key-25', false)
+      dvc_client.variable(user, 'v-key-25', false)
     end
   end
 end

@@ -38,7 +38,7 @@ module DevCycle
           return
         end
         eventCount = payloads.reduce(0) { |sum, payload| sum + payload.eventCount }
-        @logger.debug("DVC: Flushing #{eventCount} event(s) for #{payloads.length} user(s)")
+        @logger.debug("DevCycle: Flushing #{eventCount} event(s) for #{payloads.length} user(s)")
 
         payloads.each do |payload|
           begin
@@ -51,11 +51,11 @@ module DevCycle
               @logger.error("Error publishing events, status: #{response.code}, body: #{response.return_message}")
               @local_bucketing.on_payload_failure(payload.payloadId, response.code >= 500)
             else
-              @logger.debug("DVC: Flushed #{eventCount} event(s), for #{payload.records.length} user(s)")
+              @logger.debug("DevCycle: Flushed #{eventCount} event(s), for #{payload.records.length} user(s)")
               @local_bucketing.on_payload_success(payload.payloadId)
             end
           rescue => e
-            @logger.error("DVC Error Flushing Events response message: #{e.message}")
+            @logger.error("DevCycle: Error Flushing Events response message: #{e.message}")
             @local_bucketing.on_payload_failure(payload.payloadId, false)
           end
         end
@@ -64,7 +64,7 @@ module DevCycle
     end
 
     # Todo: implement PopulatedUser
-    sig { params(user: UserData, event: Event).returns(NilClass) }
+    sig { params(user: User, event: Event).returns(NilClass) }
     def queue_event(user, event)
       if max_event_queue_size_reached?
         @logger.warn("Max event queue size reached, dropping event: #{event}")

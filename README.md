@@ -23,15 +23,15 @@ DevCycle.configure do |config|
   config.api_key['bearerAuth'] = 'YOUR API KEY'
 end
 
-api_instance = DevCycle::DVCClient.new
-user_data = DevCycle::UserData.new({user_id: 'user_id_example'}) # UserData | 
+api_instance = DevCycle::Client.new
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
 
 begin
   #Get all features for user data
-  result = api_instance.all_features(user_data)
+  result = api_instance.all_features(user)
   p result
 rescue DevCycle::ApiError => e
-  puts "Exception when calling DVCClient->all_features: #{e}"
+  puts "Exception when calling DevCycle::Client->all_features: #{e}"
 end
 
 ```

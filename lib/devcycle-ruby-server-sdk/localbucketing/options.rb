@@ -1,5 +1,5 @@
 module DevCycle
-  class DVCOptions
+  class Options
     attr_reader :config_polling_interval_ms
     attr_reader :enable_edge_db
     attr_reader :enable_cloud_bucketing
@@ -120,4 +120,7 @@ module DevCycle
       @logger = logger
     end
   end
+
+  # @deprecated Use `DevCycle::Options` instead.
+  DVCOptions = Options
 end

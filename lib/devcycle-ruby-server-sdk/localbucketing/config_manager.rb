@@ -38,7 +38,7 @@ module DevCycle
         fetch_config
         @config_poller.execute if @polling_enabled
       rescue => e
-        @logger.error("DVC Error Initializing Config: #{e.message}")
+        @logger.error("DevCycle: Error Initializing Config: #{e.message}")
       ensure
         @local_bucketing.initialized = true
       end
