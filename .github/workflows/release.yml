@@ -37,7 +37,7 @@ jobs:
           token: ${{ secrets.AUTOMATION_USER_TOKEN }}
           fetch-depth: 0
 
-      - uses: DevCycleHQ/release-action/prepare-release@main
+      - uses: DevCycleHQ/release-action/prepare-release@v2
         id: prepare-release
         with:
           github-token: ${{ secrets.AUTOMATION_USER_TOKEN }}
@@ -80,7 +80,7 @@ jobs:
           GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
         if: inputs.prerelease != true && inputs.draft != true
 
-      - uses: DevCycleHQ/release-action/create-release@main
+      - uses: DevCycleHQ/release-action/create-release@v2
         id: create-release
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
