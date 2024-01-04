@@ -6,7 +6,7 @@ You will need Ruby and Ruby on Rails to run this app
 
 ### Installing Ruby
 
-You can install a specific verion of Ruby via Homebrew or use a ruby version manager like [rbenv](https://github.com/rbenv/rbenv)
+You can install a specific version of Ruby via Homebrew or use a ruby version manager like [rbenv](https://github.com/rbenv/rbenv)
 
 ### Installing Rails
 
@@ -14,7 +14,7 @@ Once you have Ruby installed you'll be able to run `gem install rails` to instal
 
 ## Running the app
 
-In the root dirctory run `bundle install` to install required dependencies.
+In the root directory run `bundle install` to install required dependencies.
 
 Run `DEVCYCLE_SERVER_SDK_KEY={sdk_key} bundle exec rails server` to start the rails server. The server should be running on `localhost:3000`
 
