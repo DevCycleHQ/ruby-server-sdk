@@ -18,17 +18,12 @@ Please follow the [installation](#installation) procedure and then run the follo
 require 'devcycle-ruby-server-sdk'
 
 # Setup authorization
-DevCycle.configure do |config|
-  # Configure API key authorization
-  config.api_key['bearerAuth'] = 'YOUR API KEY'
-end
-
-api_instance = DevCycle::Client.new
-user = DevCycle::User.new({ user_id: 'user_id_example' }) # User | 
+devcycle_client = DevCycle::Client.new(ENV['DEVCYCLE_SERVER_SDK_KEY'], DevCycle::Options.new, true)
+user = DevCycle::User.new({ user_id: 'user_id_example' })
 
 begin
-  #Get all features for user data
-  result = api_instance.all_features(user)
+  # Get all features for user data
+  result = devcycle_client.all_features(user)
   p result
 rescue DevCycle::ApiError => e
   puts "Exception when calling DevCycle::Client->all_features: #{e}"
