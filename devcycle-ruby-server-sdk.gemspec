@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 2.4"
 
   s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
-  s.add_runtime_dependency 'wasmtime', '13.0.0'
+  s.add_runtime_dependency 'wasmtime', '15.0.0'
   s.add_runtime_dependency 'concurrent-ruby', '~> 1.2.0'
   s.add_runtime_dependency 'sorbet-runtime', '~> 0.5'
   s.add_runtime_dependency 'oj', '~> 3.0'
