@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gemspec
-gem 'sorbet-runtime'
+gem 'sorbet-runtime', '0.5.11481'
 gem 'oj'
 gem 'wasmtime'
 gem 'concurrent-ruby'

@@ -32,6 +32,7 @@ module DevCycle
                                          .inherit_stderr
                                          .set_argv(ARGV)
                                          .set_env(ENV)
+                                         .build
     @@store = Wasmtime::Store.new(@@engine, wasi_ctx: @@wasi_ctx)
     @@linker = Wasmtime::Linker.new(@@engine, wasi: true)
 
@@ -246,12 +247,13 @@ module DevCycle
     end
 
     sig { params(options: EventQueueOptions).returns(NilClass) }
-    def init_event_queue(options)
+    def init_event_queue(client_uuid, options)
       @wasm_mutex.synchronize do
         options_json = Oj.dump(options)
+        client_uuid_addr = malloc_asc_string(client_uuid)
         options_addr = malloc_asc_string(options_json)
         @@stack_tracer = @@stack_tracer_raise
-        @@instance.invoke("initEventQueue", @sdkKeyAddr, options_addr)
+        @@instance.invoke("initEventQueue", @sdkKeyAddr, client_uuid_addr, options_addr)
       end
     end
 
