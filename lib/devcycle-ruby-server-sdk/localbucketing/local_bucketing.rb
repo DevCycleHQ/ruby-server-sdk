@@ -246,7 +246,7 @@ module DevCycle
       end
     end
 
-    sig { params(options: EventQueueOptions).returns(NilClass) }
+    sig { params(client_uuid: String, options: EventQueueOptions).returns(NilClass) }
     def init_event_queue(client_uuid, options)
       @wasm_mutex.synchronize do
         options_json = Oj.dump(options)
