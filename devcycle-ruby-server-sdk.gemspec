@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.summary     = "DevCycle Bucketing API Ruby Gem"
   s.description = "DevCycle Ruby Server SDK, for interacting with feature flags created with the DevCycle platform."
   s.license     = "MIT"
-  s.required_ruby_version = ">= 2.4"
+  s.required_ruby_version = ">= 3.1"
 
   s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
   s.add_runtime_dependency 'wasmtime', '20.0.2'
