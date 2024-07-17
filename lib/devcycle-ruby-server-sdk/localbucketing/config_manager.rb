@@ -55,9 +55,14 @@ module DevCycle
           Accept: "application/json",
         })
 
-      if @config_last_modified != ""
-        req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+      begin
+        Date.parse(@config_last_modified)
+        if @config_last_modified != ""
+          req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+        end
+      rescue
       end
+
 
       if @config_e_tag != ""
         req.options[:headers]['If-None-Match'] = @config_e_tag
