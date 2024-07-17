@@ -11,5 +11,5 @@ OpenAPI Generator version: 5.3.0
 =end
 
 module DevCycle
-  VERSION = '3.0.0'
+  VERSION = '2.7.1'
 end
