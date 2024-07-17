@@ -26,8 +26,8 @@ module DevCycle
       @max_config_retries = 2
 
       @config_poller = Concurrent::TimerTask.new({
-          execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
-        }) do |task|
+                                                   execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
+                                                 }) do |task|
         fetch_config
       end
 
@@ -74,14 +74,19 @@ module DevCycle
         when 200
           @logger.debug("New config received, etag: #{resp.headers['Etag']} LM:#{resp.headers['Last-Modified']}")
           lm_header = resp.headers['Last-Modified']
-          lm_timestamp = Time.rfc2822(lm_header)
-          current_lm = Time.rfc2822(@config_last_modified)
-          #if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
+          begin
+            lm_timestamp = Time.rfc2822(lm_header)
+            current_lm = Time.rfc2822(@config_last_modified)
+            if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
+              set_config(resp.body, resp.headers['Etag'], lm_header)
+              @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
+            else
+              @logger.warn("Config response was an older config than currently stored config.")
+            end
+          rescue
+            @logger.warn("Failed to parse last modified header, setting config.")
             set_config(resp.body, resp.headers['Etag'], lm_header)
-            @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
-          #else
-          #  @logger.warn("Config response was an older config than currently stored config.")
-          #end
+          end
           break
         when 403
           stop_polling
