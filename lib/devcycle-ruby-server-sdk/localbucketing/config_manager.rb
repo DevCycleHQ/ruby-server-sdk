@@ -76,12 +76,12 @@ module DevCycle
           lm_header = resp.headers['Last-Modified']
           lm_timestamp = Time.rfc2822(lm_header)
           current_lm = Time.rfc2822(@config_last_modified)
-          if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
+          #if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
             set_config(resp.body, resp.headers['Etag'], lm_header)
             @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
-          else
-            @logger.warn("Config response was an older config than currently stored config.")
-          end
+          #else
+          #  @logger.warn("Config response was an older config than currently stored config.")
+          #end
           break
         when 403
           stop_polling
