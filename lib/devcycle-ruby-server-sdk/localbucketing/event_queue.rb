@@ -1,6 +1,8 @@
 require 'typhoeus'
 require 'sorbet-runtime'
 require 'concurrent-ruby'
+require 'securerandom'
+
 
 module DevCycle
   class EventQueue
@@ -9,6 +11,7 @@ module DevCycle
     sig { params(sdkKey: String, options: EventQueueOptions, local_bucketing: LocalBucketing).void }
     def initialize(sdkKey, options, local_bucketing)
       @sdkKey = sdkKey
+      @client_uuid = SecureRandom.uuid
       @events_api_uri = options.events_api_uri
       @logger = options.logger
       @event_flush_interval_ms = options.event_flush_interval_ms
@@ -22,7 +25,7 @@ module DevCycle
       @flush_timer_task.execute
       @flush_mutex = Mutex.new
       @local_bucketing = local_bucketing
-      @local_bucketing.init_event_queue(options)
+      @local_bucketing.init_event_queue(@client_uuid, options)
     end
 
     def close
