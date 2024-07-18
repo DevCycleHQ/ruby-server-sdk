@@ -26,6 +26,7 @@ module DevCycle
       @flush_mutex = Mutex.new
       @local_bucketing = local_bucketing
       @local_bucketing.init_event_queue(@client_uuid, options)
+
     end
 
     def close

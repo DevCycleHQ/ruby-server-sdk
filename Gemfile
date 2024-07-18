@@ -6,6 +6,7 @@ gem 'oj'
 gem 'wasmtime'
 gem 'concurrent-ruby'
 gem 'google-protobuf'
+gem 'ld-eventsource'
 
 group :development, :test do
   gem 'sorbet'

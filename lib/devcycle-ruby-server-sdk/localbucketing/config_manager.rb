@@ -5,6 +5,7 @@ require 'concurrent-ruby'
 require 'typhoeus'
 require 'json'
 require 'time'
+require 'ld-eventsource'
 
 module DevCycle
   class ConfigManager
@@ -19,12 +20,12 @@ module DevCycle
       @config_version = "v1"
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
+      @sse_url = ""
       @config_e_tag = ""
       @config_last_modified = ""
       @logger = local_bucketing.options.logger
       @polling_enabled = true
       @max_config_retries = 2
-
       @config_poller = Concurrent::TimerTask.new({
                                                    execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
                                                  }) do |task|
@@ -62,7 +63,6 @@ module DevCycle
         end
       rescue
       end
-
 
       if @config_e_tag != ""
         req.options[:headers]['If-None-Match'] = @config_e_tag
@@ -118,7 +118,16 @@ module DevCycle
       if !JSON.parse(config).is_a?(Hash)
         raise("Invalid JSON body parsed from Config Response")
       end
+      parsed_config = JSON.parse(config)
 
+      if parsed_config['sse'] != nil
+        raw_url = "#{parsed_config['sse']['hostname']}#{parsed_config['sse']['path']}"
+        if @sse_url != raw_url && raw_url != ""
+          @sse_url = raw_url
+          stop_sse
+          init_sse(@sse_url)
+        end
+      end
       @local_bucketing.store_config(config)
       @config_e_tag = etag
       @config_last_modified = lastmodified
@@ -135,9 +144,22 @@ module DevCycle
       @config_poller.shutdown if @config_poller.running?
     end
 
+    def stop_sse
+      @polling_enabled = true
+      @sse_client.close if @sse_client
+    end
+
     def close
       @config_poller.shutdown if @config_poller.running?
       nil
+    end
+
+    def init_sse(path)
+      @sse_client = SSE::Client.new(path) do |client|
+        client.on_event do |event|
+          puts "I received an event: #{event.type}, #{event.data}"
+        end
+      end
     end
   end
 end
