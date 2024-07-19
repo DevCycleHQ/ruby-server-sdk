@@ -24,7 +24,9 @@ module DevCycle
       @config_e_tag = ""
       @config_last_modified = ""
       @logger = local_bucketing.options.logger
+      @enable_sse = local_bucketing.options.enable_beta_realtime_updates
       @polling_enabled = true
+      @sse_active = false
       @max_config_retries = 2
       @config_poller = Concurrent::TimerTask.new({
                                                    execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
@@ -39,7 +41,7 @@ module DevCycle
     def initialize_config
       begin
         fetch_config
-        @config_poller.execute if @polling_enabled
+        start_polling
       rescue => e
         @logger.error("DevCycle: Error Initializing Config: #{e.message}")
       ensure
@@ -47,8 +49,8 @@ module DevCycle
       end
     end
 
-    def fetch_config
-      return unless @polling_enabled
+    def fetch_config(min_last_modified: -1)
+      return unless @polling_enabled || @sse_active && @enable_sse
 
       req = Typhoeus::Request.new(
         get_config_url,
@@ -58,8 +60,18 @@ module DevCycle
 
       begin
         Date.parse(@config_last_modified)
+
         if @config_last_modified != ""
-          req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+          if min_last_modified != -1
+            parsed_sse_ts = Time.at(min_last_modified)
+            if parsed_sse_ts.utc > @config_last_modified.utc
+              req.options[:headers]["If-Modified-Since"] = parsed_sse_ts.utc.httpdate
+            else
+              req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+            end
+          else
+            req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+          end
         end
       rescue
       end
@@ -80,6 +92,11 @@ module DevCycle
           @logger.debug("New config received, etag: #{resp.headers['Etag']} LM:#{resp.headers['Last-Modified']}")
           lm_header = resp.headers['Last-Modified']
           begin
+            if @config_last_modified == ""
+              set_config(resp.body, resp.headers['Etag'], lm_header)
+              return
+            end
+
             lm_timestamp = Time.rfc2822(lm_header)
             current_lm = Time.rfc2822(@config_last_modified)
             if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
@@ -95,10 +112,12 @@ module DevCycle
           break
         when 403
           stop_polling
+          stop_sse
           @logger.error("Failed to download DevCycle config; Invalid SDK Key.")
           break
         when 404
           stop_polling
+          stop_sse
           @logger.error("Failed to download DevCycle config; Config not found.")
           break
         when 500...599
@@ -110,7 +129,6 @@ module DevCycle
           break
         end
       end
-
       nil
     end
 
@@ -139,14 +157,22 @@ module DevCycle
       "#{configBasePath}/config/#{@config_version}/server/#{@sdkKey}.json"
     end
 
+    def start_polling
+      @polling_enabled = true
+      @config_poller.execute if @polling_enabled && !@sse_active
+    end
+
     def stop_polling
       @polling_enabled = false
       @config_poller.shutdown if @config_poller.running?
     end
 
     def stop_sse
+      return unless @enable_sse
       @polling_enabled = true
+      @sse_active = false
       @sse_client.close if @sse_client
+      start_polling
     end
 
     def close
@@ -155,10 +181,35 @@ module DevCycle
     end
 
     def init_sse(path)
+      return unless @enable_sse
+      @logger.debug("Initializing SSE with url: #{path}")
+      @sse_active = true
       @sse_client = SSE::Client.new(path) do |client|
         client.on_event do |event|
-          puts "I received an event: #{event.type}, #{event.data}"
+          parsed_json = JSON.parse(event.data)
+          handle_sse(parsed_json)
         end
+        client.on_error do |error|
+          @logger.debug("SSE Error: #{error.message}")
+        end
+      end
+      stop_polling
+    end
+
+    def handle_sse(eventData)
+      @logger.debug(eventData)
+      if eventData["data"] == nil
+        return
+      end
+
+      parsed_event_data = JSON.parse(eventData["data"])
+
+      last_modified = parsed_event_data["lastModified"]
+      event_type = parsed_event_data["type"]
+
+      if event_type == "refetchConfig" || event_type == nil
+        @logger.debug("Re-fetching new config with TS: #{last_modified}")
+        fetch_config(min_last_modified: last_modified/1000)
       end
     end
   end
