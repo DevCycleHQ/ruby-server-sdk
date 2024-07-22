@@ -30,7 +30,7 @@ module DevCycle
       @max_config_retries = 2
       @config_poller = Concurrent::TimerTask.new({
                                                    execution_interval: @local_bucketing.options.config_polling_interval_ms.fdiv(1000)
-                                                 }) do |task|
+                                                 }) do |_|
         fetch_config
       end
 
@@ -41,7 +41,7 @@ module DevCycle
     def initialize_config
       begin
         fetch_config
-        start_polling
+        start_polling(false)
       rescue => e
         @logger.error("DevCycle: Error Initializing Config: #{e.message}")
       ensure
@@ -157,12 +157,18 @@ module DevCycle
       "#{configBasePath}/config/#{@config_version}/server/#{@sdkKey}.json"
     end
 
-    def start_polling
+    def start_polling(sse)
+      if sse
+        @config_poller.shutdown if @config_poller.running?
+        @config_poller = Concurrent::TimerTask.new({ execution_interval: 60 *10 }) do |_|
+          fetch_config
+        end
+      end
       @polling_enabled = true
-      @config_poller.execute if @polling_enabled && !@sse_active
+      @config_poller.execute if @polling_enabled && (!@sse_active || sse)
     end
 
-    def stop_polling
+    def stop_polling()
       @polling_enabled = false
       @config_poller.shutdown if @config_poller.running?
     end
@@ -172,7 +178,7 @@ module DevCycle
       @polling_enabled = true
       @sse_active = false
       @sse_client.close if @sse_client
-      start_polling
+      start_polling(false)
     end
 
     def close
@@ -194,14 +200,14 @@ module DevCycle
         end
       end
       stop_polling
+      start_polling(true)
     end
 
     def handle_sse(eventData)
-      @logger.debug(eventData)
       if eventData["data"] == nil
         return
       end
-
+      @logger.debug("SSE Message received: #{eventData["data"]}")
       parsed_event_data = JSON.parse(eventData["data"])
 
       last_modified = parsed_event_data["lastModified"]
@@ -209,7 +215,7 @@ module DevCycle
 
       if event_type == "refetchConfig" || event_type == nil
         @logger.debug("Re-fetching new config with TS: #{last_modified}")
-        fetch_config(min_last_modified: last_modified/1000)
+        fetch_config(min_last_modified: last_modified / 1000)
       end
     end
   end
