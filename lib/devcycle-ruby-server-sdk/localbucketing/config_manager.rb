@@ -59,18 +59,19 @@ module DevCycle
         })
 
       begin
-        Date.parse(@config_last_modified)
-
+        # Blind parse the LM string to check if it's a valid date.
+        # This short circuits the rest of the checks if it's not set
+        stored_date = Date.parse(@config_last_modified)
         if @config_last_modified != ""
           if min_last_modified != -1
             parsed_sse_ts = Time.at(min_last_modified)
-            if parsed_sse_ts.utc > @config_last_modified.utc
+            if parsed_sse_ts.utc > stored_date.utc
               req.options[:headers]["If-Modified-Since"] = parsed_sse_ts.utc.httpdate
             else
-              req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+              req.options[:headers]["If-Modified-Since"] = Time.httpdate(stored_date)
             end
           else
-            req.options[:headers]["If-Modified-Since"] = Time.httpdate(@config_last_modified)
+            req.options[:headers]["If-Modified-Since"] = Time.httpdate(stored_date)
           end
         end
       rescue
@@ -90,6 +91,7 @@ module DevCycle
           break
         when 200
           @logger.debug("New config received, etag: #{resp.headers['Etag']} LM:#{resp.headers['Last-Modified']}")
+
           lm_header = resp.headers['Last-Modified']
           begin
             if @config_last_modified == ""
@@ -101,12 +103,11 @@ module DevCycle
             current_lm = Time.rfc2822(@config_last_modified)
             if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
               set_config(resp.body, resp.headers['Etag'], lm_header)
-              @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
             else
-              @logger.warn("Config response was an older config than currently stored config.")
+              @logger.warn("Config last-modified was an older date than currently stored config.")
             end
           rescue
-            @logger.warn("Failed to parse last modified header, setting config.")
+            @logger.warn("Failed to parse last modified header, setting config anyway.")
             set_config(resp.body, resp.headers['Etag'], lm_header)
           end
           break
@@ -150,6 +151,7 @@ module DevCycle
       @config_e_tag = etag
       @config_last_modified = lastmodified
       @local_bucketing.has_config = true
+      @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
     end
 
     def get_config_url
