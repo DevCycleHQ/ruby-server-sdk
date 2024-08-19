@@ -21,6 +21,7 @@ module DevCycle
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @sse_url = ""
+      @sse_polling = false
       @config_e_tag = ""
       @config_last_modified = ""
       @logger = local_bucketing.options.logger
@@ -59,7 +60,7 @@ module DevCycle
         })
 
       begin
-        # Blind parse the LM string to check if it's a valid date.
+        # Blind parse the lastmodified string to check if it's a valid date.
         # This short circuits the rest of the checks if it's not set
         stored_date = Date.parse(@config_last_modified)
         if @config_last_modified != ""
@@ -142,8 +143,8 @@ module DevCycle
       if parsed_config['sse'] != nil
         raw_url = "#{parsed_config['sse']['hostname']}#{parsed_config['sse']['path']}"
         if @sse_url != raw_url && raw_url != ""
-          @sse_url = raw_url
           stop_sse
+          @sse_url = raw_url
           init_sse(@sse_url)
         end
       end
@@ -162,9 +163,10 @@ module DevCycle
     def start_polling(sse)
       if sse
         @config_poller.shutdown if @config_poller.running?
-        @config_poller = Concurrent::TimerTask.new({ execution_interval: 60 *10 }) do |_|
+        @config_poller = Concurrent::TimerTask.new({ execution_interval: 60 * 10 }) do |_|
           fetch_config
         end
+        @sse_polling = sse
       end
       @polling_enabled = true
       @config_poller.execute if @polling_enabled && (!@sse_active || sse)
@@ -177,10 +179,10 @@ module DevCycle
 
     def stop_sse
       return unless @enable_sse
-      @polling_enabled = true
       @sse_active = false
+      @sse_polling = false
       @sse_client.close if @sse_client
-      start_polling(false)
+      start_polling(@sse_polling)
     end
 
     def close
@@ -194,6 +196,7 @@ module DevCycle
       @sse_active = true
       @sse_client = SSE::Client.new(path) do |client|
         client.on_event do |event|
+
           parsed_json = JSON.parse(event.data)
           handle_sse(parsed_json)
         end
@@ -201,22 +204,24 @@ module DevCycle
           @logger.debug("SSE Error: #{error.message}")
         end
       end
-      stop_polling
-      start_polling(true)
     end
 
-    def handle_sse(eventData)
-      if eventData["data"] == nil
+    def handle_sse(event_data)
+      unless @sse_polling
+        stop_polling
+        start_polling(true)
+      end
+      if event_data["data"] == nil
         return
       end
-      @logger.debug("SSE Message received: #{eventData["data"]}")
-      parsed_event_data = JSON.parse(eventData["data"])
+      @logger.debug("SSE: Message received: #{event_data["data"]}")
+      parsed_event_data = JSON.parse(event_data["data"])
 
       last_modified = parsed_event_data["lastModified"]
       event_type = parsed_event_data["type"]
 
       if event_type == "refetchConfig" || event_type == nil
-        @logger.debug("Re-fetching new config with TS: #{last_modified}")
+        @logger.debug("SSE: Re-fetching new config with TS: #{last_modified}")
         fetch_config(min_last_modified: last_modified / 1000)
       end
     end
