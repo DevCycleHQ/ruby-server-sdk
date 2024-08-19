@@ -51,7 +51,7 @@ module DevCycle
     end
 
     def fetch_config(min_last_modified: -1)
-      return unless @polling_enabled || @sse_active && @enable_sse
+      return unless @polling_enabled || (@sse_active && @enable_sse)
 
       req = Typhoeus::Request.new(
         get_config_url,
