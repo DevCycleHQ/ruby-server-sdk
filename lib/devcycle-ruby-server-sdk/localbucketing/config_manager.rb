@@ -62,17 +62,17 @@ module DevCycle
       begin
         # Blind parse the lastmodified string to check if it's a valid date.
         # This short circuits the rest of the checks if it's not set
-        stored_date = Date.parse(@config_last_modified)
         if @config_last_modified != ""
           if min_last_modified != -1
+            stored_date = Date.parse(@config_last_modified)
             parsed_sse_ts = Time.at(min_last_modified)
             if parsed_sse_ts.utc > stored_date.utc
               req.options[:headers]["If-Modified-Since"] = parsed_sse_ts.utc.httpdate
             else
-              req.options[:headers]["If-Modified-Since"] = Time.httpdate(stored_date)
+              req.options[:headers]["If-Modified-Since"] = @config_last_modified
             end
           else
-            req.options[:headers]["If-Modified-Since"] = Time.httpdate(stored_date)
+            req.options[:headers]["If-Modified-Since"] = @config_last_modified
           end
         end
       rescue
