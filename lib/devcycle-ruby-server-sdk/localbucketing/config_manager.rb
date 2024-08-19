@@ -91,25 +91,23 @@ module DevCycle
           @logger.debug("Config not modified, using cache, etag: #{@config_e_tag}, last modified: #{@config_last_modified}")
           break
         when 200
-          @logger.debug("New config received, etag: #{resp.headers['Etag']} LM:#{resp.headers['Last-Modified']}")
-
-          lm_header = resp.headers['Last-Modified']
+          @logger.debug("New config received, etag: #{resp.headers['Etag']} LastModified:#{resp.headers['Last-Modified']}")
           begin
             if @config_last_modified == ""
-              set_config(resp.body, resp.headers['Etag'], lm_header)
+              set_config(resp.body, resp.headers['Etag'], resp.headers['Last-Modified'])
               return
             end
 
-            lm_timestamp = Time.rfc2822(lm_header)
+            lm_timestamp = Time.rfc2822(resp.headers['Last-Modified'])
             current_lm = Time.rfc2822(@config_last_modified)
             if lm_timestamp == "" && @config_last_modified == "" || (current_lm.utc < lm_timestamp.utc)
-              set_config(resp.body, resp.headers['Etag'], lm_header)
+              set_config(resp.body, resp.headers['Etag'], resp.headers['Last-Modified'])
             else
               @logger.warn("Config last-modified was an older date than currently stored config.")
             end
           rescue
             @logger.warn("Failed to parse last modified header, setting config anyway.")
-            set_config(resp.body, resp.headers['Etag'], lm_header)
+            set_config(resp.body, resp.headers['Etag'], resp.headers['Last-Modified'])
           end
           break
         when 403
@@ -152,7 +150,7 @@ module DevCycle
       @config_e_tag = etag
       @config_last_modified = lastmodified
       @local_bucketing.has_config = true
-      @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{lm_header}")
+      @logger.debug("New config stored, etag: #{@config_e_tag}, last modified: #{@config_last_modified}")
     end
 
     def get_config_url
