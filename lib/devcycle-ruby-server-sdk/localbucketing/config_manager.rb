@@ -17,7 +17,7 @@ module DevCycle
     ).void }
     def initialize(sdkKey, local_bucketing, wait_for_init)
       @first_load = true
-      @config_version = "v1"
+      @config_version = "v2"
       @local_bucketing = local_bucketing
       @sdkKey = sdkKey
       @sse_url = ""
