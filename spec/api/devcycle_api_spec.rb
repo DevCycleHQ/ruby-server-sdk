@@ -18,9 +18,14 @@ require 'json'
 # Please update as you see appropriate
 describe 'DevCycle::Client' do
   before(:all) do
+    sdk_key = ENV["DEVCYCLE_SERVER_SDK_KEY"]
+    if sdk_key.nil?
+      puts("SDK KEY NOT SET - SKIPPING INIT")
+      return
+    end
     # run before each test
     options = DevCycle::Options.new(enable_cloud_bucketing: true)
-    @api_instance = DevCycle::Client.new("dvc_server_token_hash", options)
+    @api_instance = DevCycle::Client.new(sdk_key, options)
     
     @user = DevCycle::User.new({
         user_id: 'test-user',
