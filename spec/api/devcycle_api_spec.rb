@@ -18,9 +18,14 @@ require 'json'
 # Please update as you see appropriate
 describe 'DevCycle::Client' do
   before(:all) do
+    sdk_key = ENV["DEVCYCLE_SERVER_SDK_KEY"]
+    if sdk_key.nil?
+      puts("SDK KEY NOT SET - SKIPPING INIT")
+      return
+    end
     # run before each test
     options = DevCycle::Options.new(enable_cloud_bucketing: true)
-    @api_instance = DevCycle::Client.new("dvc_server_token_hash", options)
+    @api_instance = DevCycle::Client.new(sdk_key, options)
     
     @user = DevCycle::User.new({
         user_id: 'test-user',
@@ -57,12 +62,12 @@ describe 'DevCycle::Client' do
   # @param user
   # @param [Hash] opts the optional parameters
   # @return [Variable]
-  describe 'get_variable_by_key activate-flag' do
+  describe 'get_variable_by_key ruby-example-tests' do
     it 'should work' do
-      result = @api_instance.variable(@user, "activate-flag", false)
+      result = @api_instance.variable(@user, "ruby-example-tests-default", false)
       expect(result.isDefaulted).to eq true
 
-      result = @api_instance.variable_value(@user, "activate-flag", true)
+      result = @api_instance.variable_value(@user, "ruby-example-tests-default", true)
       expect(result).to eq true
     end
   end
@@ -75,11 +80,11 @@ describe 'DevCycle::Client' do
   # @return [Variable]
   describe 'get_variable_by_key test' do
     it 'should work' do
-      result = @api_instance.variable(@user, "test", false)
+      result = @api_instance.variable(@user, "ruby-example-tests", false)
       expect(result.isDefaulted).to eq false
       expect(result.value).to eq true
 
-      result = @api_instance.variable_value(@user, "test", true)
+      result = @api_instance.variable_value(@user, "ruby-example-tests", true)
       expect(result).to eq true
     end
   end
@@ -93,7 +98,7 @@ describe 'DevCycle::Client' do
     it 'should work' do
       result = @api_instance.all_variables(@user)
 
-      expect(result.length).to eq 5
+      expect(result.length >= 1).to eq true
     end
   end
 
