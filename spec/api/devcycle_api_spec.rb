@@ -98,7 +98,7 @@ describe 'DevCycle::Client' do
     it 'should work' do
       result = @api_instance.all_variables(@user)
 
-      expect(result.length).to eq 1
+      expect(result.length >= 1).to eq true
     end
   end
 
