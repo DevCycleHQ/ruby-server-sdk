@@ -17,7 +17,7 @@ jobs:
       matrix:
         ruby-version: [ '3.1.0', '3.2.0', '3.3.0' ]
     env:
-      DEVCYCLE_SERVER_SDK_KEY: ${{ secrets.DEVCYCLE_SERVER_SDK_KEY_UNIT_TESTS }}
+      DEVCYCLE_SERVER_SDK_KEY: dvc_server_token_hash
     steps:
       - uses: actions/checkout@v4
       - name: Set up Ruby

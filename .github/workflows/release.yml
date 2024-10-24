@@ -30,7 +30,9 @@ jobs:
   release:
     name: Version Bump and Release
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,7 +54,7 @@ jobs:
 
       - name: Commit version change
         run: |
-          git config --global user.email "github-tracker-bot@taplytics.com"
+          git config --global user.email "foundation-admin@devcycle.com"
           git config --global user.name "DevCycle Automation"
           git add ./lib/devcycle-ruby-server-sdk/version.rb
           git commit -m "Release ${{steps.prepare-release.outputs.next-release-tag}}"
@@ -69,15 +71,7 @@ jobs:
           bundler-cache: true
 
       - name: Publish to RubyGems
-        run: |
-          mkdir -p $HOME/.gem
-          touch $HOME/.gem/credentials
-          chmod 0600 $HOME/.gem/credentials
-          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-          gem build *.gemspec
-          gem push *.gem
-        env:
-          GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+        uses: rubygems/release-gem@v1
         if: inputs.prerelease != true && inputs.draft != true
 
       - uses: DevCycleHQ/release-action/create-release@v2.3.0
