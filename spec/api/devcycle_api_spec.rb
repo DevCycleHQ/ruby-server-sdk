@@ -80,11 +80,11 @@ describe 'DevCycle::Client' do
   # @return [Variable]
   describe 'get_variable_by_key test' do
     it 'should work' do
-      result = @api_instance.variable(@user, "ruby-example-tests", false)
+      result = @api_instance.variable(@user, "test", false)
       expect(result.isDefaulted).to eq false
       expect(result.value).to eq true
 
-      result = @api_instance.variable_value(@user, "ruby-example-tests", true)
+      result = @api_instance.variable_value(@user, "test", true)
       expect(result).to eq true
     end
   end
