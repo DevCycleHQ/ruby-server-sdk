@@ -4,6 +4,7 @@ module DevCycle
     attr_reader :enable_edge_db
     attr_reader :enable_cloud_bucketing
     attr_reader :enable_beta_realtime_updates
+    attr_reader :disable_realtime_updates
     attr_reader :config_cdn_uri
     attr_reader :events_api_uri
     attr_reader :bucketing_api_uri
@@ -16,6 +17,7 @@ module DevCycle
       disable_automatic_event_logging: false,
       config_polling_interval_ms: 10_000,
       enable_beta_realtime_updates: false,
+      disable_realtime_updates: false,
       request_timeout_ms: 5_000,
       max_event_queue_size: 2_000,
       flush_event_queue_size: 1_000,
@@ -73,7 +75,12 @@ module DevCycle
 
       @disable_custom_event_logging = disable_custom_event_logging
       @disable_automatic_event_logging = disable_automatic_event_logging
+
+      if enable_beta_realtime_updates
+        warn '[DEPRECATION] `enable_beta_realtime_updates` is deprecated and will be removed in a future release.'
+      end
       @enable_beta_realtime_updates = enable_beta_realtime_updates
+      @disable_realtime_updates = disable_realtime_updates
       @config_cdn_uri = config_cdn_uri
       @events_api_uri = events_api_uri
       @bucketing_api_uri = "https://bucketing-api.devcyle.com"
