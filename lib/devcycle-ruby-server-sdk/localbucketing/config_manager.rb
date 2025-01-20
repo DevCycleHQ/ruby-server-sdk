@@ -25,7 +25,7 @@ module DevCycle
       @config_e_tag = ""
       @config_last_modified = ""
       @logger = local_bucketing.options.logger
-      @enable_sse = local_bucketing.options.enable_beta_realtime_updates
+      @enable_sse = !local_bucketing.options.disable_realtime_updates
       @polling_enabled = true
       @sse_active = false
       @max_config_retries = 2
