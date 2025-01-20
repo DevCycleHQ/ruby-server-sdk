@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: write
+  attestations: write
 
 jobs:
   release:
