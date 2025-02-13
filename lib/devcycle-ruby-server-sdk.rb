@@ -27,6 +27,7 @@ require 'devcycle-ruby-server-sdk/models/variable'
 
 # APIs
 require 'devcycle-ruby-server-sdk/api/client'
+require 'devcycle-ruby-server-sdk/api/dev_cycle_provider'
 
 require 'devcycle-ruby-server-sdk/localbucketing/options'
 require 'devcycle-ruby-server-sdk/localbucketing/local_bucketing'

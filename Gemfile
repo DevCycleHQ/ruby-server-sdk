@@ -15,3 +15,5 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'rubocop', '~> 1.57.1'
 end
+
+gem "openfeature-sdk", "~> 0.4.0"
