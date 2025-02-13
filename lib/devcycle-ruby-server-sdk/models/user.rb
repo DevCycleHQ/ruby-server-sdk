@@ -13,6 +13,7 @@ OpenAPI Generator version: 5.3.0
 require 'date'
 require 'time'
 require 'oj'
+require 'open_feature/sdk'
 
 module DevCycle
   class User
