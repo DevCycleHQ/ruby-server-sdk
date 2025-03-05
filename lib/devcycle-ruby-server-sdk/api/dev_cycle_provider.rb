@@ -18,26 +18,29 @@ module DevCycle
       @client.close
     end
 
-    def fetch_boolean_value(flag_key:, default_value:, evaluation_context: nil) end
+    def fetch_boolean_value(flag_key:, default_value:, evaluation_context: nil)
+      # Retrieve a boolean value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+    end
 
     def fetch_string_value(flag_key:, default_value:, evaluation_context: nil)
-      # Retrieve a string value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_number_value(flag_key:, default_value:, evaluation_context: nil)
-      # Retrieve a numeric value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_integer_value(flag_key:, default_value:, evaluation_context: nil)
-      # Retrieve a integer value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_float_value(flag_key:, default_value:, evaluation_context: nil)
-      # Retrieve a float value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_object_value(flag_key:, default_value:, evaluation_context: nil)
-      # Retrieve a hash value from provider source
+      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def self.user_from_openfeature_context(context)
