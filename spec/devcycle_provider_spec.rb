@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'open_feature/sdk'
 
 context 'user_from_openfeature_context' do
   context 'user_id' do
@@ -71,6 +72,73 @@ context 'user_from_openfeature_context' do
       user = DevCycle::Provider.user_from_openfeature_context(context)
       expect(user.user_id).to eq('user_id')
       expect(user.customData).to eq({ 'randomField' => 'value' })
+    end
+  end
+
+  context 'create provider expect defaults' do
+    before(:all) do
+      @dvc = DevCycle::Client.new('dvc_server_token_hash')
+      OpenFeature::SDK.configure do |config|
+        config.set_provider(@dvc.open_feature_provider)
+      end
+      @client = OpenFeature::SDK.build_client
+
+    end
+    it 'returns a provider with a valid client' do
+      provider = @dvc.open_feature_provider
+      expect(provider).to be_instance_of(DevCycle::Provider)
+    end
+    it 'responds properly to fetch_boolean_value' do
+      expect(@client.fetch_boolean_value(flag_key: 'flag_key', default_value: false, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to be(false)
+    end
+    it 'responds properly to fetch_string_value' do
+      expect(@client.fetch_string_value(flag_key: 'flag_key', default_value: 'default', evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq('default')
+    end
+    it 'responds properly to fetch_number_value' do
+      expect(@client.fetch_number_value(flag_key: 'flag_key', default_value: 1, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq(1)
+    end
+    it 'responds properly to fetch_integer_value' do
+      expect(@client.fetch_integer_value(flag_key: 'flag_key', default_value: 1, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq(1)
+    end
+    it 'responds properly to fetch_float_value' do
+      expect(@client.fetch_float_value(flag_key: 'flag_key', default_value: 1.0, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq(1.0)
+    end
+    it 'responds properly to fetch_object_value' do
+      expect(@client.fetch_object_value(flag_key: 'flag_key', default_value: { 'key' => 'value' }, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq({ 'key' => 'value' })
+    end
+  end
+
+  context 'create provider expect real values' do
+    before(:all) do
+      @dvc = DevCycle::Client.new('dvc_server_token_hash')
+      OpenFeature::SDK.configure do |config|
+        config.set_provider(@dvc.open_feature_provider)
+      end
+      @client = OpenFeature::SDK.build_client
+      sleep(3)
+
+    end
+    it 'returns a provider with a valid client' do
+      provider = @dvc.open_feature_provider
+      expect(provider).to be_instance_of(DevCycle::Provider)
+    end
+    it 'responds properly to fetch_boolean_value' do
+      expect(@client.fetch_boolean_value(flag_key: 'test', default_value: false, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).to be(true)
+    end
+    it 'responds properly to fetch_string_value' do
+      expect(@client.fetch_string_value(flag_key: 'test-string-variable', default_value: 'default', evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).not_to eq('default')
+    end
+    it 'responds properly to fetch_number_value' do
+      expect(@client.fetch_number_value(flag_key: 'test-number-variable', default_value: 1, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).not_to eq(1)
+    end
+    it 'responds properly to fetch_integer_value' do
+      expect(@client.fetch_integer_value(flag_key: 'test-number-variable', default_value: 1, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).not_to eq(1)
+    end
+    it 'responds properly to fetch_float_value' do
+      expect(@client.fetch_float_value(flag_key: 'test-float-variable', default_value: 1.0, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).not_to eq(1.0)
+    end
+    it 'responds properly to fetch_object_value' do
+      expect(@client.fetch_object_value(flag_key: 'test-json-variable', default_value: { 'key' => 'value' }, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'test'))).not_to eq({ 'key' => 'value' })
     end
   end
 end

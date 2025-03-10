@@ -2,12 +2,12 @@
 
 module DevCycle
   class Provider
+    attr_reader :client
     def initialize(client)
-      unless client.is_a?(DevCycleClient) do
+      unless client.is_a?(DevCycle::Client)
         fail ArgumentError('Client must be an instance of DevCycleClient')
       end
-        @client = client
-      end
+      @client = client
     end
 
     def init
@@ -20,27 +20,27 @@ module DevCycle
 
     def fetch_boolean_value(flag_key:, default_value:, evaluation_context: nil)
       # Retrieve a boolean value from provider source
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_string_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_number_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_integer_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_float_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def fetch_object_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable_value(user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
     end
 
     def self.user_from_openfeature_context(context)

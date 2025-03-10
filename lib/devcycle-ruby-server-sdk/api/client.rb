@@ -24,7 +24,7 @@ module DevCycle
         @local_bucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @local_bucketing)
       end
-      @open_feature_provider = DevCycleProvider.new(self)
+      @open_feature_provider = Provider.new(self)
     end
 
     def close
