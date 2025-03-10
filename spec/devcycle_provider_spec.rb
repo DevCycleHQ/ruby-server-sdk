@@ -75,14 +75,14 @@ context 'user_from_openfeature_context' do
     end
   end
 
-  context 'create provider expect defaults' do
+  context 'provider' do
     before(:all) do
       @dvc = DevCycle::Client.new('dvc_server_token_hash')
       OpenFeature::SDK.configure do |config|
         config.set_provider(@dvc.open_feature_provider)
       end
       @client = OpenFeature::SDK.build_client
-
+      sleep(3)
     end
     it 'returns a provider with a valid client' do
       provider = @dvc.open_feature_provider
@@ -105,18 +105,6 @@ context 'user_from_openfeature_context' do
     end
     it 'responds properly to fetch_object_value' do
       expect(@client.fetch_object_value(flag_key: 'flag_key', default_value: { 'key' => 'value' }, evaluation_context: OpenFeature::SDK::EvaluationContext.new(user_id:'user_id'))).to eq({ 'key' => 'value' })
-    end
-  end
-
-  context 'create provider expect real values' do
-    before(:all) do
-      @dvc = DevCycle::Client.new('dvc_server_token_hash')
-      OpenFeature::SDK.configure do |config|
-        config.set_provider(@dvc.open_feature_provider)
-      end
-      @client = OpenFeature::SDK.build_client
-      sleep(3)
-
     end
     it 'returns a provider with a valid client' do
       provider = @dvc.open_feature_provider
