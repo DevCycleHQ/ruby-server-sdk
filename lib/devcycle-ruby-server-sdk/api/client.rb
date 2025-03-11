@@ -3,6 +3,7 @@ require 'logger'
 
 module DevCycle
   class Client
+    attr_reader :open_feature_provider
     def initialize(sdkKey, dvc_options = Options.new, wait_for_init = false)
       if sdkKey.nil?
         raise ArgumentError.new('Missing SDK key!')
@@ -23,6 +24,7 @@ module DevCycle
         @local_bucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @local_bucketing)
       end
+      @open_feature_provider = Provider.new(self)
     end
 
     def close
