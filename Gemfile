@@ -11,7 +11,7 @@ gem 'ld-eventsource'
 group :development, :test do
   gem 'sorbet'
   gem 'tapioca', require: false
-  gem 'rake', '~> 13.0.1'
+  gem 'rake', '~> 13.2.1'
   gem 'pry-byebug'
   gem 'rubocop', '~> 1.57.1'
 end
