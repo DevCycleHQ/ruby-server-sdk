@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: [ '3.2.0', '3.3.0', '3.4.0' ]
+        ruby-version: [ '3.2.0', '3.3.0', '3.4.2' ]
     env:
       DEVCYCLE_SERVER_SDK_KEY: dvc_server_token_hash
     steps:
