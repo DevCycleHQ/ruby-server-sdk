@@ -59,6 +59,9 @@ module DevCycle
         if field === 'user_id' || field === 'targeting_key'
           next
         end
+        if !(field === 'privateCustomData' || field === 'customData') && value.is_a?(Hash)
+          next
+        end
         case field
         when 'email'
           args.merge!(email: value)
