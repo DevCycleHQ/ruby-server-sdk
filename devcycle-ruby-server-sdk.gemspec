@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.summary     = "DevCycle Bucketing API Ruby Gem"
   s.description = "DevCycle Ruby Server SDK, for interacting with feature flags created with the DevCycle platform."
   s.license     = "MIT"
-  s.required_ruby_version = ">= 3.1"
+  s.required_ruby_version = ">= 3.2"
 
   s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
   s.add_runtime_dependency 'wasmtime', '20.0.2'
@@ -29,8 +29,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'sorbet-runtime', '>= 0.5.11481'
   s.add_runtime_dependency 'oj', '~> 3.0'
   s.add_runtime_dependency 'google-protobuf', '~> 3.22'
-  s.add_runtime_dependency 'ld-eventsource', '~> 2.2.2'
-
+  s.add_runtime_dependency 'ld-eventsource', '~> 2.2.3'
+  s.add_runtime_dependency 'openfeature-sdk', '~> 0.4.0'
 
   s.add_development_dependency 'rspec', '~> 3.6', '>= 3.6.0'
 
