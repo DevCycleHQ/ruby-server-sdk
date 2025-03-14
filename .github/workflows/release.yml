@@ -78,7 +78,7 @@ jobs:
       - uses: DevCycleHQ/release-action/create-release@v2.3.0
         id: create-release
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.AUTOMATION_USER_TOKEN }}
           tag: ${{ steps.prepare-release.outputs.next-release-tag }}
           target: main
           prerelease: ${{ github.event.inputs.prerelease }}
