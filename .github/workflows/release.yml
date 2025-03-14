@@ -65,7 +65,7 @@ jobs:
           git push origin HEAD:main
         if: inputs.draft != true
 
-      - name: Set up Ruby 3
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ruby
