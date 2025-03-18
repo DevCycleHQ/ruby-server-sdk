@@ -1,0 +1,12 @@
+# Visit after `docker compose up`: http://localhost:3000/
+
+services:
+  web:
+    build: .
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb"
+    environment:
+      - DEVCYCLE_SERVER_SDK_KEY=dvc_server_***
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
