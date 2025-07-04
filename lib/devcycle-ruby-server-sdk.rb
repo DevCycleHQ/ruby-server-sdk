@@ -25,6 +25,11 @@ require 'devcycle-ruby-server-sdk/models/user'
 require 'devcycle-ruby-server-sdk/models/user_data_and_events_body'
 require 'devcycle-ruby-server-sdk/models/variable'
 
+# Eval Hooks
+require 'devcycle-ruby-server-sdk/eval_hooks_runner'
+require 'devcycle-ruby-server-sdk/models/eval_hook'
+require 'devcycle-ruby-server-sdk/models/eval_hook_context'
+
 # APIs
 require 'devcycle-ruby-server-sdk/api/client'
 require 'devcycle-ruby-server-sdk/api/dev_cycle_provider'
