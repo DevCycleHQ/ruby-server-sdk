@@ -14,6 +14,7 @@ module DevCycle
       @sdkKey = sdkKey
       @dvc_options = dvc_options
       @logger = dvc_options.logger
+      @eval_hooks_runner = EvalHooksRunner.new
 
       if @dvc_options.enable_cloud_bucketing
         @api_client = ApiClient.default
@@ -172,35 +173,68 @@ module DevCycle
 
       validate_model(user)
 
-      if @dvc_options.enable_cloud_bucketing
-        data, _status_code, _headers = variable_with_http_info(key, user, default, opts)
-        return data
+      # Create hook context
+      hook_context = HookContext.new(key: key, user: user, default_value: default)
+
+      before_hook_error = nil
+      # Run before hooks
+      begin
+        hook_context = @eval_hooks_runner.run_before_hooks(hook_context)
+      rescue BeforeHookError => e
+        before_hook_error = e
+        @logger.warn("Error in before hooks: #{e.message}")
       end
 
-      value = default
-      type = determine_variable_type(default)
-      defaulted = true
-      if local_bucketing_initialized? && @local_bucketing.has_config
-        type_code = variable_type_code_from_type(type)
-        variable_pb = variable_for_user_pb(user, key, type_code)
-        unless variable_pb.nil?
-          value = get_variable_value(variable_pb)
-          defaulted = false
+      variable_result = nil
+
+      begin
+        if @dvc_options.enable_cloud_bucketing
+          data, _status_code, _headers = variable_with_http_info(key, user, default, opts)
+          variable_result = data
+        else
+          value = default
+          type = determine_variable_type(default)
+          defaulted = true
+          if local_bucketing_initialized? && @local_bucketing.has_config
+            type_code = variable_type_code_from_type(type)
+            variable_pb = variable_for_user_pb(user, key, type_code)
+            unless variable_pb.nil?
+              value = get_variable_value(variable_pb)
+              defaulted = false
+            end
+          else
+            @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
+            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
+            bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
+            @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+          end
+
+          variable_result = Variable.new({
+            key: key,
+            value: value,
+            type: type,
+            defaultValue: default,
+            isDefaulted: defaulted
+          })
         end
-      else
-        @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
-        variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
-        bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
-        @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+
+
+        # Run after hooks only if no before hook error occurred
+        if before_hook_error != nil
+          @logger.info("before_hook_error is not nil, skipping after hooks")
+          raise before_hook_error
+        else
+          @eval_hooks_runner.run_after_hooks(hook_context)
+        end
+      rescue => e
+        # Run error hooks
+        @eval_hooks_runner.run_error_hooks(hook_context, e)
+      ensure
+        # Run finally hooks in all cases
+        @eval_hooks_runner.run_finally_hooks(hook_context)
       end
 
-      Variable.new({
-        key: key,
-        value: value,
-        type: type,
-        defaultValue: default,
-        isDefaulted: defaulted
-      })
+      variable_result
     end
 
     def variable_for_user(user, key, variable_type_code)
@@ -525,6 +559,32 @@ module DevCycle
       else
         raise ArgumentError.new("Invalid type code for variable: #{type_code}")
       end
+    end
+
+    def get_variable_value(variable_pb)
+      case variable_pb.type
+      when :Boolean
+        variable_pb.boolValue
+      when :Number
+        variable_pb.doubleValue
+      when :String
+        variable_pb.stringValue
+      when :JSON
+        JSON.parse variable_pb.stringValue
+      end
+    end
+
+    # Adds an eval hook to the client
+    # @param [EvalHook] eval_hook The eval hook to add
+    # @return [void]
+    def add_eval_hook(eval_hook)
+      @eval_hooks_runner.add_hook(eval_hook)
+    end
+
+    # Clears all eval hooks from the client
+    # @return [void]
+    def clear_eval_hooks
+      @eval_hooks_runner.clear_hooks
     end
   end
 

@@ -30,7 +30,7 @@ DevCycle.configure do |config|
 end
 
 api_instance = DevCycle::Client.new
-user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User | 
+user = DevCycle::User.new({ user_id: 'user_id_example' }) # DevCycle::User |
 
 begin
   # Get all features by key for user data
@@ -61,9 +61,9 @@ end
 
 ### Parameters
 
-| Name | Type                                  | Description | Notes |
-| ---- |---------------------------------------| ----------- | ----- |
-| **user** | [**DevCycle::User**](DevCycleUser.md) |  |  |
+| Name     | Type                                  | Description | Notes |
+| -------- | ------------------------------------- | ----------- | ----- |
+| **user** | [**DevCycle::User**](DevCycleUser.md) |             |       |
 
 ### Return type
 
