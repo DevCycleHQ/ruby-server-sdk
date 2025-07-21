@@ -48,15 +48,25 @@ module DevCycle
         raise ArgumentError, "Invalid context type, expected OpenFeature::SDK::EvaluationContext but got #{context.class}"
       end
       args = {}
-      if context.field('user_id')
-        args.merge!(user_id: context.field('user_id'))
-      elsif context.field('targeting_key')
+      user_id_source = nil
+      
+      # Priority order: targeting_key -> user_id -> userId
+      if context.field('targeting_key')
         args.merge!(user_id: context.field('targeting_key'))
+        user_id_source = 'targeting_key'
+      elsif context.field('user_id')
+        args.merge!(user_id: context.field('user_id'))
+        user_id_source = 'user_id'
+      elsif context.field('userId')
+        args.merge!(user_id: context.field('userId'))
+        user_id_source = 'userId'
       end
+      
       customData = {}
       privateCustomData = {}
       context.fields.each do |field, value|
-        if field === 'user_id' || field === 'targeting_key'
+        # Skip the field used as user_id from custom data
+        if field === user_id_source
           next
         end
         if !(field === 'privateCustomData' || field === 'customData') && value.is_a?(Hash)
@@ -89,6 +99,9 @@ module DevCycle
           if value.is_a?(Hash)
             privateCustomData.merge!(value)
           end
+        when 'targeting_key', 'user_id', 'userId'
+          # Include unused user ID fields in custom data
+          customData.merge!(field => value)
         else
           customData.merge!(field => value)
         end

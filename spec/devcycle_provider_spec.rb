@@ -4,18 +4,51 @@ require 'spec_helper'
 require 'open_feature/sdk'
 
 context 'user_from_openfeature_context' do
-  context 'user_id' do
-
-    it 'returns a user with the user_id from the context' do
-      context = OpenFeature::SDK::EvaluationContext.new(user_id: 'user_id')
+  context 'user_id fields priority' do
+    it 'returns a user with the user_id from the context when only user_id is provided' do
+      context = OpenFeature::SDK::EvaluationContext.new(user_id: 'user_id_value')
       user = DevCycle::Provider.user_from_openfeature_context(context)
-      expect(user.user_id).to eq('user_id')
+      expect(user.user_id).to eq('user_id_value')
     end
 
-    it 'returns a user with the targeting_key from the context' do
-      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key')
+    it 'returns a user with the targeting_key from the context when only targeting_key is provided' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key_value')
       user = DevCycle::Provider.user_from_openfeature_context(context)
-      expect(user.user_id).to eq('targeting_key')
+      expect(user.user_id).to eq('targeting_key_value')
+    end
+
+    it 'returns a user with the userId from the context when only userId is provided' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId_value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId_value')
+    end
+
+    it 'prioritizes targeting_key over user_id' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key_value', user_id: 'user_id_value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key_value')
+      expect(user.customData).to eq({ 'user_id' => 'user_id_value' })
+    end
+
+    it 'prioritizes targeting_key over userId' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key_value', userId: 'userId_value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key_value')
+      expect(user.customData).to eq({ 'userId' => 'userId_value' })
+    end
+
+    it 'prioritizes user_id over userId' do
+      context = OpenFeature::SDK::EvaluationContext.new(user_id: 'user_id_value', userId: 'userId_value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('user_id_value')
+      expect(user.customData).to eq({ 'userId' => 'userId_value' })
+    end
+
+    it 'prioritizes targeting_key over both user_id and userId' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key_value', user_id: 'user_id_value', userId: 'userId_value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key_value')
+      expect(user.customData).to eq({ 'user_id' => 'user_id_value', 'userId' => 'userId_value' })
     end
   end
   context 'email' do
@@ -31,6 +64,19 @@ context 'user_from_openfeature_context' do
       expect(user.user_id).to eq('targeting_key')
       expect(user.email).to eq('email')
     end
+    it 'returns a user with a valid userId and email' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', email: 'email')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
+      expect(user.email).to eq('email')
+    end
+    it 'prioritizes targeting_key over user_id with email' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key', user_id: 'user_id', email: 'email')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key')
+      expect(user.email).to eq('email')
+      expect(user.customData).to eq({ 'user_id' => 'user_id' })
+    end
   end
 
   context 'customData' do
@@ -40,6 +86,18 @@ context 'user_from_openfeature_context' do
       expect(user.user_id).to eq('user_id')
       expect(user.customData).to eq({ 'key' => 'value' })
     end
+    it 'returns a user with userId and customData' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', customData: { 'key' => 'value' })
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
+      expect(user.customData).to eq({ 'key' => 'value' })
+    end
+    it 'merges unused user ID fields with customData' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key', user_id: 'user_id', userId: 'userId', customData: { 'key' => 'value' })
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key')
+      expect(user.customData).to eq({ 'key' => 'value', 'user_id' => 'user_id', 'userId' => 'userId' })
+    end
   end
 
   context 'privateCustomData' do
@@ -47,6 +105,12 @@ context 'user_from_openfeature_context' do
       context = OpenFeature::SDK::EvaluationContext.new(user_id: 'user_id', privateCustomData: { 'key' => 'value' })
       user = DevCycle::Provider.user_from_openfeature_context(context)
       expect(user.user_id).to eq('user_id')
+      expect(user.privateCustomData).to eq({ 'key' => 'value' })
+    end
+    it 'returns a user with userId and privateCustomData' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', privateCustomData: { 'key' => 'value' })
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
       expect(user.privateCustomData).to eq({ 'key' => 'value' })
     end
   end
@@ -65,6 +129,20 @@ context 'user_from_openfeature_context' do
       expect(user.user_id).to eq('user_id')
       expect(user.appBuild).to eq(1)
     end
+
+    it 'returns a user with userId and appVersion' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', appVersion: '1.0.0')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
+      expect(user.appVersion).to eq('1.0.0')
+    end
+
+    it 'returns a user with userId and appBuild' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', appBuild: 1)
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
+      expect(user.appBuild).to eq(1)
+    end
   end
   context 'randomFields' do
     it 'returns a user with customData fields mapped to any non-standard fields' do
@@ -72,6 +150,20 @@ context 'user_from_openfeature_context' do
       user = DevCycle::Provider.user_from_openfeature_context(context)
       expect(user.user_id).to eq('user_id')
       expect(user.customData).to eq({ 'randomField' => 'value' })
+    end
+
+    it 'returns a user with userId and customData fields mapped to any non-standard fields' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 'userId', randomField: 'value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('userId')
+      expect(user.customData).to eq({ 'randomField' => 'value' })
+    end
+
+    it 'includes unused user ID fields in custom data with random fields' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 'targeting_key', user_id: 'user_id', userId: 'userId', randomField: 'value')
+      user = DevCycle::Provider.user_from_openfeature_context(context)
+      expect(user.user_id).to eq('targeting_key')
+      expect(user.customData).to eq({ 'randomField' => 'value', 'user_id' => 'user_id', 'userId' => 'userId' })
     end
   end
 
