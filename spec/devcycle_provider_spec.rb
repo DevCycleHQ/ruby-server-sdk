@@ -4,6 +4,64 @@ require 'spec_helper'
 require 'open_feature/sdk'
 
 context 'user_from_openfeature_context' do
+  context 'user_id validation' do
+    it 'raises error when no user ID fields are provided' do
+      context = OpenFeature::SDK::EvaluationContext.new(email: 'test@example.com')
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId")
+    end
+
+    it 'raises error when targeting_key is not a string' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 123)
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+    end
+
+    it 'raises error when user_id is not a string' do
+      context = OpenFeature::SDK::EvaluationContext.new(user_id: 123)
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+    end
+
+    it 'raises error when userId is not a string' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: 123)
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+    end
+
+    it 'raises error when targeting_key is nil' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: nil)
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId")
+    end
+
+    it 'raises error when targeting_key is empty string' do
+      context = OpenFeature::SDK::EvaluationContext.new(targeting_key: '')
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID cannot be empty")
+    end
+
+    it 'raises error when user_id is empty string' do
+      context = OpenFeature::SDK::EvaluationContext.new(user_id: '')
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID cannot be empty")
+    end
+
+    it 'raises error when userId is empty string' do
+      context = OpenFeature::SDK::EvaluationContext.new(userId: '')
+      expect {
+        DevCycle::Provider.user_from_openfeature_context(context)
+      }.to raise_error(ArgumentError, "User ID cannot be empty")
+    end
+  end
+
   context 'user_id fields priority' do
     it 'returns a user with the user_id from the context when only user_id is provided' do
       context = OpenFeature::SDK::EvaluationContext.new(user_id: 'user_id_value')
