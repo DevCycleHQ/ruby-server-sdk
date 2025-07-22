@@ -44,21 +44,21 @@ context 'user_from_openfeature_context' do
       context = OpenFeature::SDK::EvaluationContext.new(targeting_key: '')
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID cannot be empty")
+      }.to raise_error(ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId")
     end
 
     it 'raises error when user_id is empty string' do
       context = OpenFeature::SDK::EvaluationContext.new(user_id: '')
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID cannot be empty")
+      }.to raise_error(ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId")
     end
 
     it 'raises error when userId is empty string' do
       context = OpenFeature::SDK::EvaluationContext.new(userId: '')
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID cannot be empty")
+      }.to raise_error(ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId")
     end
   end
 

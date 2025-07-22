@@ -69,7 +69,7 @@ module DevCycle
       end
       
       if user_id.empty?
-        raise ArgumentError, "User ID cannot be empty"
+        raise ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId"
       end
       
       args.merge!(user_id: user_id)
