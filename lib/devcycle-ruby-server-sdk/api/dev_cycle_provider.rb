@@ -60,9 +60,6 @@ module DevCycle
       end
       
       # Validate user_id is present and is a string
-      # Note: We can't merge the nil and empty checks because calling .empty? on
-      # non-string values (like integers) would raise NoMethodError. We must check
-      # the type first before calling string methods.
       if user_id.nil?
         raise ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId"
       end
@@ -71,6 +68,7 @@ module DevCycle
         raise ArgumentError, "User ID must be a string, got #{user_id.class}"
       end
       
+      # Check after type validation to avoid NoMethodError on non-strings
       if user_id.empty?
         raise ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId"
       end
