@@ -34,7 +34,7 @@ module DevCycle
     attr_accessor :variationName
 
     # Evaluation reasoning
-    attr_accessor :eval_reason
+    attr_accessor :eval
 
     class EnumAttributeValidator
       attr_reader :datatype
@@ -67,7 +67,7 @@ module DevCycle
         :'_variation' => :'_variation',
         :'variationKey' => :'variationKey',
         :'variationName' => :'variationName',
-        :'eval_reason' => :'evalReason'
+        :'eval' => :'eval'
       }
     end
 
@@ -132,10 +132,6 @@ module DevCycle
 
       if attributes.key?(:'variationName')
         self.variationName = attributes[:'variationName']
-      end
-
-      if attributes.key?(:'eval_reason')
-        self.eval_reason = attributes[:'eval_reason']
       end
     end
 

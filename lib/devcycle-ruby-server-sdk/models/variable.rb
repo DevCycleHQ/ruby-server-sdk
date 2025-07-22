@@ -29,6 +29,9 @@ module DevCycle
 
     attr_accessor :defaultValue
 
+    # Variable evaluation details
+    attr_accessor :eval
+
     class EnumAttributeValidator
       attr_reader :datatype
       attr_reader :allowable_values
@@ -58,7 +61,8 @@ module DevCycle
         :'type' => :'type',
         :'value' => :'value',
         :'defaultValue' => :'defaultValue',
-        :'isDefaulted' => :'isDefaulted'
+        :'isDefaulted' => :'isDefaulted',
+        :'eval' => :'eval'
       }
     end
 
@@ -119,6 +123,10 @@ module DevCycle
 
       if attributes.key?(:'defaultValue')
         self.defaultValue = attributes[:'defaultValue']
+      end
+
+      if attributes.key?(:'eval')
+        self.eval = attributes[:'eval']
       end
     end
 

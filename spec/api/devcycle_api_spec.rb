@@ -21,16 +21,18 @@ describe 'DevCycle::Client' do
     sdk_key = ENV["DEVCYCLE_SERVER_SDK_KEY"]
     if sdk_key.nil?
       puts("SDK KEY NOT SET - SKIPPING INIT")
-      return
+      @skip_tests = true
+    else
+      # run before each test
+      options = DevCycle::Options.new(enable_cloud_bucketing: true)
+      @api_instance = DevCycle::Client.new(sdk_key, options)
+      
+      @user = DevCycle::User.new({
+          user_id: 'test-user',
+          appVersion: '1.2.3'
+      })
+      @skip_tests = false
     end
-    # run before each test
-    options = DevCycle::Options.new(enable_cloud_bucketing: true)
-    @api_instance = DevCycle::Client.new(sdk_key, options)
-    
-    @user = DevCycle::User.new({
-        user_id: 'test-user',
-        appVersion: '1.2.3'
-    })
   end
 
   after do
