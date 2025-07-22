@@ -49,14 +49,18 @@ module DevCycle
       end
       args = {}
       user_id = nil
+      user_id_field = nil
       
       # Priority order: targeting_key -> user_id -> userId
       if context.field('targeting_key')
         user_id = context.field('targeting_key')
+        user_id_field = 'targeting_key'
       elsif context.field('user_id')
         user_id = context.field('user_id')
+        user_id_field = 'user_id'
       elsif context.field('userId')
         user_id = context.field('userId')
+        user_id_field = 'userId'
       end
       
       # Validate user_id is present and is a string
@@ -65,7 +69,7 @@ module DevCycle
       end
       
       unless user_id.is_a?(String)
-        raise ArgumentError, "User ID must be a string, got #{user_id.class}"
+        raise ArgumentError, "User ID field '#{user_id_field}' must be a string, got #{user_id.class}"
       end
       
       # Check after type validation to avoid NoMethodError on non-strings

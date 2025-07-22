@@ -16,21 +16,21 @@ context 'user_from_openfeature_context' do
       context = OpenFeature::SDK::EvaluationContext.new(targeting_key: 123)
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+      }.to raise_error(ArgumentError, "User ID field 'targeting_key' must be a string, got Integer")
     end
 
     it 'raises error when user_id is not a string' do
       context = OpenFeature::SDK::EvaluationContext.new(user_id: 123)
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+      }.to raise_error(ArgumentError, "User ID field 'user_id' must be a string, got Integer")
     end
 
     it 'raises error when userId is not a string' do
       context = OpenFeature::SDK::EvaluationContext.new(userId: 123)
       expect {
         DevCycle::Provider.user_from_openfeature_context(context)
-      }.to raise_error(ArgumentError, "User ID must be a string, got Integer")
+      }.to raise_error(ArgumentError, "User ID field 'userId' must be a string, got Integer")
     end
 
     it 'raises error when targeting_key is nil' do
