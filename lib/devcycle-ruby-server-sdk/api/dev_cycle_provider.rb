@@ -48,15 +48,42 @@ module DevCycle
         raise ArgumentError, "Invalid context type, expected OpenFeature::SDK::EvaluationContext but got #{context.class}"
       end
       args = {}
-      if context.field('user_id')
-        args.merge!(user_id: context.field('user_id'))
-      elsif context.field('targeting_key')
-        args.merge!(user_id: context.field('targeting_key'))
+      user_id = nil
+      user_id_field = nil
+      
+      # Priority order: targeting_key -> user_id -> userId
+      if context.field('targeting_key')
+        user_id = context.field('targeting_key')
+        user_id_field = 'targeting_key'
+      elsif context.field('user_id')
+        user_id = context.field('user_id')
+        user_id_field = 'user_id'
+      elsif context.field('userId')
+        user_id = context.field('userId')
+        user_id_field = 'userId'
       end
+      
+      # Validate user_id is present and is a string
+      if user_id.nil?
+        raise ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId"
+      end
+      
+      unless user_id.is_a?(String)
+        raise ArgumentError, "User ID field '#{user_id_field}' must be a string, got #{user_id.class}"
+      end
+      
+      # Check after type validation to avoid NoMethodError on non-strings
+      if user_id.empty?
+        raise ArgumentError, "User ID is required. Must provide one of: targeting_key, user_id, or userId"
+      end
+      
+      args.merge!(user_id: user_id)
+      
       customData = {}
       privateCustomData = {}
       context.fields.each do |field, value|
-        if field === 'user_id' || field === 'targeting_key'
+        # Skip all user ID fields from custom data
+        if field === 'targeting_key' || field === 'user_id' || field === 'userId'
           next
         end
         if !(field === 'privateCustomData' || field === 'customData') && value.is_a?(Hash)
