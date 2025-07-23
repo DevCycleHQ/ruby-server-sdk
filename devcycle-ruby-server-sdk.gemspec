@@ -24,11 +24,11 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 3.2"
 
   s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
-  s.add_runtime_dependency 'wasmtime', '20.0.2'
-  s.add_runtime_dependency 'concurrent-ruby', '~> 1.2.0'
+  s.add_runtime_dependency 'wasmtime', '= 20.0.0'
+  s.add_runtime_dependency 'concurrent-ruby', '>= 1.2', '< 1.4'
   s.add_runtime_dependency 'sorbet-runtime', '>= 0.5.11481'
   s.add_runtime_dependency 'oj', '~> 3.0'
-  s.add_runtime_dependency 'google-protobuf', '~> 3.22'
+  s.add_runtime_dependency 'google-protobuf', '>= 3.22', '< 4.0'
   s.add_runtime_dependency 'ld-eventsource', '~> 2.2.3'
   s.add_runtime_dependency 'openfeature-sdk', '~> 0.4.0'
 
