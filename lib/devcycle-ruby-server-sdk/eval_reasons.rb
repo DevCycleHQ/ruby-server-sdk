@@ -52,4 +52,19 @@ module DevCycle
     DEFAULT = 'Default'
     UNKNOWN = 'Unknown'
   end
-end 
+
+  # Default reason details2
+  module DEFAULT_REASON_DETAILS
+    MISSING_CONFIG = 'Missing Config'
+    MISSING_VARIABLE = 'Missing Variable'
+    MISSING_FEATURE = 'Missing Feature'
+    MISSING_VARIATION = 'Missing Variation'
+    MISSING_VARIABLE_FOR_VARIATION = 'Missing Variable for Variation'
+    USER_NOT_IN_ROLLOUT = 'User Not in Rollout'
+    USER_NOT_TARGETED = 'User Not Targeted'
+    INVALID_VARIABLE_TYPE = 'Invalid Variable Type'
+    TYPE_MISMATCH = 'Variable Type Mismatch'
+    UNKNOWN = 'Unknown'
+    ERROR = 'Error'
+  end
+end

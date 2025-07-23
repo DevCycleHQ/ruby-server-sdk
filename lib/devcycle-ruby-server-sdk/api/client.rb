@@ -195,7 +195,7 @@ module DevCycle
           value = default
           type = determine_variable_type(default)
           defaulted = true
-          eval = { reason: DevCycle::DEFAULT_REASONS::UNKNOWN, details: DevCycle::EVAL_REASON_DETAILS::UNKNOWN }
+          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
           if local_bucketing_initialized? && @local_bucketing.has_config
             type_code = variable_type_code_from_type(type)
             variable_pb = variable_for_user_pb(user, key, type_code)
@@ -203,8 +203,6 @@ module DevCycle
               value = get_variable_value(variable_pb)
               defaulted = false
               eval = get_eval_reason(variable_pb)
-            else
-              eval = { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED }
             end
           else
             @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
@@ -581,7 +579,7 @@ module DevCycle
 
     def get_eval_reason(variable_pb)
       if variable_pb.eval.nil?
-        { reason: DevCycle::DEFAULT_REASONS::UNKNOWN, details: DevCycle::DEFAULT_REASONS::UNKNOWN }
+        { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
       else
         puts ("variable_pb.eval bruh: #{variable_pb.eval}")
         { reason: variable_pb.eval.reason, details: variable_pb.eval.details }
