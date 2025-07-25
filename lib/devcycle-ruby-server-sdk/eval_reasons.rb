@@ -10,6 +10,7 @@ module DevCycle
     USER_NOT_TARGETED = 'USER_NOT_TARGETED'
     INVALID_VARIABLE_TYPE = 'INVALID_VARIABLE_TYPE'
     UNKNOWN = 'UNKNOWN'
+    DEFAULT = 'DEFAULT'
   end
 
   # Evaluation reasons for successful evaluations
@@ -53,7 +54,7 @@ module DevCycle
     UNKNOWN = 'Unknown'
   end
 
-  # Default reason details2
+  # Default reason details
   module DEFAULT_REASON_DETAILS
     MISSING_CONFIG = 'Missing Config'
     MISSING_VARIABLE = 'Missing Variable'

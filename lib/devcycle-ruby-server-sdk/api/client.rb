@@ -195,16 +195,17 @@ module DevCycle
           value = default
           type = determine_variable_type(default)
           defaulted = true
-          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+          eval = { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
           if local_bucketing_initialized? && @local_bucketing.has_config
             type_code = variable_type_code_from_type(type)
             variable_pb = variable_for_user_pb(user, key, type_code)
             unless variable_pb.nil?
               value = get_variable_value(variable_pb)
               defaulted = false
-              eval = get_eval_reason(variable_pb)
             end
+            eval = get_eval_reason(variable_pb)
           else
+            eval = { reason: DevCycle::DEFAULT_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
             @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
             variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
             bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
@@ -578,11 +579,14 @@ module DevCycle
     end
 
     def get_eval_reason(variable_pb)
-      if variable_pb.eval.nil?
-        { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+      if variable_pb.nil?
+        { reason: DevCycle::DEFAULT_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED}
       else
-        puts ("variable_pb.eval bruh: #{variable_pb.eval}")
-        { reason: variable_pb.eval.reason, details: variable_pb.eval.details }
+        if variable_pb.eval.nil?
+          { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+        else
+          { reason: variable_pb.eval.reason, details: variable_pb.eval.details, target_id: variable_pb.eval.target_id }
+        end
       end
     end
 
