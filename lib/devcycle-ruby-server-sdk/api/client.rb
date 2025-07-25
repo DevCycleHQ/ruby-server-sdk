@@ -353,7 +353,12 @@ module DevCycle
 
       if local_bucketing_initialized? && @local_bucketing.has_config
         bucketed_config = @local_bucketing.generate_bucketed_config(user)
-        bucketed_config.variables.reject { |key, _| key.start_with?('_feature') }
+        bucketed_config.variables.transform_values do |variable|
+          variable.delete(:_feature)
+          variable
+        end
+        bucketed_config.variables
+
       else
         {}
       end
