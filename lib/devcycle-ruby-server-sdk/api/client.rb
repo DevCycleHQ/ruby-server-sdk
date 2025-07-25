@@ -207,7 +207,7 @@ module DevCycle
           else
             eval = { reason: DevCycle::DEFAULT_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
             @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
-            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
+            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key, metadata: { evalReason: DevCycle::DEFAULT_REASONS::DEFAULT }})
             bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
             @event_queue.queue_aggregate_event(variable_event, bucketed_config)
           end
