@@ -1,9 +1,4 @@
 module DevCycle
-
-  # Default reasons for evaluation failures
-  module DEFAULT_REASONS
-    USER_NOT_TARGETED = 'USER_NOT_TARGETED'
-  end
   # Evaluation reasons for successful evaluations
   module EVAL_REASONS
     DEFAULT = 'DEFAULT'
