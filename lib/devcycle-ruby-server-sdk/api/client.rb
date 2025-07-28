@@ -195,7 +195,7 @@ module DevCycle
           value = default
           type = determine_variable_type(default)
           defaulted = true
-          eval = { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
           if local_bucketing_initialized? && @local_bucketing.has_config
             type_code = variable_type_code_from_type(type)
             variable_pb = variable_for_user_pb(user, key, type_code)
@@ -205,9 +205,9 @@ module DevCycle
             end
             eval = get_eval_reason(variable_pb)
           else
-            eval = { reason: DevCycle::DEFAULT_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
+            eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
             @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
-            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key, metaData: { evalReason: DevCycle::DEFAULT_REASONS::DEFAULT }})
+            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key, metaData: { evalReason: DevCycle::EVAL_REASONS::DEFAULT }})
             bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
             @event_queue.queue_aggregate_event(variable_event, bucketed_config)
           end
@@ -580,10 +580,10 @@ module DevCycle
 
     def get_eval_reason(variable_pb)
       if variable_pb.nil?
-        { reason: DevCycle::DEFAULT_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED}
+        { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG}
       else
         if variable_pb.eval.nil?
-          { reason: DevCycle::DEFAULT_REASONS::USER_NOT_TARGETED, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+          { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
         else
           { reason: variable_pb.eval.reason, details: variable_pb.eval.details, target_id: variable_pb.eval.target_id }
         end
