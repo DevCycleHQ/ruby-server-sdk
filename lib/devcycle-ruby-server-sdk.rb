@@ -29,6 +29,7 @@ require 'devcycle-ruby-server-sdk/models/variable'
 require 'devcycle-ruby-server-sdk/eval_hooks_runner'
 require 'devcycle-ruby-server-sdk/models/eval_hook'
 require 'devcycle-ruby-server-sdk/models/eval_hook_context'
+require 'devcycle-ruby-server-sdk/eval_reasons'
 
 # APIs
 require 'devcycle-ruby-server-sdk/api/client'
