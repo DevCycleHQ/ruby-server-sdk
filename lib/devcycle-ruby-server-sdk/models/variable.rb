@@ -78,7 +78,8 @@ module DevCycle
         :'type' => :'String',
         :'value' => :'Object',
         :'defaultValue' => :'Object',
-        :'isDefaulted' => :'Boolean'
+        :'isDefaulted' => :'Boolean',
+        :'eval' => :'Object'
       }
     end
 
