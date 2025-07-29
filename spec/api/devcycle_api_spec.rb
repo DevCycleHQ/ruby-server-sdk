@@ -72,7 +72,7 @@ describe 'DevCycle::Client' do
       result = @api_instance.variable(@user, "ruby-example-tests-default", false)
       expect(result.isDefaulted).to eq true
       expect(result.eval[:reason]).to eq "DEFAULT"
-      expect(result.eval[:details]).to eq "Missing Variable"
+      expect(result.eval[:details]).to eq "Error"
 
       result = @api_instance.variable_value(@user, "ruby-example-tests-default", true)
       expect(result).to eq true
@@ -94,10 +94,50 @@ describe 'DevCycle::Client' do
       result = @api_instance.variable_value(@user, "test", true)
       expect(result).to eq true
 
+      result = @api_instance.variable(@user, "test-number-variable", 0)
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq 123
+
+      result = @api_instance.variable(@user, "test-number-variable", 0)
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq 123
+
+      result = @api_instance.variable(@user, "test-float-variable", 0.0)
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq 4.56
+
+      result = @api_instance.variable(@user, "test-string-variable", "")
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq "on"
+
+      result = @api_instance.variable(@user, "test-json-variable", {})
+      expect(result.isDefaulted).to eq false
+      expect(result.value).to eq({:message => "a"})
+
       result = @api_instance.variable(@user, "test", "false")
       expect(result.isDefaulted).to eq true
       expect(result.eval[:reason]).to eq "DEFAULT"
       expect(result.eval[:details]).to eq "Variable Type Mismatch"
+
+      result = @api_instance.variable(@user, "test-number-variable", "123")
+      expect(result.isDefaulted).to eq true
+      expect(result.eval[:reason]).to eq "DEFAULT"
+      expect(result.eval[:details]).to eq "Variable Type Mismatch"
+
+      result = @api_instance.variable(@user, "test-number-variable", true)
+      expect(result.isDefaulted).to eq true
+      expect(result.eval[:reason]).to eq "DEFAULT"
+      expect(result.eval[:details]).to eq "Variable Type Mismatch"
+
+      result = @api_instance.variable(@user, "test-string-variable", true)
+      expect(result.isDefaulted).to eq true
+      expect(result.eval[:reason]).to eq "DEFAULT"
+      expect(result.eval[:details]).to eq "Variable Type Mismatch"
+
+      result = @api_instance.variable(@user, "test-json-variable", "on")
+      expect(result.isDefaulted).to eq true
+      expect(result.eval[:reason]).to eq "DEFAULT"
+      expect(result.eval[:details]).to eq "Variable Type Mismatch" 
     end
   end
 
