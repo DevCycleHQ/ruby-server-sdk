@@ -331,10 +331,11 @@ module DevCycle
         end
         return data
       rescue ApiError => error
-        eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_VARIABLE }
-        if error.code != 404
+        if error.code == 404
+          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_VARIABLE }
+        else
           @api_client.config.logger.error("Failed to retrieve variable value: #{error.message}")
-          eval[:details] = DevCycle::DEFAULT_REASON_DETAILS::ERROR
+          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::ERROR }
         end
 
         return Variable.new(key: key, value: default, isDefaulted: true, eval: eval)
