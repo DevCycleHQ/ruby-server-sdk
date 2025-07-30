@@ -325,14 +325,27 @@ module DevCycle
         if @api_client.config.debugging
           @api_client.config.logger.debug "API called: DevCycle::Client#variable\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
         end
+        if default && data.type
+          api_type_to_ruby_class = {
+            'Boolean' => [TrueClass, FalseClass],
+            'Number' => [Integer, Float],
+            'String' => [String],
+            'JSON' => [Hash]
+          }
+          ruby_classes = api_type_to_ruby_class[data.type.to_s]
+          unless ruby_classes && ruby_classes.any? { |klass| default.is_a?(klass) }
+            eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::TYPE_MISMATCH }
+            return Variable.new(key: key, value: default, isDefaulted: true, eval: eval)
+          end
+        end
         return data
       rescue ApiError => error
-        if error.code != 404
+        if error.code == 404
           @api_client.config.logger.error("Failed to retrieve variable value: #{error.message}")
         end
 
-        return Variable.new(key: key, value: default, isDefaulted: true)
-      end
+        return Variable.new(key: key, value: default, isDefaulted: true, eval: { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::ERROR })
+      end 
     end
 
     # Get all variables by key for user data
