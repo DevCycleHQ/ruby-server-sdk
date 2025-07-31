@@ -340,7 +340,7 @@ module DevCycle
         end
         return data
       rescue ApiError => error
-        if error.code == 404
+        if error.code != 404
           @api_client.config.logger.error("Failed to retrieve variable value: #{error.message}")
         end
 
