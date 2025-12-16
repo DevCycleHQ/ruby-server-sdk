@@ -27,14 +27,14 @@ module DevCycle
     # added to ensure that there is no processes deadlock when compiling wasm before forking
 
     @@wasmmodule = Wasmtime::Module.from_file(@@engine, "#{__dir__}/bucketing-lib.release.wasm")
-    @@wasi_ctx = Wasmtime::WasiCtxBuilder.new
-                                         .inherit_stdout
-                                         .inherit_stderr
-                                         .set_argv(ARGV)
-                                         .set_env(ENV)
-                                         .build
-    @@store = Wasmtime::Store.new(@@engine, wasi_ctx: @@wasi_ctx)
-    @@linker = Wasmtime::Linker.new(@@engine, wasi: true)
+    @@wasi_config = Wasmtime::WasiConfig.new
+                                        .inherit_stdout
+                                        .inherit_stderr
+                                        .set_argv(ARGV)
+                                        .set_env(ENV)
+    @@store = Wasmtime::Store.new(@@engine, wasi_p1_config: @@wasi_config)
+    @@linker = Wasmtime::Linker.new(@@engine)
+    Wasmtime::WASI::P1.add_to_linker_sync(@@linker)
 
     @@linker.func_new("env", "Date.now", [], [:f64]) do |_caller|
       DateTime.now.strftime("%Q").to_i
