@@ -32,7 +32,16 @@ module DevCycle
     end
 
     def fetch_integer_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      variable = @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+
+      Variable.new(
+        key: variable.key,
+        type: variable.type,
+        value: variable.value.to_i,
+        defaultValue: variable.defaultValue,
+        isDefaulted: variable.isDefaulted,
+        eval: variable.eval
+      )
     end
 
     def fetch_float_value(flag_key:, default_value:, evaluation_context: nil)

@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'oj', '~> 3.0'
   s.add_runtime_dependency 'google-protobuf', '~> 3.22'
   s.add_runtime_dependency 'ld-eventsource', '~> 2.2.3'
-  s.add_runtime_dependency 'openfeature-sdk', '~> 0.4.0'
+  s.add_runtime_dependency 'openfeature-sdk', '~> 0.4.1'
 
   s.add_development_dependency 'rspec', '~> 3.6', '>= 3.6.0'
 
