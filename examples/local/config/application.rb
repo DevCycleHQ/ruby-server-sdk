@@ -27,7 +27,7 @@ if ENV['MOCK_CONFIG'] == 'true'
   WebMock.disable_net_connect!
 
   config_path = File.expand_path('../test_data/large_config.json', __dir__)
-  stub_request(:get, "https://config-cdn.devcycle.com/config/v1/server/#{ENV['DEVCYCLE_SERVER_SDK_KEY']}.json").
+  stub_request(:get, "https://config-cdn.devcycle.com/config/v2/server/#{ENV['DEVCYCLE_SERVER_SDK_KEY']}.json").
     to_return(headers: { 'Etag': 'test' }, body: File.new(config_path).read, status: 200)
 
   stub_request(:post, 'https://events.devcycle.com/v1/events/batch').
