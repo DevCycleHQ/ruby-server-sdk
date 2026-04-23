@@ -7,7 +7,7 @@ include WebMock::API
 WebMock.enable!
 WebMock.disable_net_connect!
 
-stub_request(:get, 'https://config-cdn.devcycle.com/config/v1/server/dvc_server_token_hash.json').
+stub_request(:get, 'https://config-cdn.devcycle.com/config/v2/server/dvc_server_token_hash.json').
   to_return(headers: { 'Etag': 'test' }, body: File.new('../examples/local/local-bucketing-example/test_data/large_config.json'), status: 200)
 
 stub_request(:post, 'https://events.devcycle.com/v1/events/batch').
