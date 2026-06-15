@@ -3,6 +3,7 @@ require 'logger'
 
 module DevCycle
   class Client
+    attr_reader :open_feature_provider
     def initialize(sdkKey, dvc_options = Options.new, wait_for_init = false)
       if sdkKey.nil?
         raise ArgumentError.new('Missing SDK key!')
@@ -13,6 +14,7 @@ module DevCycle
       @sdkKey = sdkKey
       @dvc_options = dvc_options
       @logger = dvc_options.logger
+      @eval_hooks_runner = EvalHooksRunner.new
 
       if @dvc_options.enable_cloud_bucketing
         @api_client = ApiClient.default
@@ -23,6 +25,7 @@ module DevCycle
         @local_bucketing = LocalBucketing.new(@sdkKey, dvc_options, wait_for_init)
         @event_queue = EventQueue.new(@sdkKey, dvc_options.event_queue_options, @local_bucketing)
       end
+      @open_feature_provider = Provider.new(self)
     end
 
     def close
@@ -158,47 +161,84 @@ module DevCycle
     end
 
     # Get variable by key for user data
-    # @param user [User]
+    # @param user [DevCycle::User]
     # @param key [String] Variable key
     # @param default Default value for variable if none is retrieved
     # @param [Hash] opts the optional parameters
     # @return [Variable]
     def variable(user, key, default, opts = {})
-      if !user.is_a?(DevCycle::User)
+      unless user.is_a?(DevCycle::User)
         fail ArgumentError, "user param must be an instance of DevCycle::User!"
       end
 
       validate_model(user)
 
-      if @dvc_options.enable_cloud_bucketing
-        data, _status_code, _headers = variable_with_http_info(key, user, default, opts)
-        return data
+      # Create hook context
+      hook_context = HookContext.new(key: key, user: user, default_value: default)
+
+      before_hook_error = nil
+      # Run before hooks
+      begin
+        hook_context = @eval_hooks_runner.run_before_hooks(hook_context)
+      rescue BeforeHookError => e
+        before_hook_error = e
+        @logger.warn("Error in before hooks: #{e.message}")
       end
 
-      value = default
-      type = determine_variable_type(default)
-      defaulted = true
-      if local_bucketing_initialized? && @local_bucketing.has_config
-        type_code = variable_type_code_from_type(type)
-        variable_pb = variable_for_user_pb(user, key, type_code)
-        unless variable_pb.nil?
-          value = get_variable_value(variable_pb)
-          defaulted = false
+      variable_result = nil
+
+      begin
+        if @dvc_options.enable_cloud_bucketing
+          data, _status_code, _headers = variable_with_http_info(key, user, default, opts)
+          variable_result = data
+        else
+          value = default
+          type = determine_variable_type(default)
+          defaulted = true
+          eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+          if local_bucketing_initialized? && @local_bucketing.has_config
+            type_code = variable_type_code_from_type(type)
+            variable_pb = variable_for_user_pb(user, key, type_code)
+            unless variable_pb.nil?
+              value = get_variable_value(variable_pb)
+              defaulted = false
+            end
+            eval = get_eval_reason(variable_pb)
+          else
+            eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::MISSING_CONFIG }
+            @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
+            variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key, metaData: { evalReason: DevCycle::EVAL_REASONS::DEFAULT }})
+            bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
+            @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+          end
+
+          variable_result = Variable.new({
+            key: key,
+            value: value,
+            type: type,
+            defaultValue: default,
+            isDefaulted: defaulted,
+            eval: eval
+          })
         end
-      else
-        @logger.warn("Local bucketing not initialized, returning default value for variable #{key}")
-        variable_event = Event.new({ type: DevCycle::EventTypes[:agg_variable_defaulted], target: key })
-        bucketed_config = BucketedUserConfig.new({}, {}, {}, {}, {}, {}, [])
-        @event_queue.queue_aggregate_event(variable_event, bucketed_config)
+
+
+        # Run after hooks only if no before hook error occurred
+        if before_hook_error != nil
+          @logger.info("before_hook_error is not nil, skipping after hooks")
+          raise before_hook_error
+        else
+          @eval_hooks_runner.run_after_hooks(hook_context)
+        end
+      rescue => e
+        # Run error hooks
+        @eval_hooks_runner.run_error_hooks(hook_context, e)
+      ensure
+        # Run finally hooks in all cases
+        @eval_hooks_runner.run_finally_hooks(hook_context)
       end
 
-      Variable.new({
-        key: key,
-        value: value,
-        type: type,
-        defaultValue: default,
-        isDefaulted: defaulted
-      })
+      variable_result
     end
 
     def variable_for_user(user, key, variable_type_code)
@@ -285,14 +325,27 @@ module DevCycle
         if @api_client.config.debugging
           @api_client.config.logger.debug "API called: DevCycle::Client#variable\nData: #{data.inspect}\nStatus code: #{status_code}\nHeaders: #{headers}"
         end
+        if default && data.type
+          api_type_to_ruby_class = {
+            'Boolean' => [TrueClass, FalseClass],
+            'Number' => [Integer, Float],
+            'String' => [String],
+            'JSON' => [Hash]
+          }
+          ruby_classes = api_type_to_ruby_class[data.type.to_s]
+          unless ruby_classes && ruby_classes.any? { |klass| default.is_a?(klass) }
+            eval = { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::TYPE_MISMATCH }
+            return Variable.new(key: key, value: default, isDefaulted: true, eval: eval)
+          end
+        end
         return data
       rescue ApiError => error
         if error.code != 404
           @api_client.config.logger.error("Failed to retrieve variable value: #{error.message}")
         end
 
-        return Variable.new(key: key, value: default, isDefaulted: true)
-      end
+        return Variable.new(key: key, value: default, isDefaulted: true, eval: { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::ERROR })
+      end 
     end
 
     # Get all variables by key for user data
@@ -523,6 +576,44 @@ module DevCycle
       else
         raise ArgumentError.new("Invalid type code for variable: #{type_code}")
       end
+    end
+
+    def get_variable_value(variable_pb)
+      case variable_pb.type
+      when :Boolean
+        variable_pb.boolValue
+      when :Number
+        variable_pb.doubleValue
+      when :String
+        variable_pb.stringValue
+      when :JSON
+        JSON.parse variable_pb.stringValue
+      end
+    end
+
+    def get_eval_reason(variable_pb)
+      if variable_pb.nil?
+        { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED}
+      else
+        if variable_pb.eval.nil?
+          { reason: DevCycle::EVAL_REASONS::DEFAULT, details: DevCycle::DEFAULT_REASON_DETAILS::USER_NOT_TARGETED }
+        else
+          { reason: variable_pb.eval.reason, details: variable_pb.eval.details, target_id: variable_pb.eval.target_id }
+        end
+      end
+    end
+
+    # Adds an eval hook to the client
+    # @param [EvalHook] eval_hook The eval hook to add
+    # @return [void]
+    def add_eval_hook(eval_hook)
+      @eval_hooks_runner.add_hook(eval_hook)
+    end
+
+    # Clears all eval hooks from the client
+    # @return [void]
+    def clear_eval_hooks
+      @eval_hooks_runner.clear_hooks
     end
   end
 

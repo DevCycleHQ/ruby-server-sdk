@@ -2,11 +2,13 @@ name: Run Test Harness
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   harness-tests:
     name: Harness Tests
+    permissions:
+      contents: read
     runs-on:
       labels: ubuntu-latest-4-core
     steps:
@@ -14,4 +16,4 @@ jobs:
         with:
           sdks-to-test: ruby
           sdk-github-sha: ${{github.event.pull_request.head.sha}}
-          github-token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
+          sdk-capabilities: '{ "Ruby": ["clientCustomData", "v2Config", "allVariables", "allFeatures", "evalReason", "eventsEvalReason", "variablesFeatureId"]}'
