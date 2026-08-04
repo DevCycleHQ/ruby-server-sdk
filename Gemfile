@@ -7,7 +7,7 @@ gem 'wasmtime'
 gem 'concurrent-ruby'
 gem 'google-protobuf'
 gem 'ld-eventsource'
-gem "openfeature-sdk", "~> 0.4.0"
+gem "openfeature-sdk", "~> 0.6.5"
 
 group :development, :test do
   gem 'sorbet'
