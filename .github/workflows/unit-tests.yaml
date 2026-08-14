@@ -19,9 +19,9 @@ jobs:
     env:
       DEVCYCLE_SERVER_SDK_KEY: dvc_server_token_hash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.264.0
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
