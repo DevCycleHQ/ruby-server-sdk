@@ -10,12 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  unit-tests:
+    name: Unit Tests (Ruby ${{ matrix.ruby-version }})
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        ruby-version: [ '3.2.0', '3.3.0', '3.4.1' ]
+        ruby-version: [ '3.4', '4.0' ]
     env:
       DEVCYCLE_SERVER_SDK_KEY: dvc_server_token_hash
     steps:
@@ -27,3 +29,15 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
         run: bundle exec rake
+
+  unit-tests-required:
+    name: Unit Tests
+    if: always()
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all Ruby versions passed
+        if: needs.unit-tests.result != 'success'
+        run: exit 1
+      - name: Report success
+        run: echo "All Ruby version tests passed"
