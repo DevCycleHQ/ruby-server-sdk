@@ -12,7 +12,8 @@ permissions:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    # ubuntu-26.04 has no prebuilt Ruby for the pinned patch versions
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         ruby-version: [ '3.2.0', '3.3.0', '3.4.1' ]
