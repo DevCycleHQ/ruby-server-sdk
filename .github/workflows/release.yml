@@ -33,6 +33,8 @@ jobs:
       # Uses GITHUB_TOKEN, so CI does not run on the release PR by itself.
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
+        # A manual tag publish must not create a newer release it then skips publishing.
+        if: inputs.tag == ''
 
   # RubyGems trusted publishing is tied to this workflow file, so publish stays here.
   publish:
