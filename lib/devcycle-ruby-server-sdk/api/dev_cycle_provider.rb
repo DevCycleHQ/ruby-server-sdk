@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'open_feature/sdk'
+
 module DevCycle
   class Provider
     attr_reader :client
@@ -20,36 +22,27 @@ module DevCycle
 
     def fetch_boolean_value(flag_key:, default_value:, evaluation_context: nil)
       # Retrieve a boolean value from provider source
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      resolve(flag_key, default_value, evaluation_context)
     end
 
     def fetch_string_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      resolve(flag_key, default_value, evaluation_context)
     end
 
     def fetch_number_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      resolve(flag_key, default_value, evaluation_context)
     end
 
     def fetch_integer_value(flag_key:, default_value:, evaluation_context: nil)
-      variable = @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
-
-      Variable.new(
-        key: variable.key,
-        type: variable.type,
-        value: variable.value.to_i,
-        defaultValue: variable.defaultValue,
-        isDefaulted: variable.isDefaulted,
-        eval: variable.eval
-      )
+      resolve(flag_key, default_value, evaluation_context) { |value| value.to_i }
     end
 
     def fetch_float_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      resolve(flag_key, default_value, evaluation_context)
     end
 
     def fetch_object_value(flag_key:, default_value:, evaluation_context: nil)
-      @client.variable(Provider.user_from_openfeature_context(evaluation_context), flag_key, default_value)
+      resolve(flag_key, default_value, evaluation_context)
     end
 
     def self.user_from_openfeature_context(context)
@@ -132,6 +125,53 @@ module DevCycle
       args.merge!(customData: customData)
       args.merge!(privateCustomData: privateCustomData)
       User.new(**args)
+    end
+
+    # Maps a DevCycle evaluation reason onto an OpenFeature reason.
+    def self.openfeature_reason(variable)
+      reason = eval_field(variable, :reason)
+      return reason if reason.is_a?(String) && !reason.empty?
+
+      if variable.isDefaulted
+        OpenFeature::SDK::Provider::Reason::DEFAULT
+      else
+        OpenFeature::SDK::Provider::Reason::TARGETING_MATCH
+      end
+    end
+
+    # Surfaces DevCycle's evaluation details as OpenFeature flag metadata.
+    def self.flag_metadata(variable)
+      metadata = {}
+      details = eval_field(variable, :details)
+      target_id = eval_field(variable, :target_id)
+      metadata[:details] = details unless details.nil?
+      metadata[:target_id] = target_id unless target_id.nil?
+      metadata
+    end
+
+    def self.eval_field(variable, key)
+      eval_details = variable.eval
+      return nil unless eval_details.is_a?(Hash)
+
+      eval_details[key] || eval_details[key.to_s]
+    end
+
+    private
+
+    # Evaluates a variable and wraps the result in the ResolutionDetails
+    # structure that the OpenFeature SDK expects back from a provider.
+    def resolve(flag_key, default_value, evaluation_context)
+      user = Provider.user_from_openfeature_context(evaluation_context)
+      variable = @client.variable(user, flag_key, default_value)
+
+      value = variable.value
+      value = yield(value) if block_given?
+
+      OpenFeature::SDK::Provider::ResolutionDetails.new(
+        value: value,
+        reason: Provider.openfeature_reason(variable),
+        flag_metadata: Provider.flag_metadata(variable)
+      )
     end
   end
 end
